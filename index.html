@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ASIR ScriptLab: Blockly + Bash + PowerShell + Python</title>
+
+  <!--
+    ASIR ScriptLab
+    Archivo HTML5 autocontenido: CSS + JavaScript vanilla + Google Blockly vía CDN.
+    Requiere conexión a Internet para cargar Blockly desde unpkg.
+  -->
+
+  <script src="https://unpkg.com/blockly@12.5.1/blockly.min.js"></script>
+  <script src="https://unpkg.com/blockly@12.5.1/msg/es.js"></script>
+
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-soft: #1f2937;
+      --panel-light: #f8fafc;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-2: #a78bfa;
+      --ok: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --code-bg: #020617;
+      --border: rgba(148, 163, 184, 0.25);
+      --shadow: 0 20px 55px rgba(0, 0, 0, 0.35);
+      --radius: 18px;
+      --mono: "Cascadia Code", "Fira Code", Consolas, Monaco, monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      font-family: var(--sans);
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.25), transparent 35%),
+        radial-gradient(circle at top right, rgba(167, 139, 250, 0.20), transparent 30%),
+        var(--bg);
+    }
+
+    .app-shell {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      height: 100vh;
+      padding: 18px;
+      gap: 16px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(15, 23, 42, 0.78);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(1.25rem, 2vw, 1.8rem);
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+    }
+
+    .brand p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      padding: 10px 14px;
+      border: 1px solid rgba(34, 197, 94, 0.35);
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.10);
+      color: #bbf7d0;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--ok);
+      box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.15);
+    }
+
+    .dashboard {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(360px, 1.12fr) minmax(320px, 0.88fr) minmax(320px, 0.86fr);
+      gap: 16px;
+    }
+
+    .card {
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(17, 24, 39, 0.92);
+      box-shadow: var(--shadow);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(31, 41, 55, 0.75);
+    }
+
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      letter-spacing: -0.015em;
+    }
+
+    .card-title span:first-child {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 10px;
+      background: rgba(56, 189, 248, 0.13);
+      color: var(--accent);
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    #blocklyDiv {
+      flex: 1;
+      min-height: 0;
+      background: #f8fafc;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      padding: 12px 12px 0;
+      background: rgba(2, 6, 23, 0.65);
+    }
+
+    .tab-btn {
+      border: 1px solid var(--border);
+      border-bottom: none;
+      border-radius: 12px 12px 0 0;
+      padding: 10px 14px;
+      color: var(--muted);
+      background: rgba(15, 23, 42, 0.72);
+      font-weight: 800;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    .tab-btn:hover {
+      color: white;
+      background: rgba(30, 41, 59, 0.95);
+    }
+
+    .tab-btn.active {
+      color: #e0f2fe;
+      border-color: rgba(56, 189, 248, 0.55);
+      background: linear-gradient(180deg, rgba(14, 165, 233, 0.22), rgba(2, 6, 23, 0.90));
+    }
+
+    .code-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: rgba(2, 6, 23, 0.90);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .language-badge {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      color: #bae6fd;
+      background: rgba(56, 189, 248, 0.10);
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      padding: 6px 9px;
+      border-radius: 999px;
+    }
+
+    .copy-btn {
+      border: 1px solid rgba(148, 163, 184, 0.30);
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: rgba(15, 23, 42, 0.90);
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .copy-btn:hover {
+      border-color: rgba(56, 189, 248, 0.65);
+      color: #e0f2fe;
+    }
+
+    pre {
+      margin: 0;
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      padding: 18px;
+      background: var(--code-bg);
+      color: #e2e8f0;
+      font-family: var(--mono);
+      line-height: 1.55;
+      font-size: 0.94rem;
+      tab-size: 2;
+      white-space: pre;
+    }
+
+    .pedagogy {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      padding: 16px;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.72), rgba(2, 6, 23, 0.92));
+    }
+
+    .pedagogy-section {
+      margin-bottom: 14px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(15, 23, 42, 0.70);
+    }
+
+    .pedagogy-section h3 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      color: #f8fafc;
+    }
+
+    .pedagogy-section p,
+    .pedagogy-section li {
+      color: #cbd5e1;
+      line-height: 1.55;
+      font-size: 0.94rem;
+    }
+
+    .pedagogy-section ul,
+    .pedagogy-section ol {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    .alert {
+      border-left: 5px solid var(--warn);
+      background: rgba(245, 158, 11, 0.11);
+    }
+
+    .alert h3 {
+      color: #fde68a;
+    }
+
+    .critical {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      color: #fecaca;
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      font-size: 0.78rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .empty-state {
+      color: var(--muted);
+      border: 1px dashed rgba(148, 163, 184, 0.30);
+      border-radius: 16px;
+      padding: 18px;
+      background: rgba(15, 23, 42, 0.42);
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .mini-card {
+      padding: 10px;
+      border-radius: 12px;
+      background: rgba(30, 41, 59, 0.65);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+    }
+
+    .mini-card strong {
+      display: block;
+      color: #e0f2fe;
+      margin-bottom: 5px;
+    }
+
+    @media (max-width: 1180px) {
+      body {
+        overflow: auto;
+      }
+
+      .app-shell {
+        height: auto;
+        min-height: 100vh;
+      }
+
+      .dashboard {
+        grid-template-columns: 1fr;
+        grid-auto-rows: minmax(520px, 72vh);
+      }
+
+      header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-shell">
+    <header>
+      <div class="brand">
+        <h1>ASIR ScriptLab: Blockly → Bash / PowerShell / Python</h1>
+        <p>Construye scripts visuales y compara sintaxis real de administración de sistemas en tiempo real.</p>
+      </div>
+      <div class="status-pill">
+        <span class="status-dot"></span>
+        addChangeListener activo
+      </div>
+    </header>
+
+    <main class="dashboard">
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title"><span>▦</span> 1. Blockly Workspace</div>
+          <div class="hint">Arrastra bloques y cambia desplegables</div>
+        </div>
+        <div id="blocklyDiv"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title"><span>&lt;/&gt;</span> 2. Código generado</div>
+          <div class="hint">Actualización inmediata</div>
+        </div>
+
+        <div class="tabs" role="tablist" aria-label="Lenguajes de scripting">
+          <button class="tab-btn active" data-lang="bash" role="tab">Bash</button>
+          <button class="tab-btn" data-lang="powershell" role="tab">PowerShell</button>
+          <button class="tab-btn" data-lang="python" role="tab">Python</button>
+        </div>
+
+        <div class="code-toolbar">
+          <span id="languageBadge" class="language-badge">bash</span>
+          <button id="copyCode" class="copy-btn" type="button">Copiar código</button>
+        </div>
+
+        <pre><code id="codeView"></code></pre>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title"><span>?</span> 3. Panel pedagógico</div>
+          <div class="hint">Depende de la pestaña activa</div>
+        </div>
+        <div id="pedagogyPanel" class="pedagogy"></div>
+      </section>
+    </main>
+  </div>
+
+  <xml id="toolbox" style="display:none">
+    <category name="ASIR - Control" colour="#0ea5e9">
+      <block type="asir_if"></block>
+      <block type="asir_compare_condition"></block>
+    </category>
+
+    <category name="ASIR - Sistema" colour="#8b5cf6">
+      <block type="asir_system_check"></block>
+    </category>
+
+    <category name="ASIR - Salida" colour="#22c55e">
+      <block type="asir_print"></block>
+    </category>
+
+    <category name="Texto y datos" colour="#64748b">
+      <block type="text"></block>
+      <block type="math_number"></block>
+    </category>
+  </xml>
+
+  <xml id="startBlocks" style="display:none">
+    <block type="asir_if" x="30" y="30">
+      <value name="COND">
+        <block type="asir_system_check">
+          <field name="KIND">FILE</field>
+          <field name="PATH">/etc/passwd</field>
+        </block>
+      </value>
+      <statement name="DO">
+        <block type="asir_print">
+          <field name="MESSAGE">El elemento existe</field>
+          <next>
+            <block type="asir_print">
+              <field name="MESSAGE">Continuando con la comprobación ASIR...</field>
+            </block>
+          </next>
+        </block>
+      </statement>
+    </block>
+
+    <block type="asir_if" x="30" y="250">
+      <value name="COND">
+        <block type="asir_compare_condition">
+          <field name="LEFT">10</field>
+          <field name="OP">GT</field>
+          <field name="RIGHT">5</field>
+          <field name="TYPE">NUMBER</field>
+        </block>
+      </value>
+      <statement name="DO">
+        <block type="asir_print">
+          <field name="MESSAGE">La comparación se cumple</field>
+        </block>
+      </statement>
+    </block>
+  </xml>
+
+  <script>
+    "use strict";
+
+    const LANGS = {
+      bash: {
+        label: "Bash",
+        badge: "bash",
+        comment: "#",
+      },
+      powershell: {
+        label: "PowerShell",
+        badge: "powershell",
+        comment: "#",
+      },
+      python: {
+        label: "Python",
+        badge: "python",
+        comment: "#",
+      },
+    };
+
+    let activeLanguage = "bash";
+    let workspace = null;
+
+    // -------------------------------------------------------------------------
+    // 1. Definición de bloques personalizados
+    // -------------------------------------------------------------------------
+
+    Blockly.defineBlocksWithJsonArray([
+      {
+        "type": "asir_if",
+        "message0": "si %1 entonces %2",
+        "args0": [
+          {
+            "type": "input_value",
+            "name": "COND",
+            "check": "Boolean"
+          },
+          {
+            "type": "input_statement",
+            "name": "DO"
+          }
+        ],
+        "previousStatement": null,
+        "nextStatement": null,
+        "colour": 200,
+        "tooltip": "Ejecuta los bloques internos solo si la condición se cumple.",
+        "helpUrl": ""
+      },
+      {
+        "type": "asir_compare_condition",
+        "message0": "comparar %1 %2 %3 como %4",
+        "args0": [
+          {
+            "type": "field_input",
+            "name": "LEFT",
+            "text": "10"
+          },
+          {
+            "type": "field_dropdown",
+            "name": "OP",
+            "options": [
+              ["igual a", "EQ"],
+              ["mayor que", "GT"],
+              ["menor que", "LT"]
+            ]
+          },
+          {
+            "type": "field_input",
+            "name": "RIGHT",
+            "text": "5"
+          },
+          {
+            "type": "field_dropdown",
+            "name": "TYPE",
+            "options": [
+              ["número", "NUMBER"],
+              ["texto", "STRING"]
+            ]
+          }
+        ],
+        "output": "Boolean",
+        "colour": 205,
+        "tooltip": "Compara dos valores. En Bash cambia mucho si la comparación es numérica o de texto.",
+        "helpUrl": ""
+      },
+      {
+        "type": "asir_system_check",
+        "message0": "comprobar %1 ruta %2",
+        "args0": [
+          {
+            "type": "field_dropdown",
+            "name": "KIND",
+            "options": [
+              ["archivo", "FILE"],
+              ["directorio", "DIR"]
+            ]
+          },
+          {
+            "type": "field_input",
+            "name": "PATH",
+            "text": "/etc/passwd"
+          }
+        ],
+        "output": "Boolean",
+        "colour": 265,
+        "tooltip": "Comprueba si una ruta existe y si es archivo o directorio.",
+        "helpUrl": ""
+      },
+      {
+        "type": "asir_print",
+        "message0": "imprimir %1",
+        "args0": [
+          {
+            "type": "field_input",
+            "name": "MESSAGE",
+            "text": "Hola ASIR"
+          }
+        ],
+        "previousStatement": null,
+        "nextStatement": null,
+        "colour": 145,
+        "tooltip": "Muestra texto por pantalla.",
+        "helpUrl": ""
+      }
+    ]);
+
+    // -------------------------------------------------------------------------
+    // 2. Utilidades de generación segura de código
+    // -------------------------------------------------------------------------
+
+    function singleQuote(value) {
+      return "'" + String(value).replace(/'/g, "'\"'\"'") + "'";
+    }
+
+    function doubleQuote(value) {
+      return '"' + String(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '"';
+    }
+
+    function pythonLiteral(value, type) {
+      if (type === "NUMBER" && /^-?\d+(\.\d+)?$/.test(String(value).trim())) {
+        return String(value).trim();
+      }
+      return JSON.stringify(String(value));
+    }
+
+    function psLiteral(value, type) {
+      if (type === "NUMBER" && /^-?\d+(\.\d+)?$/.test(String(value).trim())) {
+        return String(value).trim();
+      }
+      return singleQuote(value);
+    }
+
+    function bashTestLiteral(value, type) {
+      if (type === "NUMBER" && /^-?\d+(\.\d+)?$/.test(String(value).trim())) {
+        return String(value).trim();
+      }
+      return doubleQuote(value);
+    }
+
+    function makeGenerator(name) {
+      const generator = new Blockly.CodeGenerator(name);
+      generator.ORDER_ATOMIC = 0;
+      generator.ORDER_NONE = 99;
+      generator.INDENT = "  ";
+
+      generator.scrub_ = function(block, code, thisOnly) {
+        const nextBlock = block.nextConnection && block.nextConnection.targetBlock();
+        const nextCode = thisOnly || !nextBlock ? "" : this.blockToCode(nextBlock);
+        return code + nextCode;
+      };
+
+      return generator;
+    }
+
+    const bashGenerator = makeGenerator("Bash");
+    const psGenerator = makeGenerator("PowerShell");
+    const pyGenerator = makeGenerator("Python");
+
+    // -------------------------------------------------------------------------
+    // 3. Generadores Bash
+    // -------------------------------------------------------------------------
+
+    bashGenerator.forBlock["asir_print"] = function(block) {
+      const message = block.getFieldValue("MESSAGE");
+      return `echo ${singleQuote(message)}\n`;
+    };
+
+    bashGenerator.forBlock["asir_compare_condition"] = function(block) {
+      const left = block.getFieldValue("LEFT");
+      const right = block.getFieldValue("RIGHT");
+      const op = block.getFieldValue("OP");
+      const type = block.getFieldValue("TYPE");
+
+      if (type === "STRING") {
+        const stringOp = op === "EQ" ? "==" : (op === "GT" ? ">" : "<");
+        return [`[[ ${bashTestLiteral(left, type)} ${stringOp} ${bashTestLiteral(right, type)} ]]`, bashGenerator.ORDER_ATOMIC];
+      }
+
+      const numericOps = { EQ: "-eq", GT: "-gt", LT: "-lt" };
+      return [`[ ${bashTestLiteral(left, type)} ${numericOps[op]} ${bashTestLiteral(right, type)} ]`, bashGenerator.ORDER_ATOMIC];
+    };
+
+    bashGenerator.forBlock["asir_system_check"] = function(block) {
+      const kind = block.getFieldValue("KIND");
+      const path = block.getFieldValue("PATH");
+      const flag = kind === "FILE" ? "-f" : "-d";
+      return [`[ ${flag} ${singleQuote(path)} ]`, bashGenerator.ORDER_ATOMIC];
+    };
+
+    bashGenerator.forBlock["asir_if"] = function(block, generator) {
+      const condition = generator.valueToCode(block, "COND", generator.ORDER_NONE) || "true";
+      const branch = generator.statementToCode(block, "DO") || "  # No hay acciones dentro del condicional\n";
+      return `if ${condition}; then\n${branch}fi\n`;
+    };
+
+    // -------------------------------------------------------------------------
+    // 4. Generadores PowerShell
+    // -------------------------------------------------------------------------
+
+    psGenerator.forBlock["asir_print"] = function(block) {
+      const message = block.getFieldValue("MESSAGE");
+      return `Write-Host ${singleQuote(message)}\n`;
+    };
+
+    psGenerator.forBlock["asir_compare_condition"] = function(block) {
+      const left = block.getFieldValue("LEFT");
+      const right = block.getFieldValue("RIGHT");
+      const op = block.getFieldValue("OP");
+      const type = block.getFieldValue("TYPE");
+      const psOps = { EQ: "-eq", GT: "-gt", LT: "-lt" };
+      return [`${psLiteral(left, type)} ${psOps[op]} ${psLiteral(right, type)}`, psGenerator.ORDER_ATOMIC];
+    };
+
+    psGenerator.forBlock["asir_system_check"] = function(block) {
+      const kind = block.getFieldValue("KIND");
+      const path = block.getFieldValue("PATH");
+      const pathType = kind === "FILE" ? "Leaf" : "Container";
+      return [`Test-Path -Path ${singleQuote(path)} -PathType ${pathType}`, psGenerator.ORDER_ATOMIC];
+    };
+
+    psGenerator.forBlock["asir_if"] = function(block, generator) {
+      const condition = generator.valueToCode(block, "COND", generator.ORDER_NONE) || "$true";
+      const branch = generator.statementToCode(block, "DO") || "  # No hay acciones dentro del condicional\n";
+      return `if (${condition}) {\n${branch}}\n`;
+    };
+
+    // -------------------------------------------------------------------------
+    // 5. Generadores Python
+    // -------------------------------------------------------------------------
+
+    pyGenerator.forBlock["asir_print"] = function(block) {
+      const message = block.getFieldValue("MESSAGE");
+      return `print(${JSON.stringify(message)})\n`;
+    };
+
+    pyGenerator.forBlock["asir_compare_condition"] = function(block) {
+      const left = block.getFieldValue("LEFT");
+      const right = block.getFieldValue("RIGHT");
+      const op = block.getFieldValue("OP");
+      const type = block.getFieldValue("TYPE");
+      const pyOps = { EQ: "==", GT: ">", LT: "<" };
+      return [`${pythonLiteral(left, type)} ${pyOps[op]} ${pythonLiteral(right, type)}`, pyGenerator.ORDER_ATOMIC];
+    };
+
+    pyGenerator.forBlock["asir_system_check"] = function(block) {
+      const kind = block.getFieldValue("KIND");
+      const path = block.getFieldValue("PATH");
+      const fn = kind === "FILE" ? "isfile" : "isdir";
+      return [`os.path.${fn}(${JSON.stringify(path)})`, pyGenerator.ORDER_ATOMIC];
+    };
+
+    pyGenerator.forBlock["asir_if"] = function(block, generator) {
+      const condition = generator.valueToCode(block, "COND", generator.ORDER_NONE) || "True";
+      const branch = generator.statementToCode(block, "DO") || "  pass\n";
+      return `if ${condition}:\n${branch}`;
+    };
+
+    pyGenerator.finish = function(code) {
+      const trimmed = code.trimEnd();
+      if (!trimmed) return "";
+      return trimmed.includes("os.path.") ? `import os\n\n${trimmed}` : trimmed;
+    };
+
+    // -------------------------------------------------------------------------
+    // 6. Inicialización de Blockly
+    // -------------------------------------------------------------------------
+
+    function initBlockly() {
+      if (!window.Blockly) {
+        document.getElementById("blocklyDiv").innerHTML =
+          "<p style='padding:20px;color:#111827'>No se pudo cargar Blockly. Comprueba tu conexión a Internet.</p>";
+        return;
+      }
+
+      if (Blockly.Msg && Blockly.setLocale) {
+        Blockly.setLocale(Blockly.Msg);
+      }
+
+      const theme = Blockly.Theme.defineTheme("asirTheme", {
+        base: Blockly.Themes.Classic,
+        componentStyles: {
+          workspaceBackgroundColour: "#f8fafc",
+          toolboxBackgroundColour: "#0f172a",
+          toolboxForegroundColour: "#e5e7eb",
+          flyoutBackgroundColour: "#111827",
+          flyoutForegroundColour: "#e5e7eb",
+          flyoutOpacity: 0.96,
+          scrollbarColour: "#64748b",
+          insertionMarkerColour: "#38bdf8",
+          insertionMarkerOpacity: 0.38,
+          cursorColour: "#ef4444"
+        }
+      });
+
+      workspace = Blockly.inject("blocklyDiv", {
+        toolbox: document.getElementById("toolbox"),
+        theme,
+        renderer: "zelos",
+        trashcan: true,
+        collapse: false,
+        comments: true,
+        disable: false,
+        sounds: false,
+        zoom: {
+          controls: true,
+          wheel: true,
+          startScale: 0.92,
+          maxScale: 1.35,
+          minScale: 0.55,
+          scaleSpeed: 1.08
+        },
+        move: {
+          scrollbars: true,
+          drag: true,
+          wheel: true
+        }
+      });
+
+      Blockly.Xml.domToWorkspace(document.getElementById("startBlocks"), workspace);
+
+      workspace.addChangeListener(function(event) {
+        if (event.type === Blockly.Events.FINISHED_LOADING) return;
+        updateAll();
+      });
+
+      updateAll();
+    }
+
+    // -------------------------------------------------------------------------
+    // 7. Actualización de código y explicación
+    // -------------------------------------------------------------------------
+
+    function getCurrentGenerator() {
+      if (activeLanguage === "bash") return bashGenerator;
+      if (activeLanguage === "powershell") return psGenerator;
+      return pyGenerator;
+    }
+
+    function generateCode() {
+      if (!workspace) return "";
+      try {
+        return getCurrentGenerator().workspaceToCode(workspace).trimEnd();
+      } catch (error) {
+        return `${LANGS[activeLanguage].comment} Error generando código:\n${LANGS[activeLanguage].comment} ${error.message}`;
+      }
+    }
+
+    function updateAll() {
+      const code = generateCode();
+      document.getElementById("codeView").textContent = code || emptyCodeMessage();
+      document.getElementById("languageBadge").textContent = LANGS[activeLanguage].badge;
+      updatePedagogyPanel();
+    }
+
+    function emptyCodeMessage() {
+      const comment = LANGS[activeLanguage].comment;
+      return `${comment} Arrastra bloques desde la caja de herramientas para empezar.`;
+    }
+
+    function getAllBlocksByType(type) {
+      return workspace ? workspace.getAllBlocks(false).filter(block => block.type === type) : [];
+    }
+
+    function htmlEscape(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function explainIfBlocks(count) {
+      if (!count) return "";
+
+      const examples = {
+        bash: "`if [ condición ]; then ... fi`",
+        powershell: "`if (condición) { ... }`",
+        python: "`if condición:` seguido de un bloque indentado"
+      };
+
+      return `
+        <section class="pedagogy-section">
+          <h3>Bloque condicional: si… entonces</h3>
+          <p>Hay ${count} bloque(s) condicional(es). En ${LANGS[activeLanguage].label}, el generador lo transforma en ${examples[activeLanguage]}.</p>
+          <ol>
+            <li>Primero se evalúa la condición conectada al hueco superior.</li>
+            <li>Si la condición devuelve verdadero, se ejecutan las instrucciones internas.</li>
+            <li>Si no se cumple, el flujo del script continúa después del bloque.</li>
+          </ol>
+        </section>
+      `;
+    }
+
+    function explainComparison(blocks) {
+      if (!blocks.length) return "";
+
+      const items = blocks.map((block, index) => {
+        const left = htmlEscape(block.getFieldValue("LEFT"));
+        const right = htmlEscape(block.getFieldValue("RIGHT"));
+        const op = block.getFieldValue("OP");
+        const type = block.getFieldValue("TYPE");
+        const opHuman = { EQ: "igual a", GT: "mayor que", LT: "menor que" }[op];
+        const typeHuman = type === "NUMBER" ? "numérica" : "de texto";
+
+        let syntax = "";
+        let critical = "";
+
+        if (activeLanguage === "bash") {
+          if (type === "NUMBER") {
+            const bashOp = { EQ: "-eq", GT: "-gt", LT: "-lt" }[op];
+            syntax = `Bash usa <code>[ ${left} ${bashOp} ${right} ]</code> para comparación numérica.`;
+            critical = "En Bash, los espacios dentro de los corchetes son obligatorios: <code>[ 1 -eq 1 ]</code> es correcto, pero <code>[1 -eq 1]</code> falla.";
+          } else {
+            const bashOp = op === "EQ" ? "==" : (op === "GT" ? "&gt;" : "&lt;");
+            syntax = `Bash usa <code>[[ \"${left}\" ${bashOp} \"${right}\" ]]</code> para comparación de cadenas.`;
+            critical = "Para texto es más seguro usar <code>[[ ... ]]</code> y comillas, porque evita errores con espacios o cadenas vacías.";
+          }
+        }
+
+        if (activeLanguage === "powershell") {
+          const psOp = { EQ: "-eq", GT: "-gt", LT: "-lt" }[op];
+          syntax = `PowerShell usa operadores con guion, por ejemplo <code>${left} ${psOp} ${right}</code>.`;
+          critical = "PowerShell intenta convertir tipos cuando compara. Conviene saber si estás comparando números, cadenas u objetos.";
+        }
+
+        if (activeLanguage === "python") {
+          const pyOp = { EQ: "==", GT: "&gt;", LT: "&lt;" }[op];
+          syntax = `Python usa operadores simbólicos: <code>${left} ${pyOp} ${right}</code>.`;
+          critical = "Python diferencia tipos estrictamente: comparar texto con números puede producir errores o resultados no esperados.";
+        }
+
+        return `
+          <li>
+            Comparación ${index + 1}: <strong>${left}</strong> es <strong>${opHuman}</strong> <strong>${right}</strong> como comparación <strong>${typeHuman}</strong>.
+            <br>${syntax}
+            <p><span class="critical">Punto crítico</span> ${critical}</p>
+          </li>
+        `;
+      }).join("");
+
+      return `
+        <section class="pedagogy-section alert">
+          <h3>Condicional Avanzado: comparación parametrizada</h3>
+          <ul>${items}</ul>
+        </section>
+      `;
+    }
+
+    function explainSystemChecks(blocks) {
+      if (!blocks.length) return "";
+
+      const items = blocks.map((block, index) => {
+        const kind = block.getFieldValue("KIND");
+        const path = htmlEscape(block.getFieldValue("PATH"));
+        const kindHuman = kind === "FILE" ? "archivo" : "directorio";
+
+        let syntax = "";
+        let critical = "";
+
+        if (activeLanguage === "bash") {
+          const flag = kind === "FILE" ? "-f" : "-d";
+          syntax = `Bash usa <code>[ ${flag} '${path}' ]</code>. La opción <code>${flag}</code> significa “es ${kindHuman}”.`;
+          critical = "Recuerda separar cada parte con espacios: corchete, operador, ruta y corchete final.";
+        }
+
+        if (activeLanguage === "powershell") {
+          const pathType = kind === "FILE" ? "Leaf" : "Container";
+          syntax = `PowerShell usa <code>Test-Path -Path '${path}' -PathType ${pathType}</code>.`;
+          critical = "<code>Leaf</code> representa archivo; <code>Container</code> representa directorio. Sin <code>-PathType</code> solo comprobarías existencia.";
+        }
+
+        if (activeLanguage === "python") {
+          const fn = kind === "FILE" ? "os.path.isfile" : "os.path.isdir";
+          syntax = `Python usa <code>${fn}('${path}')</code>.`;
+          critical = "Se importa <code>os</code> automáticamente porque las comprobaciones de ruta están en el módulo estándar <code>os.path</code>.";
+        }
+
+        return `
+          <li>
+            Comprobación ${index + 1}: se verifica si <code>${path}</code> es un <strong>${kindHuman}</strong>.
+            <br>${syntax}
+            <p><span class="critical">Punto crítico</span> ${critical}</p>
+          </li>
+        `;
+      }).join("");
+
+      return `
+        <section class="pedagogy-section alert">
+          <h3>Comprobar Elemento del Sistema</h3>
+          <ul>${items}</ul>
+        </section>
+      `;
+    }
+
+    function explainPrintBlocks(blocks) {
+      if (!blocks.length) return "";
+
+      const command = {
+        bash: "<code>echo 'mensaje'</code>",
+        powershell: "<code>Write-Host 'mensaje'</code>",
+        python: "<code>print('mensaje')</code>"
+      }[activeLanguage];
+
+      const messages = blocks
+        .map(block => `<li><code>${htmlEscape(block.getFieldValue("MESSAGE"))}</code></li>`)
+        .join("");
+
+      return `
+        <section class="pedagogy-section">
+          <h3>Imprimir por pantalla</h3>
+          <p>Hay ${blocks.length} bloque(s) de salida. En ${LANGS[activeLanguage].label} se traducen como ${command}.</p>
+          <p>Mensajes actuales:</p>
+          <ul>${messages}</ul>
+        </section>
+      `;
+    }
+
+    function explainLanguageGlobalNotes() {
+      const notes = {
+        bash: `
+          <section class="pedagogy-section">
+            <h3>Notas globales de Bash</h3>
+            <div class="mini-grid">
+              <div class="mini-card"><strong>Espacios</strong> En tests con <code>[ ... ]</code>, los espacios son parte de la sintaxis.</div>
+              <div class="mini-card"><strong>Comillas</strong> Cita rutas y cadenas para evitar fallos con espacios.</div>
+            </div>
+          </section>
+        `,
+        powershell: `
+          <section class="pedagogy-section">
+            <h3>Notas globales de PowerShell</h3>
+            <div class="mini-grid">
+              <div class="mini-card"><strong>Cmdlets</strong> <code>Test-Path</code> sigue la forma Verbo-Sustantivo.</div>
+              <div class="mini-card"><strong>Operadores</strong> Las comparaciones usan <code>-eq</code>, <code>-gt</code>, <code>-lt</code>.</div>
+            </div>
+          </section>
+        `,
+        python: `
+          <section class="pedagogy-section">
+            <h3>Notas globales de Python</h3>
+            <div class="mini-grid">
+              <div class="mini-card"><strong>Indentación</strong> El bloque interno de un <code>if</code> depende de los espacios iniciales.</div>
+              <div class="mini-card"><strong>Módulos</strong> Para rutas del sistema se usa <code>os.path</code>.</div>
+            </div>
+          </section>
+        `
+      };
+
+      return notes[activeLanguage];
+    }
+
+    function updatePedagogyPanel() {
+      const panel = document.getElementById("pedagogyPanel");
+
+      if (!workspace || workspace.getAllBlocks(false).length === 0) {
+        panel.innerHTML = `
+          <div class="empty-state">
+            <strong>No hay bloques todavía.</strong>
+            <p>Arrastra un bloque desde la toolbox. El panel explicará la sintaxis concreta de ${LANGS[activeLanguage].label} y avisará de puntos críticos.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const ifBlocks = getAllBlocksByType("asir_if");
+      const compareBlocks = getAllBlocksByType("asir_compare_condition");
+      const systemBlocks = getAllBlocksByType("asir_system_check");
+      const printBlocks = getAllBlocksByType("asir_print");
+
+      panel.innerHTML = `
+        <section class="pedagogy-section">
+          <h3>Lectura del script en ${LANGS[activeLanguage].label}</h3>
+          <p>El código se regenera cada vez que mueves bloques, escribes valores o cambias desplegables. Así puedes comparar cómo una misma intención administrativa cambia de sintaxis según el lenguaje.</p>
+        </section>
+        ${explainIfBlocks(ifBlocks.length)}
+        ${explainSystemChecks(systemBlocks)}
+        ${explainComparison(compareBlocks)}
+        ${explainPrintBlocks(printBlocks)}
+        ${explainLanguageGlobalNotes()}
+      `;
+    }
+
+    // -------------------------------------------------------------------------
+    // 8. Interacción de pestañas y copia
+    // -------------------------------------------------------------------------
+
+    document.querySelectorAll(".tab-btn").forEach(button => {
+      button.addEventListener("click", () => {
+        activeLanguage = button.dataset.lang;
+
+        document.querySelectorAll(".tab-btn").forEach(btn => {
+          btn.classList.toggle("active", btn === button);
+        });
+
+        updateAll();
+      });
+    });
+
+    document.getElementById("copyCode").addEventListener("click", async () => {
+      const code = document.getElementById("codeView").textContent;
+      try {
+        await navigator.clipboard.writeText(code);
+        document.getElementById("copyCode").textContent = "Copiado";
+        setTimeout(() => document.getElementById("copyCode").textContent = "Copiar código", 1200);
+      } catch {
+        alert("No se pudo copiar automáticamente. Selecciona el código manualmente.");
+      }
+    });
+
+    window.addEventListener("load", initBlockly);
+    window.addEventListener("resize", () => {
+      if (workspace) Blockly.svgResize(workspace);
+    });
+  </script>
+</body>
+</html>
