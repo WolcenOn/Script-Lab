@@ -1,0 +1,10 @@
+{
+  "categoria": "Documentación",
+  "icono": "📄",
+  "etiquetas": ["scripts", "automatización", "laboratorio", "pruebas"],
+  "descripcion": "Repositorio para organizar pruebas, scripts y pequeñas automatizaciones técnicas.",
+  "demo": "",
+  "destacado": false,
+  "orden": 32,
+  "ocultar": false
+}
