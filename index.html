@@ -4,899 +4,244 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ASIR ScriptLab: Blockly + Bash + PowerShell + Python</title>
-
-  <!--
-    ASIR ScriptLab
-    Herramienta didáctica para 2º de ASIR.
-    Objetivo: aprender estructuras de scripting administrativo comparando Bash, PowerShell y Python.
-    Requiere conexión a Internet para cargar Blockly desde unpkg.
-  -->
-
   <script src="https://unpkg.com/blockly@12.5.1/blockly.min.js"></script>
   <script src="https://unpkg.com/blockly@12.5.1/msg/es.js"></script>
-
   <style>
-    :root {
-      --bg: #0f172a;
-      --panel: #111827;
-      --panel-soft: #1f2937;
-      --text: #e5e7eb;
-      --muted: #94a3b8;
-      --accent: #38bdf8;
-      --accent-2: #a78bfa;
-      --ok: #22c55e;
-      --warn: #f59e0b;
-      --danger: #ef4444;
-      --code-bg: #020617;
-      --border: rgba(148, 163, 184, 0.25);
-      --shadow: 0 20px 55px rgba(0, 0, 0, 0.35);
-      --radius: 18px;
-      --mono: "Cascadia Code", "Fira Code", Consolas, Monaco, monospace;
-      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    :root{
+      --bg:#0f172a;--panel:#111827;--soft:#1f2937;--code:#020617;--text:#e5e7eb;--muted:#94a3b8;
+      --accent:#38bdf8;--ok:#22c55e;--warn:#f59e0b;--danger:#ef4444;--border:rgba(148,163,184,.25);
+      --shadow:0 20px 55px rgba(0,0,0,.35);--radius:18px;--mono:"Cascadia Code","Fira Code",Consolas,monospace;
+      --sans:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
     }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      height: 100vh;
-      overflow: hidden;
-      font-family: var(--sans);
-      color: var(--text);
-      background:
-        radial-gradient(circle at top left, rgba(56, 189, 248, 0.25), transparent 35%),
-        radial-gradient(circle at top right, rgba(167, 139, 250, 0.20), transparent 30%),
-        var(--bg);
-    }
-
-    button, select, textarea, input { font: inherit; }
-
-    .app-shell {
-      display: grid;
-      grid-template-rows: auto auto 1fr;
-      height: 100vh;
-      padding: 18px;
-      gap: 14px;
-    }
-
-    header,
-    .lesson-bar {
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      background: rgba(15, 23, 42, 0.78);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(14px);
-    }
-
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 16px 20px;
-    }
-
-    .brand { display: flex; flex-direction: column; gap: 4px; }
-    .brand h1 { margin: 0; font-size: clamp(1.2rem, 2vw, 1.8rem); line-height: 1.1; letter-spacing: -0.03em; }
-    .brand p { margin: 0; color: var(--muted); font-size: 0.95rem; }
-
-    .status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      white-space: nowrap;
-      padding: 10px 14px;
-      border: 1px solid rgba(34, 197, 94, 0.35);
-      border-radius: 999px;
-      background: rgba(34, 197, 94, 0.10);
-      color: #bbf7d0;
-      font-weight: 800;
-      font-size: 0.88rem;
-    }
-
-    .status-dot { width: 10px; height: 10px; border-radius: 999px; background: var(--ok); box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.15); }
-
-    .lesson-bar {
-      display: grid;
-      grid-template-columns: minmax(260px, 1fr) auto auto;
-      align-items: center;
-      gap: 12px;
-      padding: 12px;
-    }
-
-    .example-select,
-    .small-input {
-      width: 100%;
-      min-height: 40px;
-      border: 1px solid rgba(148, 163, 184, 0.32);
-      border-radius: 12px;
-      padding: 8px 10px;
-      color: var(--text);
-      background: rgba(2, 6, 23, 0.70);
-    }
-
-    .button-row { display: flex; flex-wrap: wrap; gap: 8px; }
-
-    .action-btn,
-    .copy-btn {
-      border: 1px solid rgba(148, 163, 184, 0.30);
-      border-radius: 11px;
-      padding: 9px 11px;
-      background: rgba(15, 23, 42, 0.90);
-      color: var(--text);
-      cursor: pointer;
-      font-weight: 800;
-    }
-
-    .action-btn:hover,
-    .copy-btn:hover { border-color: rgba(56, 189, 248, 0.65); color: #e0f2fe; }
-    .action-btn.primary { border-color: rgba(56, 189, 248, 0.65); background: rgba(14, 165, 233, 0.16); }
-    .action-btn.warning { border-color: rgba(245, 158, 11, 0.55); background: rgba(245, 158, 11, 0.12); }
-
-    .dashboard {
-      min-height: 0;
-      display: grid;
-      grid-template-columns: minmax(360px, 1.12fr) minmax(330px, 0.90fr) minmax(320px, 0.86fr);
-      gap: 16px;
-    }
-
-    .card {
-      min-height: 0;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      background: rgba(17, 24, 39, 0.92);
-      box-shadow: var(--shadow);
-    }
-
-    .card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 13px 15px;
-      border-bottom: 1px solid var(--border);
-      background: rgba(31, 41, 55, 0.75);
-    }
-
-    .card-title { display: flex; align-items: center; gap: 10px; font-weight: 900; letter-spacing: -0.015em; }
-    .card-title span:first-child { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 10px; background: rgba(56, 189, 248, 0.13); color: var(--accent); }
-    .hint { color: var(--muted); font-size: 0.82rem; }
-
-    #blocklyDiv { flex: 1; min-height: 0; background: #f8fafc; }
-
-    .tabs { display: flex; gap: 8px; padding: 12px 12px 0; background: rgba(2, 6, 23, 0.65); }
-    .tab-btn { border: 1px solid var(--border); border-bottom: none; border-radius: 12px 12px 0 0; padding: 10px 14px; color: var(--muted); background: rgba(15, 23, 42, 0.72); font-weight: 900; cursor: pointer; transition: 0.18s ease; }
-    .tab-btn:hover { color: white; background: rgba(30, 41, 59, 0.95); }
-    .tab-btn.active { color: #e0f2fe; border-color: rgba(56, 189, 248, 0.55); background: linear-gradient(180deg, rgba(14, 165, 233, 0.22), rgba(2, 6, 23, 0.90)); }
-
-    .code-toolbar {
-      display: grid;
-      grid-template-columns: auto 1fr auto auto;
-      align-items: center;
-      gap: 9px;
-      padding: 10px 12px;
-      background: rgba(2, 6, 23, 0.90);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .language-badge,
-    .sync-badge {
-      font-family: var(--mono);
-      font-size: 0.78rem;
-      color: #bae6fd;
-      background: rgba(56, 189, 248, 0.10);
-      border: 1px solid rgba(56, 189, 248, 0.28);
-      padding: 6px 9px;
-      border-radius: 999px;
-      white-space: nowrap;
-    }
-
-    .sync-badge { color: #fde68a; border-color: rgba(245, 158, 11, 0.35); background: rgba(245, 158, 11, 0.10); }
-    .sync-badge.ok { color: #bbf7d0; border-color: rgba(34, 197, 94, 0.35); background: rgba(34, 197, 94, 0.10); }
-    .sync-badge.danger { color: #fecaca; border-color: rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.10); }
-
-    #codeEditor {
-      flex: 1;
-      min-height: 0;
-      width: 100%;
-      resize: none;
-      border: 0;
-      outline: 0;
-      padding: 18px;
-      background: var(--code-bg);
-      color: #e2e8f0;
-      font-family: var(--mono);
-      line-height: 1.55;
-      font-size: 0.94rem;
-      tab-size: 2;
-      white-space: pre;
-    }
-
-    .pedagogy { flex: 1; min-height: 0; overflow: auto; padding: 16px; background: linear-gradient(180deg, rgba(15, 23, 42, 0.72), rgba(2, 6, 23, 0.92)); }
-    .pedagogy-section { margin-bottom: 14px; padding: 14px; border: 1px solid var(--border); border-radius: 16px; background: rgba(15, 23, 42, 0.70); }
-    .pedagogy-section h3 { margin: 0 0 8px; font-size: 1rem; color: #f8fafc; }
-    .pedagogy-section p, .pedagogy-section li { color: #cbd5e1; line-height: 1.55; font-size: 0.94rem; }
-    .pedagogy-section ul, .pedagogy-section ol { margin: 8px 0 0; padding-left: 20px; }
-    .alert { border-left: 5px solid var(--warn); background: rgba(245, 158, 11, 0.11); }
-    .success { border-left: 5px solid var(--ok); background: rgba(34, 197, 94, 0.10); }
-    .danger { border-left: 5px solid var(--danger); background: rgba(239, 68, 68, 0.10); }
-    .critical { display: inline-flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: 999px; color: #fecaca; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.25); font-size: 0.78rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; }
-    .empty-state { color: var(--muted); border: 1px dashed rgba(148, 163, 184, 0.30); border-radius: 16px; padding: 18px; background: rgba(15, 23, 42, 0.42); }
-    .mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-    .mini-card { padding: 10px; border-radius: 12px; background: rgba(30, 41, 59, 0.65); border: 1px solid rgba(148, 163, 184, 0.18); }
-    .mini-card strong { display: block; color: #e0f2fe; margin-bottom: 5px; }
-    code { font-family: var(--mono); color: #bae6fd; }
-
-    @media (max-width: 1250px) {
-      body { overflow: auto; }
-      .app-shell { height: auto; min-height: 100vh; }
-      .dashboard { grid-template-columns: 1fr; grid-auto-rows: minmax(560px, 76vh); }
-      header, .lesson-bar { align-items: flex-start; }
-      header { flex-direction: column; }
-      .lesson-bar { grid-template-columns: 1fr; }
-      .code-toolbar { grid-template-columns: 1fr 1fr; }
-    }
+    *{box-sizing:border-box} body{margin:0;height:100vh;overflow:hidden;font-family:var(--sans);color:var(--text);background:radial-gradient(circle at top left,rgba(56,189,248,.24),transparent 34%),radial-gradient(circle at top right,rgba(167,139,250,.18),transparent 30%),var(--bg)}
+    button,select,textarea{font:inherit}.app{display:grid;grid-template-rows:auto auto 1fr;height:100vh;padding:18px;gap:14px}
+    header,.bar,.card{border:1px solid var(--border);border-radius:var(--radius);background:rgba(17,24,39,.9);box-shadow:var(--shadow);backdrop-filter:blur(14px)}
+    header{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 20px}.brand h1{margin:0;font-size:clamp(1.2rem,2vw,1.85rem);letter-spacing:-.03em}.brand p{margin:4px 0 0;color:var(--muted)}
+    .pill{display:inline-flex;gap:8px;align-items:center;border:1px solid rgba(34,197,94,.35);border-radius:999px;padding:9px 13px;background:rgba(34,197,94,.1);color:#bbf7d0;font-weight:800;white-space:nowrap}.dot{width:10px;height:10px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 6px rgba(34,197,94,.14)}
+    .bar{display:grid;grid-template-columns:minmax(260px,1fr) auto minmax(220px,.8fr);gap:12px;align-items:center;padding:12px}.select{width:100%;min-height:40px;border:1px solid rgba(148,163,184,.32);border-radius:12px;padding:8px 10px;color:var(--text);background:rgba(2,6,23,.75)}
+    .row{display:flex;flex-wrap:wrap;gap:8px}.btn{border:1px solid rgba(148,163,184,.32);border-radius:11px;padding:9px 11px;background:rgba(15,23,42,.9);color:var(--text);cursor:pointer;font-weight:800}.btn:hover{border-color:rgba(56,189,248,.65);color:#e0f2fe}.primary{border-color:rgba(56,189,248,.65);background:rgba(14,165,233,.16)}.warning{border-color:rgba(245,158,11,.55);background:rgba(245,158,11,.12)}
+    .grid{min-height:0;display:grid;grid-template-columns:minmax(360px,1.08fr) minmax(330px,.88fr) minmax(330px,.92fr);gap:16px}.card{min-height:0;display:flex;flex-direction:column;overflow:hidden}.card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;border-bottom:1px solid var(--border);background:rgba(31,41,55,.75)}.title{display:flex;align-items:center;gap:10px;font-weight:900}.title span:first-child{display:grid;place-items:center;width:30px;height:30px;border-radius:10px;background:rgba(56,189,248,.13);color:var(--accent)}.hint{color:var(--muted);font-size:.82rem}
+    #blocklyDiv{flex:1;min-height:0;background:#f8fafc}.tabs{display:flex;gap:8px;padding:12px 12px 0;background:rgba(2,6,23,.65)}.tab{border:1px solid var(--border);border-bottom:none;border-radius:12px 12px 0 0;padding:10px 14px;color:var(--muted);background:rgba(15,23,42,.72);font-weight:900;cursor:pointer}.tab.active{color:#e0f2fe;border-color:rgba(56,189,248,.55);background:linear-gradient(180deg,rgba(14,165,233,.22),rgba(2,6,23,.9))}
+    .toolbar{display:grid;grid-template-columns:auto 1fr auto auto;gap:9px;align-items:center;padding:10px 12px;background:rgba(2,6,23,.9);border-bottom:1px solid var(--border)}.badge{font-family:var(--mono);font-size:.78rem;color:#bae6fd;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.28);padding:6px 9px;border-radius:999px;white-space:nowrap}.badge.ok{color:#bbf7d0;border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.1)}.badge.warn{color:#fde68a;border-color:rgba(245,158,11,.35);background:rgba(245,158,11,.1)}.badge.bad{color:#fecaca;border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.1)}
+    #codeEditor{flex:1;min-height:0;width:100%;resize:none;border:0;outline:0;padding:18px;background:var(--code);color:#e2e8f0;font-family:var(--mono);line-height:1.55;font-size:.94rem;tab-size:2;white-space:pre}
+    .panel{flex:1;min-height:0;overflow:auto;padding:16px;background:linear-gradient(180deg,rgba(15,23,42,.72),rgba(2,6,23,.92))}.sec{margin-bottom:14px;padding:14px;border:1px solid var(--border);border-radius:16px;background:rgba(15,23,42,.7)}.sec h3{margin:0 0 8px;font-size:1rem;color:#f8fafc}.sec p,.sec li{color:#cbd5e1;line-height:1.55;font-size:.94rem}.sec ul,.sec ol{margin:8px 0 0;padding-left:20px}.success{border-left:5px solid var(--ok);background:rgba(34,197,94,.1)}.alert{border-left:5px solid var(--warn);background:rgba(245,158,11,.11)}.danger{border-left:5px solid var(--danger);background:rgba(239,68,68,.1)}.critical{display:inline-flex;margin-right:6px;padding:4px 8px;border-radius:999px;color:#fecaca;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);font-size:.75rem;font-weight:900;text-transform:uppercase}.mini{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.mini-card{padding:10px;border-radius:12px;background:rgba(30,41,59,.65);border:1px solid rgba(148,163,184,.18)}.mini-card strong{display:block;color:#e0f2fe;margin-bottom:5px}code{font-family:var(--mono);color:#bae6fd}a{color:#7dd3fc;text-decoration:none}a:hover{text-decoration:underline}
+    @media(max-width:1250px){body{overflow:auto}.app{height:auto;min-height:100vh}.grid{grid-template-columns:1fr;grid-auto-rows:minmax(560px,76vh)}header{align-items:flex-start;flex-direction:column}.bar{grid-template-columns:1fr}.toolbar{grid-template-columns:1fr 1fr}}
   </style>
 </head>
-
 <body>
-  <div class="app-shell">
+  <div class="app">
     <header>
       <div class="brand">
         <h1>ASIR ScriptLab: Blockly ⇄ Bash / PowerShell / Python</h1>
-        <p>Laboratorio para 2º de ASIR: diseña scripts visuales, compara sintaxis real y reconstruye bloques desde código reconocido.</p>
+        <p>Aprende scripting de administración de sistemas con bloques, código editable y explicación de comandos reales.</p>
       </div>
-      <div class="status-pill">
-        <span class="status-dot"></span>
-        Modo aula: bloques + código editable
-      </div>
+      <div class="pill"><span class="dot"></span>Modo aula 2º ASIR</div>
     </header>
 
-    <section class="lesson-bar" aria-label="Ejemplos y gestión del workspace">
-      <select id="exampleSelect" class="example-select" aria-label="Selecciona un ejemplo guiado"></select>
-      <div class="button-row">
-        <button id="loadExample" class="action-btn primary" type="button">Cargar ejemplo</button>
-        <button id="saveWorkspace" class="action-btn" type="button">Guardar</button>
-        <button id="restoreWorkspace" class="action-btn" type="button">Restaurar</button>
-        <button id="clearWorkspace" class="action-btn warning" type="button">Limpiar</button>
+    <section class="bar" aria-label="Ejemplos y gestión">
+      <select id="exampleSelect" class="select" aria-label="Selecciona un ejemplo guiado"></select>
+      <div class="row">
+        <button id="loadExample" class="btn primary" type="button">Cargar ejemplo</button>
+        <button id="saveWorkspace" class="btn" type="button">Guardar</button>
+        <button id="restoreWorkspace" class="btn" type="button">Restaurar</button>
+        <button id="clearWorkspace" class="btn warning" type="button">Limpiar</button>
       </div>
-      <div class="hint">La conversión código → bloques es intencionadamente limitada: reconoce patrones didácticos generados por ScriptLab.</div>
+      <div class="hint">El panel pedagógico explica estructuras y comandos usados en el script.</div>
     </section>
 
-    <main class="dashboard">
+    <main class="grid">
       <section class="card">
-        <div class="card-header">
-          <div class="card-title"><span>▦</span> 1. Blockly Workspace</div>
-          <div class="hint">Arrastra bloques y cambia desplegables</div>
-        </div>
+        <div class="card-head"><div class="title"><span>▦</span>1. Blockly Workspace</div><div class="hint">Construcción visual</div></div>
         <div id="blocklyDiv"></div>
       </section>
 
       <section class="card">
-        <div class="card-header">
-          <div class="card-title"><span>&lt;/&gt;</span> 2. Código editable</div>
-          <div class="hint">Sincronización parcial en ambos sentidos</div>
+        <div class="card-head"><div class="title"><span>&lt;/&gt;</span>2. Código editable</div><div class="hint">Bloques ⇄ código</div></div>
+        <div class="tabs" role="tablist">
+          <button class="tab active" data-lang="bash" role="tab">Bash</button>
+          <button class="tab" data-lang="powershell" role="tab">PowerShell</button>
+          <button class="tab" data-lang="python" role="tab">Python</button>
         </div>
-
-        <div class="tabs" role="tablist" aria-label="Lenguajes de scripting">
-          <button class="tab-btn active" data-lang="bash" role="tab">Bash</button>
-          <button class="tab-btn" data-lang="powershell" role="tab">PowerShell</button>
-          <button class="tab-btn" data-lang="python" role="tab">Python</button>
+        <div class="toolbar">
+          <span id="languageBadge" class="badge">bash</span>
+          <span id="syncBadge" class="badge ok">Bloques → código</span>
+          <button id="syncFromCode" class="btn" type="button">Código → bloques</button>
+          <button id="copyCode" class="btn" type="button">Copiar</button>
         </div>
-
-        <div class="code-toolbar">
-          <span id="languageBadge" class="language-badge">bash</span>
-          <span id="syncBadge" class="sync-badge ok">Bloques → código</span>
-          <button id="syncFromCode" class="copy-btn" type="button">Código → bloques</button>
-          <button id="copyCode" class="copy-btn" type="button">Copiar</button>
-        </div>
-
         <textarea id="codeEditor" spellcheck="false" aria-label="Código generado editable"></textarea>
       </section>
 
       <section class="card">
-        <div class="card-header">
-          <div class="card-title"><span>?</span> 3. Panel pedagógico</div>
-          <div class="hint">Objetivos, sintaxis y errores comunes</div>
-        </div>
-        <div id="pedagogyPanel" class="pedagogy"></div>
+        <div class="card-head"><div class="title"><span>?</span>3. Explicación didáctica</div><div class="hint">Estructuras + comandos</div></div>
+        <div id="pedagogyPanel" class="panel"></div>
       </section>
     </main>
   </div>
 
   <xml id="toolbox" style="display:none">
-    <category name="ASIR - Control" colour="#0ea5e9">
-      <block type="asir_if"></block>
-      <block type="asir_repeat"></block>
-      <block type="asir_compare_condition"></block>
-    </category>
-
-    <category name="ASIR - Sistema" colour="#8b5cf6">
-      <block type="asir_system_check"></block>
-      <block type="asir_service_check"></block>
-      <block type="asir_command"></block>
-    </category>
-
-    <category name="ASIR - Datos y salida" colour="#22c55e">
-      <block type="asir_variable_set"></block>
-      <block type="asir_print"></block>
-    </category>
-
-    <category name="Texto y datos" colour="#64748b">
-      <block type="text"></block>
-      <block type="math_number"></block>
-    </category>
+    <category name="ASIR - Control" colour="#0ea5e9"><block type="asir_if"></block><block type="asir_repeat"></block><block type="asir_compare_condition"></block></category>
+    <category name="ASIR - Sistema" colour="#8b5cf6"><block type="asir_system_check"></block><block type="asir_service_check"></block><block type="asir_command"></block></category>
+    <category name="ASIR - Datos y salida" colour="#22c55e"><block type="asir_variable_set"></block><block type="asir_print"></block></category>
+    <category name="Texto y datos" colour="#64748b"><block type="text"></block><block type="math_number"></block></category>
   </xml>
 
   <xml id="startBlocks" style="display:none">
-    <block type="asir_if" x="30" y="30">
-      <value name="COND">
-        <block type="asir_system_check">
-          <field name="KIND">FILE</field>
-          <field name="PATH">/etc/passwd</field>
-        </block>
-      </value>
-      <statement name="DO">
-        <block type="asir_print">
-          <field name="MESSAGE">El archivo de usuarios existe</field>
-          <next>
-            <block type="asir_command">
-              <field name="COMMAND">whoami</field>
-            </block>
-          </next>
-        </block>
-      </statement>
-    </block>
+    <block type="asir_if" x="30" y="30"><value name="COND"><block type="asir_system_check"><field name="KIND">FILE</field><field name="PATH">/etc/passwd</field></block></value><statement name="DO"><block type="asir_print"><field name="MESSAGE">El archivo de usuarios existe</field><next><block type="asir_command"><field name="COMMAND">whoami</field></block></next></block></statement></block>
   </xml>
 
   <script>
     "use strict";
 
     const LANGS = {
-      bash: { label: "Bash", badge: "bash", comment: "#" },
-      powershell: { label: "PowerShell", badge: "powershell", comment: "#" },
-      python: { label: "Python", badge: "python", comment: "#" },
+      bash:{label:"Bash",badge:"bash",comment:"#"},
+      powershell:{label:"PowerShell",badge:"powershell",comment:"#"},
+      python:{label:"Python",badge:"python",comment:"#"}
     };
+    const STORAGE_KEY="asirScriptLabWorkspaceXmlV3";
+    const GUIDE_LINKS={
+      powershell:"https://wolcenon.github.io/Guia-Powershell/",
+      terminal:"https://wolcenon.github.io/Guia-Terminal-Linux-Windows/"
+    };
+    let activeLanguage="bash", workspace=null, isSyncing=false, codeEditTimer=null;
 
-    const STORAGE_KEY = "asirScriptLabWorkspaceXmlV2";
-    let activeLanguage = "bash";
-    let workspace = null;
-    let isSyncing = false;
-    let codeEditTimer = null;
-
-    const EXAMPLES = [
-      {
-        id: "check-file",
-        level: "Inicio",
-        title: "Comprobar si existe un archivo y mostrar mensaje",
-        goal: "Relacionar una comprobación de sistema con un condicional.",
-        xml: `<xml><block type="asir_if" x="30" y="30"><value name="COND"><block type="asir_system_check"><field name="KIND">FILE</field><field name="PATH">/etc/passwd</field></block></value><statement name="DO"><block type="asir_print"><field name="MESSAGE">El archivo existe</field></block></statement></block></xml>`
-      },
-      {
-        id: "check-dir",
-        level: "Inicio",
-        title: "Comprobar directorio de logs",
-        goal: "Diferenciar archivo y directorio en Bash, PowerShell y Python.",
-        xml: `<xml><block type="asir_if" x="30" y="30"><value name="COND"><block type="asir_system_check"><field name="KIND">DIR</field><field name="PATH">/var/log</field></block></value><statement name="DO"><block type="asir_print"><field name="MESSAGE">El directorio de logs existe</field></block></statement></block></xml>`
-      },
-      {
-        id: "compare-number",
-        level: "Inicio",
-        title: "Comparación numérica",
-        goal: "Entender operadores numéricos: -gt, -eq, -lt frente a >, ==, <.",
-        xml: `<xml><block type="asir_if" x="30" y="30"><value name="COND"><block type="asir_compare_condition"><field name="LEFT">10</field><field name="OP">GT</field><field name="RIGHT">5</field><field name="TYPE">NUMBER</field></block></value><statement name="DO"><block type="asir_print"><field name="MESSAGE">La comparación numérica se cumple</field></block></statement></block></xml>`
-      },
-      {
-        id: "compare-string",
-        level: "Inicio",
-        title: "Comparación de texto",
-        goal: "Ver por qué texto y números no se comparan igual.",
-        xml: `<xml><block type="asir_if" x="30" y="30"><value name="COND"><block type="asir_compare_condition"><field name="LEFT">admin</field><field name="OP">EQ</field><field name="RIGHT">admin</field><field name="TYPE">STRING</field></block></value><statement name="DO"><block type="asir_print"><field name="MESSAGE">El usuario coincide</field></block></statement></block></xml>`
-      },
-      {
-        id: "service-check",
-        level: "Medio",
-        title: "Comprobar si un servicio está activo",
-        goal: "Aplicar scripting a una tarea típica de gestor de sistemas.",
-        xml: `<xml><block type="asir_if" x="30" y="30"><value name="COND"><block type="asir_service_check"><field name="SERVICE">ssh</field></block></value><statement name="DO"><block type="asir_print"><field name="MESSAGE">El servicio está activo</field></block></statement></block></xml>`
-      },
-      {
-        id: "variables-command",
-        level: "Medio",
-        title: "Variable + comando de diagnóstico",
-        goal: "Introducir variables y ejecución de comandos controlados.",
-        xml: `<xml><block type="asir_variable_set" x="30" y="30"><field name="NAME">equipo</field><field name="VALUE">servidor-aula</field><next><block type="asir_print"><field name="MESSAGE">Iniciando comprobación del sistema</field><next><block type="asir_command"><field name="COMMAND">hostname</field></block></next></block></next></block></xml>`
-      },
-      {
-        id: "repeat-backup",
-        level: "Medio",
-        title: "Repetir una acción de comprobación",
-        goal: "Practicar bucles como estructura común de automatización.",
-        xml: `<xml><block type="asir_repeat" x="30" y="30"><field name="TIMES">3</field><statement name="DO"><block type="asir_print"><field name="MESSAGE">Comprobación ejecutada</field><next><block type="asir_command"><field name="COMMAND">date</field></block></next></block></statement></block></xml>`
-      }
+    const EXAMPLES=[
+      {id:"check-file",level:"Inicio",title:"Comprobar si existe un archivo",goal:"Relacionar una comprobación de sistema con un condicional.",xml:`<xml><block type="asir_if" x="30" y="30"><value name="COND"><block type="asir_system_check"><field name="KIND">FILE</field><field name="PATH">/etc/passwd</field></block></value><statement name="DO"><block type="asir_print"><field name="MESSAGE">El archivo existe</field></block></statement></block></xml>`},
+      {id:"check-dir",level:"Inicio",title:"Comprobar directorio de logs",goal:"Diferenciar archivo, directorio y existencia.",xml:`<xml><block type="asir_if" x="30" y="30"><value name="COND"><block type="asir_system_check"><field name="KIND">DIR</field><field name="PATH">/var/log</field></block></value><statement name="DO"><block type="asir_print"><field name="MESSAGE">El directorio de logs existe</field></block></statement></block></xml>`},
+      {id:"compare-number",level:"Inicio",title:"Comparación numérica",goal:"Entender operadores numéricos en distintos lenguajes.",xml:`<xml><block type="asir_if" x="30" y="30"><value name="COND"><block type="asir_compare_condition"><field name="LEFT">10</field><field name="OP">GT</field><field name="RIGHT">5</field><field name="TYPE">NUMBER</field></block></value><statement name="DO"><block type="asir_print"><field name="MESSAGE">La comparación numérica se cumple</field></block></statement></block></xml>`},
+      {id:"compare-string",level:"Inicio",title:"Comparación de texto",goal:"Ver por qué texto y números no se comparan igual.",xml:`<xml><block type="asir_if" x="30" y="30"><value name="COND"><block type="asir_compare_condition"><field name="LEFT">admin</field><field name="OP">EQ</field><field name="RIGHT">admin</field><field name="TYPE">STRING</field></block></value><statement name="DO"><block type="asir_print"><field name="MESSAGE">El usuario coincide</field></block></statement></block></xml>`},
+      {id:"service-check",level:"Medio",title:"Comprobar si un servicio está activo",goal:"Aplicar scripting a una tarea típica de sistemas.",xml:`<xml><block type="asir_if" x="30" y="30"><value name="COND"><block type="asir_service_check"><field name="SERVICE">ssh</field></block></value><statement name="DO"><block type="asir_print"><field name="MESSAGE">El servicio está activo</field></block></statement></block></xml>`},
+      {id:"variables-command",level:"Medio",title:"Variable + comando de diagnóstico",goal:"Introducir variables y comandos de diagnóstico seguros.",xml:`<xml><block type="asir_variable_set" x="30" y="30"><field name="NAME">equipo</field><field name="VALUE">servidor-aula</field><next><block type="asir_print"><field name="MESSAGE">Iniciando comprobación del sistema</field><next><block type="asir_command"><field name="COMMAND">hostname</field></block></next></block></next></block></xml>`},
+      {id:"repeat-check",level:"Medio",title:"Bucle de comprobación",goal:"Practicar repetición controlada de acciones.",xml:`<xml><block type="asir_repeat" x="30" y="30"><field name="TIMES">3</field><statement name="DO"><block type="asir_print"><field name="MESSAGE">Comprobación ejecutada</field><next><block type="asir_command"><field name="COMMAND">date</field></block></next></block></statement></block></xml>`}
     ];
 
+    const COMMAND_DOCS={
+      bash:{
+        "echo":{title:"echo",area:"Salida",why:"Muestra texto en pantalla. En scripting se usa para informar al usuario, depurar variables o generar líneas de salida.",syntax:"echo 'mensaje'",pitfall:"No lo uses para datos sensibles. Cita cadenas si contienen espacios.",guide:"terminal"},
+        "test":{title:"[ ... ] / test",area:"Condiciones",why:"Evalúa condiciones en Bash: archivos, directorios, números y cadenas.",syntax:"[ -f '/etc/passwd' ]",pitfall:"Los espacios son obligatorios: `[ -f archivo ]` funciona; `[-f archivo]` no.",guide:"terminal"},
+        "systemctl":{title:"systemctl",area:"Servicios",why:"Consulta y administra servicios en sistemas Linux con systemd. En scripts se usa para comprobar si un servicio está activo.",syntax:"systemctl is-active --quiet ssh",pitfall:"Puede requerir permisos y no existe en sistemas sin systemd.",guide:"terminal"},
+        "for":{title:"for",area:"Flujo",why:"Repite una acción un número de veces o para cada elemento de una lista.",syntax:"for i in $(seq 1 3); do ... done",pitfall:"Evita bucles sin límite y valida entradas antes de usarlas.",guide:"terminal"},
+        "seq":{title:"seq",area:"Datos",why:"Genera una secuencia numérica útil para bucles simples.",syntax:"seq 1 3",pitfall:"No está disponible igual en todos los entornos mínimos.",guide:"terminal"},
+        "whoami":{title:"whoami",area:"Diagnóstico",why:"Muestra el usuario efectivo que ejecuta el script. Útil para verificar permisos.",syntax:"whoami",pitfall:"El usuario efectivo puede no ser el mismo que inició sesión si hay sudo o tareas programadas.",guide:"terminal"},
+        "hostname":{title:"hostname",area:"Diagnóstico",why:"Muestra el nombre del equipo. Útil en scripts que se ejecutan en varios servidores.",syntax:"hostname",pitfall:"El nombre puede no coincidir con DNS si la red está mal configurada.",guide:"terminal"},
+        "date":{title:"date",area:"Diagnóstico",why:"Muestra fecha y hora. Muy útil para logs y comprobaciones periódicas.",syntax:"date",pitfall:"Ten en cuenta zona horaria y formato si luego vas a parsear la salida.",guide:"terminal"}
+      },
+      powershell:{
+        "Write-Host":{title:"Write-Host",area:"Salida",why:"Escribe texto directamente en la consola. En scripts didácticos sirve para mostrar mensajes claros al usuario.",syntax:"Write-Host 'mensaje'",pitfall:"Para scripts profesionales puede interesar `Write-Output`, `Write-Verbose` o logs estructurados.",guide:"powershell"},
+        "Test-Path":{title:"Test-Path",area:"Sistema de ficheros",why:"Comprueba si una ruta existe y puede filtrar por tipo: archivo (`Leaf`) o directorio (`Container`).",syntax:"Test-Path -Path 'C:\\Temp' -PathType Container",pitfall:"Sin `-PathType` solo sabes si existe, no qué tipo de elemento es.",guide:"powershell"},
+        "Get-Service":{title:"Get-Service",area:"Procesos y servicios",why:"Obtiene información de servicios Windows. En scripting se usa para monitorización y automatización.",syntax:"(Get-Service -Name 'Spooler').Status -eq 'Running'",pitfall:"Si el servicio no existe puede producir error. Conviene controlar errores en scripts reales.",guide:"powershell"},
+        "ForEach-Object":{title:"ForEach-Object",area:"Flujo y pipeline",why:"Ejecuta un bloque por cada elemento que llega por el pipeline.",syntax:"1..3 | ForEach-Object { Write-Host $_ }",pitfall:"En PowerShell todo viaja como objetos; no pienses solo en texto plano.",guide:"powershell"},
+        "1..N":{title:"Operador de rango 1..N",area:"Datos",why:"Genera una secuencia de números para repeticiones simples.",syntax:"1..3",pitfall:"Si el rango es muy grande puede generar muchos objetos.",guide:"powershell"},
+        "variables":{title:"Variables PowerShell",area:"Datos",why:"Guardan valores con prefijo `$`, por ejemplo `$equipo`.",syntax:"$equipo = 'servidor-aula'",pitfall:"PowerShell no solo guarda texto: puede guardar objetos completos.",guide:"powershell"}
+      },
+      python:{
+        "print":{title:"print()",area:"Salida",why:"Muestra información por pantalla. En aprendizaje ayuda a observar el flujo del programa.",syntax:"print('mensaje')",pitfall:"Para scripts avanzados usa logging si necesitas niveles, fechas o archivos de log.",guide:"terminal"},
+        "os.path":{title:"os.path",area:"Sistema de ficheros",why:"Permite comprobar rutas desde Python: `isfile` para archivos e `isdir` para directorios.",syntax:"os.path.isfile('/etc/passwd')",pitfall:"Hay que importar `os`. En proyectos modernos también puede usarse `pathlib`.",guide:"terminal"},
+        "subprocess.run":{title:"subprocess.run()",area:"Sistema",why:"Ejecuta comandos externos desde Python. Conecta Python con herramientas del sistema operativo.",syntax:"subprocess.run(['systemctl','is-active','--quiet','ssh'])",pitfall:"Evita `shell=True` con entradas del usuario. Puede ser peligroso si no se valida.",guide:"terminal"},
+        "range":{title:"range()",area:"Flujo",why:"Genera secuencias para bucles `for`.",syntax:"for i in range(3):",pitfall:"`range(3)` genera 0, 1 y 2; no llega al 3.",guide:"terminal"},
+        "variables":{title:"Variables Python",area:"Datos",why:"Guardan valores sin prefijo especial: `equipo = 'servidor-aula'`.",syntax:"equipo = 'servidor-aula'",pitfall:"Python diferencia tipos estrictamente: texto, números, listas, etc.",guide:"terminal"}
+      }
+    };
+
     Blockly.defineBlocksWithJsonArray([
-      { "type": "asir_if", "message0": "si %1 entonces %2", "args0": [{ "type": "input_value", "name": "COND", "check": "Boolean" }, { "type": "input_statement", "name": "DO" }], "previousStatement": null, "nextStatement": null, "colour": 200, "tooltip": "Ejecuta los bloques internos solo si la condición se cumple.", "helpUrl": "" },
-      { "type": "asir_repeat", "message0": "repetir %1 veces %2", "args0": [{ "type": "field_number", "name": "TIMES", "value": 3, "min": 1, "max": 20, "precision": 1 }, { "type": "input_statement", "name": "DO" }], "previousStatement": null, "nextStatement": null, "colour": 195, "tooltip": "Repite una secuencia de instrucciones un número limitado de veces.", "helpUrl": "" },
-      { "type": "asir_compare_condition", "message0": "comparar %1 %2 %3 como %4", "args0": [{ "type": "field_input", "name": "LEFT", "text": "10" }, { "type": "field_dropdown", "name": "OP", "options": [["igual a", "EQ"], ["mayor que", "GT"], ["menor que", "LT"]] }, { "type": "field_input", "name": "RIGHT", "text": "5" }, { "type": "field_dropdown", "name": "TYPE", "options": [["número", "NUMBER"], ["texto", "STRING"]] }], "output": "Boolean", "colour": 205, "tooltip": "Compara dos valores. En Bash cambia mucho si la comparación es numérica o de texto.", "helpUrl": "" },
-      { "type": "asir_system_check", "message0": "comprobar %1 ruta %2", "args0": [{ "type": "field_dropdown", "name": "KIND", "options": [["archivo", "FILE"], ["directorio", "DIR"]] }, { "type": "field_input", "name": "PATH", "text": "/etc/passwd" }], "output": "Boolean", "colour": 265, "tooltip": "Comprueba si una ruta existe y si es archivo o directorio.", "helpUrl": "" },
-      { "type": "asir_service_check", "message0": "servicio %1 está activo", "args0": [{ "type": "field_input", "name": "SERVICE", "text": "ssh" }], "output": "Boolean", "colour": 270, "tooltip": "Comprueba si un servicio está en ejecución. En Linux usa systemctl; en PowerShell usa Get-Service.", "helpUrl": "" },
-      { "type": "asir_variable_set", "message0": "guardar variable %1 valor %2", "args0": [{ "type": "field_input", "name": "NAME", "text": "equipo" }, { "type": "field_input", "name": "VALUE", "text": "servidor-aula" }], "previousStatement": null, "nextStatement": null, "colour": 120, "tooltip": "Crea o actualiza una variable con un valor de texto.", "helpUrl": "" },
-      { "type": "asir_print", "message0": "imprimir %1", "args0": [{ "type": "field_input", "name": "MESSAGE", "text": "Hola ASIR" }], "previousStatement": null, "nextStatement": null, "colour": 145, "tooltip": "Muestra texto por pantalla.", "helpUrl": "" },
-      { "type": "asir_command", "message0": "ejecutar comando seguro %1", "args0": [{ "type": "field_input", "name": "COMMAND", "text": "whoami" }], "previousStatement": null, "nextStatement": null, "colour": 20, "tooltip": "Ejecuta un comando de diagnóstico. Úsalo para comandos sencillos y conocidos en clase.", "helpUrl": "" }
+      {type:"asir_if",message0:"si %1 entonces %2",args0:[{type:"input_value",name:"COND",check:"Boolean"},{type:"input_statement",name:"DO"}],previousStatement:null,nextStatement:null,colour:200,tooltip:"Ejecuta los bloques internos solo si la condición se cumple."},
+      {type:"asir_repeat",message0:"repetir %1 veces %2",args0:[{type:"field_number",name:"TIMES",value:3,min:1,max:20,precision:1},{type:"input_statement",name:"DO"}],previousStatement:null,nextStatement:null,colour:195,tooltip:"Repite instrucciones un número limitado de veces."},
+      {type:"asir_compare_condition",message0:"comparar %1 %2 %3 como %4",args0:[{type:"field_input",name:"LEFT",text:"10"},{type:"field_dropdown",name:"OP",options:[["igual a","EQ"],["mayor que","GT"],["menor que","LT"]]},{type:"field_input",name:"RIGHT",text:"5"},{type:"field_dropdown",name:"TYPE",options:[["número","NUMBER"],["texto","STRING"]]}],output:"Boolean",colour:205,tooltip:"Compara dos valores."},
+      {type:"asir_system_check",message0:"comprobar %1 ruta %2",args0:[{type:"field_dropdown",name:"KIND",options:[["archivo","FILE"],["directorio","DIR"]]},{type:"field_input",name:"PATH",text:"/etc/passwd"}],output:"Boolean",colour:265,tooltip:"Comprueba si una ruta existe y si es archivo o directorio."},
+      {type:"asir_service_check",message0:"servicio %1 está activo",args0:[{type:"field_input",name:"SERVICE",text:"ssh"}],output:"Boolean",colour:270,tooltip:"Comprueba si un servicio está en ejecución."},
+      {type:"asir_variable_set",message0:"guardar variable %1 valor %2",args0:[{type:"field_input",name:"NAME",text:"equipo"},{type:"field_input",name:"VALUE",text:"servidor-aula"}],previousStatement:null,nextStatement:null,colour:120,tooltip:"Crea o actualiza una variable."},
+      {type:"asir_print",message0:"imprimir %1",args0:[{type:"field_input",name:"MESSAGE",text:"Hola ASIR"}],previousStatement:null,nextStatement:null,colour:145,tooltip:"Muestra texto por pantalla."},
+      {type:"asir_command",message0:"ejecutar comando seguro %1",args0:[{type:"field_input",name:"COMMAND",text:"whoami"}],previousStatement:null,nextStatement:null,colour:20,tooltip:"Ejecuta comandos de diagnóstico sencillos."}
     ]);
 
-    function singleQuote(value) { return "'" + String(value).replace(/'/g, "'\\''") + "'"; }
-    function doubleQuote(value) { return '"' + String(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '"'; }
-    function isNumber(value) { return /^-?\d+(\.\d+)?$/.test(String(value).trim()); }
-    function safeIdentifier(value) { return String(value).trim().replace(/[^A-Za-z0-9_]/g, "_").replace(/^([0-9])/, "_$1") || "variable"; }
-    function pythonLiteral(value, type) { return type === "NUMBER" && isNumber(value) ? String(value).trim() : JSON.stringify(String(value)); }
-    function psLiteral(value, type) { return type === "NUMBER" && isNumber(value) ? String(value).trim() : singleQuote(value); }
-    function bashTestLiteral(value, type) { return type === "NUMBER" && isNumber(value) ? String(value).trim() : doubleQuote(value); }
-    function escapeXml(value) { return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;"); }
-    function htmlEscape(value) { return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+    function singleQuote(v){return "'"+String(v).replace(/'/g,"'\\''")+"'"}
+    function doubleQuote(v){return '"'+String(v).replace(/\\/g,"\\\\").replace(/"/g,'\\"')+'"'}
+    function isNumber(v){return /^-?\d+(\.\d+)?$/.test(String(v).trim())}
+    function safeIdentifier(v){return String(v).trim().replace(/[^A-Za-z0-9_]/g,"_").replace(/^([0-9])/,"_$1")||"variable"}
+    function html(v){return String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+    function xml(v){return html(v).replace(/'/g,"&apos;")}
+    function pyLit(v,t){return t==="NUMBER"&&isNumber(v)?String(v).trim():JSON.stringify(String(v))}
+    function psLit(v,t){return t==="NUMBER"&&isNumber(v)?String(v).trim():singleQuote(v)}
+    function bashLit(v,t){return t==="NUMBER"&&isNumber(v)?String(v).trim():doubleQuote(v)}
 
-    function makeGenerator(name) {
-      const generator = new Blockly.CodeGenerator(name);
-      generator.ORDER_ATOMIC = 0;
-      generator.ORDER_NONE = 99;
-      generator.INDENT = "  ";
-      generator.scrub_ = function(block, code, thisOnly) {
-        const nextBlock = block.nextConnection && block.nextConnection.targetBlock();
-        const nextCode = thisOnly || !nextBlock ? "" : this.blockToCode(nextBlock);
-        return code + nextCode;
-      };
-      return generator;
-    }
+    function makeGenerator(name){const g=new Blockly.CodeGenerator(name);g.ORDER_ATOMIC=0;g.ORDER_NONE=99;g.INDENT="  ";g.scrub_=function(block,code,thisOnly){const next=block.nextConnection&&block.nextConnection.targetBlock();return code+(thisOnly||!next?"":this.blockToCode(next))};return g}
+    const bashGenerator=makeGenerator("Bash"),psGenerator=makeGenerator("PowerShell"),pyGenerator=makeGenerator("Python");
 
-    const bashGenerator = makeGenerator("Bash");
-    const psGenerator = makeGenerator("PowerShell");
-    const pyGenerator = makeGenerator("Python");
+    bashGenerator.forBlock.asir_print=b=>`echo ${singleQuote(b.getFieldValue("MESSAGE"))}\n`;
+    bashGenerator.forBlock.asir_variable_set=b=>`${safeIdentifier(b.getFieldValue("NAME"))}=${singleQuote(b.getFieldValue("VALUE"))}\n`;
+    bashGenerator.forBlock.asir_command=b=>`${b.getFieldValue("COMMAND")}\n`;
+    bashGenerator.forBlock.asir_system_check=b=>[`[ ${b.getFieldValue("KIND")==="FILE"?"-f":"-d"} ${singleQuote(b.getFieldValue("PATH"))} ]`,bashGenerator.ORDER_ATOMIC];
+    bashGenerator.forBlock.asir_service_check=b=>[`systemctl is-active --quiet ${singleQuote(b.getFieldValue("SERVICE"))}`,bashGenerator.ORDER_ATOMIC];
+    bashGenerator.forBlock.asir_compare_condition=function(b){const l=b.getFieldValue("LEFT"),r=b.getFieldValue("RIGHT"),op=b.getFieldValue("OP"),t=b.getFieldValue("TYPE");if(t==="STRING"){return [`[[ ${bashLit(l,t)} ${op==="EQ"?"==":op==="GT"?">":"<"} ${bashLit(r,t)} ]]`,0]}return [`[ ${bashLit(l,t)} ${{EQ:"-eq",GT:"-gt",LT:"-lt"}[op]} ${bashLit(r,t)} ]`,0]};
+    bashGenerator.forBlock.asir_if=function(b,g){const c=g.valueToCode(b,"COND",99)||"true",s=g.statementToCode(b,"DO")||"  # sin acciones\n";return `if ${c}; then\n${s}fi\n`};
+    bashGenerator.forBlock.asir_repeat=function(b,g){const n=Math.max(1,Number(b.getFieldValue("TIMES"))||1),s=g.statementToCode(b,"DO")||"  # sin acciones\n";return `for i in $(seq 1 ${n}); do\n${s}done\n`};
 
-    bashGenerator.forBlock["asir_print"] = block => `echo ${singleQuote(block.getFieldValue("MESSAGE"))}\n`;
-    bashGenerator.forBlock["asir_variable_set"] = block => `${safeIdentifier(block.getFieldValue("NAME"))}=${singleQuote(block.getFieldValue("VALUE"))}\n`;
-    bashGenerator.forBlock["asir_command"] = block => `${block.getFieldValue("COMMAND")}\n`;
-    bashGenerator.forBlock["asir_compare_condition"] = function(block) {
-      const left = block.getFieldValue("LEFT");
-      const right = block.getFieldValue("RIGHT");
-      const op = block.getFieldValue("OP");
-      const type = block.getFieldValue("TYPE");
-      if (type === "STRING") {
-        const stringOp = op === "EQ" ? "==" : (op === "GT" ? ">" : "<");
-        return [`[[ ${bashTestLiteral(left, type)} ${stringOp} ${bashTestLiteral(right, type)} ]]`, bashGenerator.ORDER_ATOMIC];
-      }
-      const numericOps = { EQ: "-eq", GT: "-gt", LT: "-lt" };
-      return [`[ ${bashTestLiteral(left, type)} ${numericOps[op]} ${bashTestLiteral(right, type)} ]`, bashGenerator.ORDER_ATOMIC];
-    };
-    bashGenerator.forBlock["asir_system_check"] = function(block) {
-      const flag = block.getFieldValue("KIND") === "FILE" ? "-f" : "-d";
-      return [`[ ${flag} ${singleQuote(block.getFieldValue("PATH"))} ]`, bashGenerator.ORDER_ATOMIC];
-    };
-    bashGenerator.forBlock["asir_service_check"] = block => [`systemctl is-active --quiet ${singleQuote(block.getFieldValue("SERVICE"))}`, bashGenerator.ORDER_ATOMIC];
-    bashGenerator.forBlock["asir_if"] = function(block, generator) {
-      const condition = generator.valueToCode(block, "COND", generator.ORDER_NONE) || "true";
-      const branch = generator.statementToCode(block, "DO") || "  # No hay acciones dentro del condicional\n";
-      return `if ${condition}; then\n${branch}fi\n`;
-    };
-    bashGenerator.forBlock["asir_repeat"] = function(block, generator) {
-      const times = Math.max(1, Number(block.getFieldValue("TIMES")) || 1);
-      const branch = generator.statementToCode(block, "DO") || "  # No hay acciones dentro del bucle\n";
-      return `for i in $(seq 1 ${times}); do\n${branch}done\n`;
-    };
+    psGenerator.forBlock.asir_print=b=>`Write-Host ${singleQuote(b.getFieldValue("MESSAGE"))}\n`;
+    psGenerator.forBlock.asir_variable_set=b=>`$${safeIdentifier(b.getFieldValue("NAME"))} = ${singleQuote(b.getFieldValue("VALUE"))}\n`;
+    psGenerator.forBlock.asir_command=b=>`${b.getFieldValue("COMMAND")}\n`;
+    psGenerator.forBlock.asir_system_check=b=>[`Test-Path -Path ${singleQuote(b.getFieldValue("PATH"))} -PathType ${b.getFieldValue("KIND")==="FILE"?"Leaf":"Container"}`,0];
+    psGenerator.forBlock.asir_service_check=b=>[`(Get-Service -Name ${singleQuote(b.getFieldValue("SERVICE"))}).Status -eq 'Running'`,0];
+    psGenerator.forBlock.asir_compare_condition=b=>[`${psLit(b.getFieldValue("LEFT"),b.getFieldValue("TYPE"))} ${{EQ:"-eq",GT:"-gt",LT:"-lt"}[b.getFieldValue("OP")]} ${psLit(b.getFieldValue("RIGHT"),b.getFieldValue("TYPE"))}`,0];
+    psGenerator.forBlock.asir_if=function(b,g){const c=g.valueToCode(b,"COND",99)||"$true",s=g.statementToCode(b,"DO")||"  # sin acciones\n";return `if (${c}) {\n${s}}\n`};
+    psGenerator.forBlock.asir_repeat=function(b,g){const n=Math.max(1,Number(b.getFieldValue("TIMES"))||1),s=g.statementToCode(b,"DO")||"  # sin acciones\n";return `1..${n} | ForEach-Object {\n${s}}\n`};
 
-    psGenerator.forBlock["asir_print"] = block => `Write-Host ${singleQuote(block.getFieldValue("MESSAGE"))}\n`;
-    psGenerator.forBlock["asir_variable_set"] = block => `$${safeIdentifier(block.getFieldValue("NAME"))} = ${singleQuote(block.getFieldValue("VALUE"))}\n`;
-    psGenerator.forBlock["asir_command"] = block => `${block.getFieldValue("COMMAND")}\n`;
-    psGenerator.forBlock["asir_compare_condition"] = function(block) {
-      const psOps = { EQ: "-eq", GT: "-gt", LT: "-lt" };
-      return [`${psLiteral(block.getFieldValue("LEFT"), block.getFieldValue("TYPE"))} ${psOps[block.getFieldValue("OP")]} ${psLiteral(block.getFieldValue("RIGHT"), block.getFieldValue("TYPE"))}`, psGenerator.ORDER_ATOMIC];
-    };
-    psGenerator.forBlock["asir_system_check"] = function(block) {
-      const pathType = block.getFieldValue("KIND") === "FILE" ? "Leaf" : "Container";
-      return [`Test-Path -Path ${singleQuote(block.getFieldValue("PATH"))} -PathType ${pathType}`, psGenerator.ORDER_ATOMIC];
-    };
-    psGenerator.forBlock["asir_service_check"] = block => [`(Get-Service -Name ${singleQuote(block.getFieldValue("SERVICE"))}).Status -eq 'Running'`, psGenerator.ORDER_ATOMIC];
-    psGenerator.forBlock["asir_if"] = function(block, generator) {
-      const condition = generator.valueToCode(block, "COND", generator.ORDER_NONE) || "$true";
-      const branch = generator.statementToCode(block, "DO") || "  # No hay acciones dentro del condicional\n";
-      return `if (${condition}) {\n${branch}}\n`;
-    };
-    psGenerator.forBlock["asir_repeat"] = function(block, generator) {
-      const times = Math.max(1, Number(block.getFieldValue("TIMES")) || 1);
-      const branch = generator.statementToCode(block, "DO") || "  # No hay acciones dentro del bucle\n";
-      return `1..${times} | ForEach-Object {\n${branch}}\n`;
-    };
+    pyGenerator.forBlock.asir_print=b=>`print(${JSON.stringify(b.getFieldValue("MESSAGE"))})\n`;
+    pyGenerator.forBlock.asir_variable_set=b=>`${safeIdentifier(b.getFieldValue("NAME"))} = ${JSON.stringify(b.getFieldValue("VALUE"))}\n`;
+    pyGenerator.forBlock.asir_command=b=>`subprocess.run(${JSON.stringify(b.getFieldValue("COMMAND"))}, shell=True, check=False)\n`;
+    pyGenerator.forBlock.asir_system_check=b=>[`os.path.${b.getFieldValue("KIND")==="FILE"?"isfile":"isdir"}(${JSON.stringify(b.getFieldValue("PATH"))})`,0];
+    pyGenerator.forBlock.asir_service_check=b=>[`subprocess.run(["systemctl", "is-active", "--quiet", ${JSON.stringify(b.getFieldValue("SERVICE"))}]).returncode == 0`,0];
+    pyGenerator.forBlock.asir_compare_condition=b=>[`${pyLit(b.getFieldValue("LEFT"),b.getFieldValue("TYPE"))} ${{EQ:"==",GT:">",LT:"<"}[b.getFieldValue("OP")]} ${pyLit(b.getFieldValue("RIGHT"),b.getFieldValue("TYPE"))}`,0];
+    pyGenerator.forBlock.asir_if=function(b,g){const c=g.valueToCode(b,"COND",99)||"True",s=g.statementToCode(b,"DO")||"  pass\n";return `if ${c}:\n${s}`};
+    pyGenerator.forBlock.asir_repeat=function(b,g){const n=Math.max(1,Number(b.getFieldValue("TIMES"))||1),s=g.statementToCode(b,"DO")||"  pass\n";return `for i in range(${n}):\n${s}`};
+    pyGenerator.finish=function(code){const t=code.trimEnd();if(!t)return"";const im=[];if(t.includes("os.path."))im.push("import os");if(t.includes("subprocess."))im.push("import subprocess");return im.length?`${im.join("\n")}\n\n${t}`:t};
 
-    pyGenerator.forBlock["asir_print"] = block => `print(${JSON.stringify(block.getFieldValue("MESSAGE"))})\n`;
-    pyGenerator.forBlock["asir_variable_set"] = block => `${safeIdentifier(block.getFieldValue("NAME"))} = ${JSON.stringify(block.getFieldValue("VALUE"))}\n`;
-    pyGenerator.forBlock["asir_command"] = block => `subprocess.run(${JSON.stringify(block.getFieldValue("COMMAND"))}, shell=True, check=False)\n`;
-    pyGenerator.forBlock["asir_compare_condition"] = function(block) {
-      const pyOps = { EQ: "==", GT: ">", LT: "<" };
-      return [`${pythonLiteral(block.getFieldValue("LEFT"), block.getFieldValue("TYPE"))} ${pyOps[block.getFieldValue("OP")]} ${pythonLiteral(block.getFieldValue("RIGHT"), block.getFieldValue("TYPE"))}`, pyGenerator.ORDER_ATOMIC];
-    };
-    pyGenerator.forBlock["asir_system_check"] = function(block) {
-      const fn = block.getFieldValue("KIND") === "FILE" ? "isfile" : "isdir";
-      return [`os.path.${fn}(${JSON.stringify(block.getFieldValue("PATH"))})`, pyGenerator.ORDER_ATOMIC];
-    };
-    pyGenerator.forBlock["asir_service_check"] = block => [`subprocess.run(["systemctl", "is-active", "--quiet", ${JSON.stringify(block.getFieldValue("SERVICE"))}]).returncode == 0`, pyGenerator.ORDER_ATOMIC];
-    pyGenerator.forBlock["asir_if"] = function(block, generator) {
-      const condition = generator.valueToCode(block, "COND", generator.ORDER_NONE) || "True";
-      const branch = generator.statementToCode(block, "DO") || "  pass\n";
-      return `if ${condition}:\n${branch}`;
-    };
-    pyGenerator.forBlock["asir_repeat"] = function(block, generator) {
-      const times = Math.max(1, Number(block.getFieldValue("TIMES")) || 1);
-      const branch = generator.statementToCode(block, "DO") || "  pass\n";
-      return `for i in range(${times}):\n${branch}`;
-    };
-    pyGenerator.finish = function(code) {
-      const trimmed = code.trimEnd();
-      if (!trimmed) return "";
-      const imports = [];
-      if (trimmed.includes("os.path.")) imports.push("import os");
-      if (trimmed.includes("subprocess.")) imports.push("import subprocess");
-      return imports.length ? `${imports.join("\n")}\n\n${trimmed}` : trimmed;
-    };
+    function init(){if(!window.Blockly){document.getElementById("blocklyDiv").innerHTML="<p style='padding:20px;color:#111827'>No se pudo cargar Blockly.</p>";return} if(Blockly.Msg&&Blockly.setLocale)Blockly.setLocale(Blockly.Msg);
+      const theme=Blockly.Theme.defineTheme("asirTheme",{base:Blockly.Themes.Classic,componentStyles:{workspaceBackgroundColour:"#f8fafc",toolboxBackgroundColour:"#0f172a",toolboxForegroundColour:"#e5e7eb",flyoutBackgroundColour:"#111827",flyoutForegroundColour:"#e5e7eb",flyoutOpacity:.96,scrollbarColour:"#64748b",insertionMarkerColour:"#38bdf8",insertionMarkerOpacity:.38,cursorColour:"#ef4444"}});
+      workspace=Blockly.inject("blocklyDiv",{toolbox:document.getElementById("toolbox"),theme,renderer:"zelos",trashcan:true,comments:true,sounds:false,zoom:{controls:true,wheel:true,startScale:.92,maxScale:1.35,minScale:.55,scaleSpeed:1.08},move:{scrollbars:true,drag:true,wheel:true}});
+      Blockly.Xml.domToWorkspace(document.getElementById("startBlocks"),workspace);populateExamples();bindUi();workspace.addChangeListener(e=>{if(e.type===Blockly.Events.FINISHED_LOADING||isSyncing)return;updateAll("Bloques → código","ok")});updateAll("Bloques → código","ok")}
 
-    function initBlockly() {
-      if (!window.Blockly) {
-        document.getElementById("blocklyDiv").innerHTML = "<p style='padding:20px;color:#111827'>No se pudo cargar Blockly. Comprueba tu conexión a Internet.</p>";
-        return;
-      }
+    function currentGenerator(){return activeLanguage==="bash"?bashGenerator:activeLanguage==="powershell"?psGenerator:pyGenerator}
+    function generateCode(){try{return currentGenerator().workspaceToCode(workspace).trimEnd()}catch(e){return `${LANGS[activeLanguage].comment} Error: ${e.message}`}}
+    function updateAll(msg="Bloques → código",cls="ok"){if(!workspace||isSyncing)return;isSyncing=true;document.getElementById("codeEditor").value=generateCode()||`${LANGS[activeLanguage].comment} Carga un ejemplo o arrastra bloques.`;document.getElementById("languageBadge").textContent=LANGS[activeLanguage].badge;setBadge(msg,cls);updatePedagogy();isSyncing=false}
+    function setBadge(msg,cls="warn"){const b=document.getElementById("syncBadge");b.textContent=msg;b.className=`badge ${cls}`}
+    function populateExamples(){document.getElementById("exampleSelect").innerHTML=EXAMPLES.map(e=>`<option value="${e.id}">${e.level} · ${e.title}</option>`).join("")}
+    function loadExample(id){const e=EXAMPLES.find(x=>x.id===id);if(!e)return;isSyncing=true;workspace.clear();Blockly.Xml.domToWorkspace(Blockly.utils.xml.textToDom(e.xml),workspace);isSyncing=false;updateAll(`Ejemplo cargado: ${e.level}`,"ok")}
+    function saveWorkspace(){localStorage.setItem(STORAGE_KEY,Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspace)));setBadge("Workspace guardado","ok")}
+    function restoreWorkspace(){const x=localStorage.getItem(STORAGE_KEY);if(!x){setBadge("No hay guardado","bad");return}isSyncing=true;workspace.clear();Blockly.Xml.domToWorkspace(Blockly.utils.xml.textToDom(x),workspace);isSyncing=false;updateAll("Workspace restaurado","ok")}
+    function clearWorkspace(){workspace.clear();updateAll("Workspace limpio","ok")}
+    function bindUi(){document.getElementById("loadExample").onclick=()=>loadExample(document.getElementById("exampleSelect").value);document.getElementById("saveWorkspace").onclick=saveWorkspace;document.getElementById("restoreWorkspace").onclick=restoreWorkspace;document.getElementById("clearWorkspace").onclick=clearWorkspace;document.getElementById("syncFromCode").onclick=()=>tryParse(true);document.querySelectorAll(".tab").forEach(btn=>btn.onclick=()=>{activeLanguage=btn.dataset.lang;document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b===btn));updateAll("Lenguaje cambiado","ok")});document.getElementById("codeEditor").addEventListener("input",()=>{if(isSyncing)return;setBadge("Código editado: pulsa Código → bloques","warn");clearTimeout(codeEditTimer);codeEditTimer=setTimeout(()=>tryParse(false),900)});document.getElementById("copyCode").onclick=async()=>{try{await navigator.clipboard.writeText(document.getElementById("codeEditor").value);document.getElementById("copyCode").textContent="Copiado";setTimeout(()=>document.getElementById("copyCode").textContent="Copiar",1200)}catch{alert("Selecciona y copia manualmente.")}}}
 
-      if (Blockly.Msg && Blockly.setLocale) Blockly.setLocale(Blockly.Msg);
+    function tryParse(apply){const res=codeToXml(document.getElementById("codeEditor").value,activeLanguage);if(!res.ok){setBadge(res.message,apply?"bad":"warn");return}if(!apply){setBadge("Código reconocible","ok");return}isSyncing=true;workspace.clear();Blockly.Xml.domToWorkspace(Blockly.utils.xml.textToDom(res.xml),workspace);isSyncing=false;updateAll("Código → bloques aplicado","ok")}
+    function printXml(m){return `<block type="asir_print"><field name="MESSAGE">${xml(m)}</field></block>`}
+    function varXml(n,v){return `<block type="asir_variable_set"><field name="NAME">${xml(n)}</field><field name="VALUE">${xml(v)}</field></block>`}
+    function ifXml(c,s){return `<xml><block type="asir_if" x="30" y="30"><value name="COND">${c}</value><statement name="DO">${s}</statement></block></xml>`}
+    function codeToXml(code,lang){const c=String(code).replace(/\r\n/g,"\n").trim();const parser={bash:bashCodeToXml,powershell:psCodeToXml,python:pyCodeToXml}[lang];const x=parser(c);return x?{ok:true,xml:x}:{ok:false,message:"Patrón no soportado todavía"}}
+    function bashCodeToXml(c){let m=c.match(/^echo '([^']*)'$/s);if(m)return`<xml>${printXml(m[1])}</xml>`;m=c.match(/^([A-Za-z_][A-Za-z0-9_]*)='([^']*)'$/s);if(m)return`<xml>${varXml(m[1],m[2])}</xml>`;m=c.match(/^if \[ (-f|-d) '([^']+)' \]; then\n\s*echo '([^']*)'\nfi$/s);if(m)return ifXml(`<block type="asir_system_check"><field name="KIND">${m[1]==="-f"?"FILE":"DIR"}</field><field name="PATH">${xml(m[2])}</field></block>`,printXml(m[3]));m=c.match(/^if systemctl is-active --quiet '([^']+)'[;]? then\n\s*echo '([^']*)'\nfi$/s);if(m)return ifXml(`<block type="asir_service_check"><field name="SERVICE">${xml(m[1])}</field></block>`,printXml(m[2]));return null}
+    function psCodeToXml(c){let m=c.match(/^Write-Host '([^']*)'$/s);if(m)return`<xml>${printXml(m[1])}</xml>`;m=c.match(/^\$([A-Za-z_][A-Za-z0-9_]*) = '([^']*)'$/s);if(m)return`<xml>${varXml(m[1],m[2])}</xml>`;m=c.match(/^if \(Test-Path -Path '([^']+)' -PathType (Leaf|Container)\) \{\n\s*Write-Host '([^']*)'\n\}$/s);if(m)return ifXml(`<block type="asir_system_check"><field name="KIND">${m[2]==="Leaf"?"FILE":"DIR"}</field><field name="PATH">${xml(m[1])}</field></block>`,printXml(m[3]));m=c.match(/^if \(\(Get-Service -Name '([^']+)'\)\.Status -eq 'Running'\) \{\n\s*Write-Host '([^']*)'\n\}$/s);if(m)return ifXml(`<block type="asir_service_check"><field name="SERVICE">${xml(m[1])}</field></block>`,printXml(m[2]));return null}
+    function pyCodeToXml(c){c=c.replace(/^import os\n+/m,"").replace(/^import subprocess\n+/m,"").trim();let m=c.match(/^print\("([^"]*)"\)$/s);if(m)return`<xml>${printXml(m[1])}</xml>`;m=c.match(/^([A-Za-z_][A-Za-z0-9_]*) = "([^"]*)"$/s);if(m)return`<xml>${varXml(m[1],m[2])}</xml>`;m=c.match(/^if os\.path\.(isfile|isdir)\("([^"]+)"\):\n\s*print\("([^"]*)"\)$/s);if(m)return ifXml(`<block type="asir_system_check"><field name="KIND">${m[1]==="isfile"?"FILE":"DIR"}</field><field name="PATH">${xml(m[2])}</field></block>`,printXml(m[3]));return null}
 
-      const theme = Blockly.Theme.defineTheme("asirTheme", {
-        base: Blockly.Themes.Classic,
-        componentStyles: {
-          workspaceBackgroundColour: "#f8fafc",
-          toolboxBackgroundColour: "#0f172a",
-          toolboxForegroundColour: "#e5e7eb",
-          flyoutBackgroundColour: "#111827",
-          flyoutForegroundColour: "#e5e7eb",
-          flyoutOpacity: 0.96,
-          scrollbarColour: "#64748b",
-          insertionMarkerColour: "#38bdf8",
-          insertionMarkerOpacity: 0.38,
-          cursorColour: "#ef4444"
-        }
-      });
+    function blocks(type){return workspace?workspace.getAllBlocks(false).filter(b=>b.type===type):[]}
+    function detectCommandDocs(){const code=document.getElementById("codeEditor").value||generateCode();const docs=COMMAND_DOCS[activeLanguage];const found=new Set();
+      if(activeLanguage==="bash"){if(/\becho\b/.test(code))found.add("echo");if(/\[ .* \]/.test(code)||/\btest\b/.test(code))found.add("test");if(/\bsystemctl\b/.test(code))found.add("systemctl");if(/\bfor\b/.test(code))found.add("for");if(/\bseq\b/.test(code))found.add("seq");["whoami","hostname","date"].forEach(k=>{if(new RegExp(`\\b${k}\\b`).test(code))found.add(k)})}
+      if(activeLanguage==="powershell"){["Write-Host","Test-Path","Get-Service","ForEach-Object"].forEach(k=>{if(code.includes(k))found.add(k)});if(/\d+\.\.\d+/.test(code))found.add("1..N");if(/\$[A-Za-z_]/.test(code))found.add("variables")}
+      if(activeLanguage==="python"){["print","os.path","subprocess.run","range"].forEach(k=>{if(code.includes(k))found.add(k)});if(/^[A-Za-z_]\w* = /m.test(code))found.add("variables")}
+      return [...found].map(k=>docs[k]).filter(Boolean)}
 
-      workspace = Blockly.inject("blocklyDiv", {
-        toolbox: document.getElementById("toolbox"),
-        theme,
-        renderer: "zelos",
-        trashcan: true,
-        collapse: false,
-        comments: true,
-        disable: false,
-        sounds: false,
-        zoom: { controls: true, wheel: true, startScale: 0.92, maxScale: 1.35, minScale: 0.55, scaleSpeed: 1.08 },
-        move: { scrollbars: true, drag: true, wheel: true }
-      });
+    function explainCommandDocs(){const items=detectCommandDocs();if(!items.length)return"";return `<section class="sec success"><h3>Comandos usados en este script</h3><p>Esta sección conecta el script con tus guías interactivas de comandos. No solo muestra la sintaxis: explica para qué se usa en administración de sistemas.</p><ul>${items.map(d=>`<li><strong><code>${html(d.title)}</code></strong> · ${html(d.area)}<br>${html(d.why)}<br><code>${html(d.syntax)}</code><p><span class="critical">Cuidado</span>${html(d.pitfall)}</p><a href="${GUIDE_LINKS[d.guide]}" target="_blank" rel="noopener">Abrir guía relacionada</a></li>`).join("")}</ul></section>`}
 
-      Blockly.Xml.domToWorkspace(document.getElementById("startBlocks"), workspace);
-      workspace.addChangeListener(event => {
-        if (event.type === Blockly.Events.FINISHED_LOADING || isSyncing) return;
-        updateAll("Bloques → código", "ok");
-      });
+    function updatePedagogy(){const panel=document.getElementById("pedagogyPanel");if(!workspace||!workspace.getAllBlocks(false).length){panel.innerHTML=`<div class="sec"><strong>No hay bloques todavía.</strong><p>Carga un ejemplo para empezar.</p></div>`;return}const ex=EXAMPLES.find(e=>e.id===document.getElementById("exampleSelect").value);panel.innerHTML=`
+      <section class="sec success"><h3>Objetivo de la práctica</h3><p><strong>${html(ex?.title||"Práctica libre")}</strong></p><p>${html(ex?.goal||"Construir un script pequeño y explicar su comportamiento.")}</p></section>
+      ${explainFlow()}${explainSystem()}${explainServices()}${explainCompare()}${explainVars()}${explainCommands()}${explainPrint()}${explainCommandDocs()}${explainLanguage()}${rubric()}`}
+    function explainFlow(){const i=blocks("asir_if").length,r=blocks("asir_repeat").length;if(!i&&!r)return"";return`<section class="sec"><h3>Estructuras de control</h3><ul>${i?`<li>${i} condicional(es): permiten decidir si se ejecuta una parte del script.</li>`:""}${r?`<li>${r} bucle(s): repiten acciones de forma controlada.</li>`:""}</ul></section>`}
+    function explainSystem(){const bs=blocks("asir_system_check");if(!bs.length)return"";return`<section class="sec alert"><h3>Archivos y directorios</h3><ul>${bs.map(b=>`<li>Comprueba si <code>${html(b.getFieldValue("PATH"))}</code> es ${b.getFieldValue("KIND")==="FILE"?"archivo":"directorio"}.</li>`).join("")}</ul><p><span class="critical">Clave</span>Existir no es lo mismo que ser archivo o directorio.</p></section>`}
+    function explainServices(){const bs=blocks("asir_service_check");if(!bs.length)return"";return`<section class="sec alert"><h3>Servicios</h3><ul>${bs.map(b=>`<li>Servicio <code>${html(b.getFieldValue("SERVICE"))}</code>: tarea típica de monitorización y explotación de sistemas.</li>`).join("")}</ul></section>`}
+    function explainCompare(){const bs=blocks("asir_compare_condition");if(!bs.length)return"";return`<section class="sec alert"><h3>Comparaciones</h3><ul>${bs.map(b=>`<li><code>${html(b.getFieldValue("LEFT"))}</code> ${{EQ:"igual a",GT:"mayor que",LT:"menor que"}[b.getFieldValue("OP")]} <code>${html(b.getFieldValue("RIGHT"))}</code> como ${b.getFieldValue("TYPE")==="NUMBER"?"número":"texto"}.</li>`).join("")}</ul></section>`}
+    function explainVars(){const bs=blocks("asir_variable_set");if(!bs.length)return"";return`<section class="sec"><h3>Variables</h3><ul>${bs.map(b=>`<li><code>${html(safeIdentifier(b.getFieldValue("NAME")))}</code> guarda <code>${html(b.getFieldValue("VALUE"))}</code>.</li>`).join("")}</ul></section>`}
+    function explainCommands(){const bs=blocks("asir_command");if(!bs.length)return"";return`<section class="sec danger"><h3>Comandos de diagnóstico</h3><ul>${bs.map(b=>`<li><code>${html(b.getFieldValue("COMMAND"))}</code></li>`).join("")}</ul><p><span class="critical">Seguridad</span>Usar preferentemente comandos de diagnóstico: whoami, hostname, date, ipconfig, Get-ComputerInfo.</p></section>`}
+    function explainPrint(){const n=blocks("asir_print").length;if(!n)return"";return`<section class="sec"><h3>Salida por pantalla</h3><p>${n} bloque(s) de salida. Equivalencias: Bash <code>echo</code>, PowerShell <code>Write-Host</code>, Python <code>print()</code>.</p></section>`}
+    function explainLanguage(){const notes={bash:`<div class="mini"><div class="mini-card"><strong>Espacios</strong>En <code>[ ... ]</code> son obligatorios.</div><div class="mini-card"><strong>Comillas</strong>Evitan fallos con rutas y textos.</div></div>`,powershell:`<div class="mini"><div class="mini-card"><strong>Cmdlets</strong>Verbo-Sustantivo: <code>Test-Path</code>, <code>Get-Service</code>.</div><div class="mini-card"><strong>Objetos</strong>PowerShell mueve objetos por el pipeline.</div></div>`,python:`<div class="mini"><div class="mini-card"><strong>Indentación</strong>Define qué pertenece al bloque.</div><div class="mini-card"><strong>Módulos</strong><code>os</code> y <code>subprocess</code> conectan con el sistema.</div></div>`};return`<section class="sec"><h3>Notas de ${LANGS[activeLanguage].label}</h3>${notes[activeLanguage]}</section>`}
+    function rubric(){return`<section class="sec"><h3>Mini-rúbrica ASIR</h3><ol><li>Explica qué problema de administración resuelve el script.</li><li>Identifica condición, acciones y salida.</li><li>Describe los comandos usados y sus riesgos.</li><li>Compara la sintaxis entre Bash, PowerShell y Python.</li></ol></section>`}
 
-      populateExamples();
-      bindUi();
-      updateAll("Bloques → código", "ok");
-    }
-
-    function getCurrentGenerator() {
-      if (activeLanguage === "bash") return bashGenerator;
-      if (activeLanguage === "powershell") return psGenerator;
-      return pyGenerator;
-    }
-
-    function generateCode() {
-      if (!workspace) return "";
-      try { return getCurrentGenerator().workspaceToCode(workspace).trimEnd(); }
-      catch (error) { return `${LANGS[activeLanguage].comment} Error generando código:\n${LANGS[activeLanguage].comment} ${error.message}`; }
-    }
-
-    function updateAll(message = "Bloques → código", status = "ok") {
-      if (!workspace || isSyncing) return;
-      isSyncing = true;
-      const code = generateCode();
-      document.getElementById("codeEditor").value = code || emptyCodeMessage();
-      document.getElementById("languageBadge").textContent = LANGS[activeLanguage].badge;
-      setSyncBadge(message, status);
-      updatePedagogyPanel();
-      isSyncing = false;
-    }
-
-    function emptyCodeMessage() {
-      const comment = LANGS[activeLanguage].comment;
-      return `${comment} Arrastra bloques desde la caja de herramientas o carga un ejemplo para empezar.`;
-    }
-
-    function setSyncBadge(message, status = "") {
-      const badge = document.getElementById("syncBadge");
-      badge.textContent = message;
-      badge.className = `sync-badge ${status}`.trim();
-    }
-
-    function getAllBlocksByType(type) { return workspace ? workspace.getAllBlocks(false).filter(block => block.type === type) : []; }
-
-    function populateExamples() {
-      const select = document.getElementById("exampleSelect");
-      select.innerHTML = EXAMPLES.map(example => `<option value="${example.id}">${example.level} · ${example.title}</option>`).join("");
-    }
-
-    function loadExample(exampleId) {
-      const example = EXAMPLES.find(item => item.id === exampleId);
-      if (!example || !workspace) return;
-      isSyncing = true;
-      workspace.clear();
-      Blockly.Xml.domToWorkspace(Blockly.utils.xml.textToDom(example.xml), workspace);
-      isSyncing = false;
-      updateAll(`Ejemplo cargado: ${example.level}`, "ok");
-    }
-
-    function saveWorkspace() {
-      if (!workspace) return;
-      const xml = Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspace));
-      localStorage.setItem(STORAGE_KEY, xml);
-      setSyncBadge("Workspace guardado", "ok");
-    }
-
-    function restoreWorkspace() {
-      const xml = localStorage.getItem(STORAGE_KEY);
-      if (!xml || !workspace) {
-        setSyncBadge("No hay guardado local", "danger");
-        return;
-      }
-      isSyncing = true;
-      workspace.clear();
-      Blockly.Xml.domToWorkspace(Blockly.utils.xml.textToDom(xml), workspace);
-      isSyncing = false;
-      updateAll("Workspace restaurado", "ok");
-    }
-
-    function clearWorkspace() {
-      if (!workspace) return;
-      workspace.clear();
-      updateAll("Workspace limpio", "ok");
-    }
-
-    function bindUi() {
-      document.getElementById("loadExample").addEventListener("click", () => loadExample(document.getElementById("exampleSelect").value));
-      document.getElementById("saveWorkspace").addEventListener("click", saveWorkspace);
-      document.getElementById("restoreWorkspace").addEventListener("click", restoreWorkspace);
-      document.getElementById("clearWorkspace").addEventListener("click", clearWorkspace);
-      document.getElementById("syncFromCode").addEventListener("click", syncBlocksFromCode);
-
-      document.querySelectorAll(".tab-btn").forEach(button => {
-        button.addEventListener("click", () => {
-          activeLanguage = button.dataset.lang;
-          document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.toggle("active", btn === button));
-          updateAll("Lenguaje cambiado", "ok");
-        });
-      });
-
-      document.getElementById("codeEditor").addEventListener("input", () => {
-        if (isSyncing) return;
-        setSyncBadge("Código editado: pulsa Código → bloques", "");
-        clearTimeout(codeEditTimer);
-        codeEditTimer = setTimeout(() => tryParseCode(false), 900);
-      });
-
-      document.getElementById("copyCode").addEventListener("click", async () => {
-        try {
-          await navigator.clipboard.writeText(document.getElementById("codeEditor").value);
-          document.getElementById("copyCode").textContent = "Copiado";
-          setTimeout(() => document.getElementById("copyCode").textContent = "Copiar", 1200);
-        } catch {
-          alert("No se pudo copiar automáticamente. Selecciona el código manualmente.");
-        }
-      });
-    }
-
-    function syncBlocksFromCode() { tryParseCode(true); }
-
-    function tryParseCode(applyChanges) {
-      if (!workspace) return;
-      const result = codeToBlocklyXml(document.getElementById("codeEditor").value, activeLanguage);
-      if (!result.ok) {
-        setSyncBadge(result.message, applyChanges ? "danger" : "");
-        return;
-      }
-      if (!applyChanges) {
-        setSyncBadge("Código reconocible: puedes convertir", "ok");
-        return;
-      }
-      isSyncing = true;
-      workspace.clear();
-      Blockly.Xml.domToWorkspace(Blockly.utils.xml.textToDom(result.xml), workspace);
-      isSyncing = false;
-      updateAll("Código → bloques aplicado", "ok");
-    }
-
-    function codeToBlocklyXml(code, lang) {
-      const clean = String(code).replace(/\r\n/g, "\n").trim();
-      if (!clean || clean.startsWith(LANGS[lang].comment + " Arrastra")) return { ok: false, message: "No hay código reconocible" };
-      const parser = { bash: bashCodeToXml, powershell: powerShellCodeToXml, python: pythonCodeToXml }[lang];
-      const xml = parser(clean);
-      return xml ? { ok: true, xml } : { ok: false, message: "Patrón no soportado todavía" };
-    }
-
-    function printBlockXml(message) { return `<block type="asir_print"><field name="MESSAGE">${escapeXml(message)}</field></block>`; }
-    function commandBlockXml(command) { return `<block type="asir_command"><field name="COMMAND">${escapeXml(command)}</field></block>`; }
-    function variableBlockXml(name, value) { return `<block type="asir_variable_set"><field name="NAME">${escapeXml(name)}</field><field name="VALUE">${escapeXml(value)}</field></block>`; }
-    function ifXml(conditionXml, statementXml) { return `<xml><block type="asir_if" x="30" y="30"><value name="COND">${conditionXml}</value><statement name="DO">${statementXml}</statement></block></xml>`; }
-
-    function bashCodeToXml(code) {
-      let match = code.match(/^echo '((?:\\'|[^'])*)'$/s);
-      if (match) return `<xml>${printBlockXml(match[1].replace(/\\'/g, "'"))}</xml>`;
-
-      match = code.match(/^([A-Za-z_][A-Za-z0-9_]*)='((?:\\'|[^'])*)'$/s);
-      if (match) return `<xml>${variableBlockXml(match[1], match[2].replace(/\\'/g, "'"))}</xml>`;
-
-      match = code.match(/^if \[ (-f|-d) '([^']+)' \]; then\n\s*echo '([^']*)'\nfi$/s);
-      if (match) return ifXml(`<block type="asir_system_check"><field name="KIND">${match[1] === "-f" ? "FILE" : "DIR"}</field><field name="PATH">${escapeXml(match[2])}</field></block>`, printBlockXml(match[3]));
-
-      match = code.match(/^if systemctl is-active --quiet '([^']+)'[;]? then\n\s*echo '([^']*)'\nfi$/s);
-      if (match) return ifXml(`<block type="asir_service_check"><field name="SERVICE">${escapeXml(match[1])}</field></block>`, printBlockXml(match[2]));
-
-      match = code.match(/^if \[ ([^\s]+) (-eq|-gt|-lt) ([^\s]+) \]; then\n\s*echo '([^']*)'\nfi$/s);
-      if (match) {
-        const op = { "-eq": "EQ", "-gt": "GT", "-lt": "LT" }[match[2]];
-        return ifXml(`<block type="asir_compare_condition"><field name="LEFT">${escapeXml(match[1])}</field><field name="OP">${op}</field><field name="RIGHT">${escapeXml(match[3])}</field><field name="TYPE">NUMBER</field></block>`, printBlockXml(match[4]));
-      }
-
-      return null;
-    }
-
-    function powerShellCodeToXml(code) {
-      let match = code.match(/^Write-Host '([^']*)'$/s);
-      if (match) return `<xml>${printBlockXml(match[1])}</xml>`;
-
-      match = code.match(/^\$([A-Za-z_][A-Za-z0-9_]*) = '([^']*)'$/s);
-      if (match) return `<xml>${variableBlockXml(match[1], match[2])}</xml>`;
-
-      match = code.match(/^if \(Test-Path -Path '([^']+)' -PathType (Leaf|Container)\) \{\n\s*Write-Host '([^']*)'\n\}$/s);
-      if (match) return ifXml(`<block type="asir_system_check"><field name="KIND">${match[2] === "Leaf" ? "FILE" : "DIR"}</field><field name="PATH">${escapeXml(match[1])}</field></block>`, printBlockXml(match[3]));
-
-      match = code.match(/^if \(\(Get-Service -Name '([^']+)'\)\.Status -eq 'Running'\) \{\n\s*Write-Host '([^']*)'\n\}$/s);
-      if (match) return ifXml(`<block type="asir_service_check"><field name="SERVICE">${escapeXml(match[1])}</field></block>`, printBlockXml(match[2]));
-
-      match = code.match(/^if \(([^\s]+) (-eq|-gt|-lt) ([^\s]+)\) \{\n\s*Write-Host '([^']*)'\n\}$/s);
-      if (match) {
-        const op = { "-eq": "EQ", "-gt": "GT", "-lt": "LT" }[match[2]];
-        return ifXml(`<block type="asir_compare_condition"><field name="LEFT">${escapeXml(match[1].replace(/'/g, ""))}</field><field name="OP">${op}</field><field name="RIGHT">${escapeXml(match[3].replace(/'/g, ""))}</field><field name="TYPE">${isNumber(match[1]) && isNumber(match[3]) ? "NUMBER" : "STRING"}</field></block>`, printBlockXml(match[4]));
-      }
-
-      return null;
-    }
-
-    function pythonCodeToXml(code) {
-      const withoutImports = code.replace(/^import os\n+/m, "").replace(/^import subprocess\n+/m, "").trim();
-      let match = withoutImports.match(/^print\("([^"]*)"\)$/s);
-      if (match) return `<xml>${printBlockXml(match[1])}</xml>`;
-
-      match = withoutImports.match(/^([A-Za-z_][A-Za-z0-9_]*) = "([^"]*)"$/s);
-      if (match) return `<xml>${variableBlockXml(match[1], match[2])}</xml>`;
-
-      match = withoutImports.match(/^if os\.path\.(isfile|isdir)\("([^"]+)"\):\n\s*print\("([^"]*)"\)$/s);
-      if (match) return ifXml(`<block type="asir_system_check"><field name="KIND">${match[1] === "isfile" ? "FILE" : "DIR"}</field><field name="PATH">${escapeXml(match[2])}</field></block>`, printBlockXml(match[3]));
-
-      match = withoutImports.match(/^if subprocess\.run\(\["systemctl", "is-active", "--quiet", "([^"]+)"\]\)\.returncode == 0:\n\s*print\("([^"]*)"\)$/s);
-      if (match) return ifXml(`<block type="asir_service_check"><field name="SERVICE">${escapeXml(match[1])}</field></block>`, printBlockXml(match[2]));
-
-      match = withoutImports.match(/^if ([^\s]+) (==|>|<) ([^\s]+):\n\s*print\("([^"]*)"\)$/s);
-      if (match) {
-        const op = { "==": "EQ", ">": "GT", "<": "LT" }[match[2]];
-        return ifXml(`<block type="asir_compare_condition"><field name="LEFT">${escapeXml(match[1].replace(/"/g, ""))}</field><field name="OP">${op}</field><field name="RIGHT">${escapeXml(match[3].replace(/"/g, ""))}</field><field name="TYPE">${isNumber(match[1]) && isNumber(match[3]) ? "NUMBER" : "STRING"}</field></block>`, printBlockXml(match[4]));
-      }
-
-      return null;
-    }
-
-    function updatePedagogyPanel() {
-      const panel = document.getElementById("pedagogyPanel");
-      if (!workspace || workspace.getAllBlocks(false).length === 0) {
-        panel.innerHTML = `<div class="empty-state"><strong>No hay bloques todavía.</strong><p>Carga un ejemplo o arrastra bloques. El objetivo no es memorizar comandos: es entender la estructura mental del script.</p></div>`;
-        return;
-      }
-
-      const example = EXAMPLES.find(item => item.id === document.getElementById("exampleSelect").value);
-      const ifBlocks = getAllBlocksByType("asir_if");
-      const repeatBlocks = getAllBlocksByType("asir_repeat");
-      const compareBlocks = getAllBlocksByType("asir_compare_condition");
-      const systemBlocks = getAllBlocksByType("asir_system_check");
-      const serviceBlocks = getAllBlocksByType("asir_service_check");
-      const variableBlocks = getAllBlocksByType("asir_variable_set");
-      const commandBlocks = getAllBlocksByType("asir_command");
-      const printBlocks = getAllBlocksByType("asir_print");
-
-      panel.innerHTML = `
-        <section class="pedagogy-section success">
-          <h3>Enfoque de 2º ASIR</h3>
-          <p><strong>${example ? htmlEscape(example.title) : "Práctica libre"}</strong></p>
-          <p>${example ? htmlEscape(example.goal) : "Construye un script administrativo pequeño y razona qué cambia entre sistemas Linux, Windows y Python."}</p>
-        </section>
-        ${explainFlow(ifBlocks.length, repeatBlocks.length)}
-        ${explainSystemChecks(systemBlocks)}
-        ${explainServices(serviceBlocks)}
-        ${explainComparison(compareBlocks)}
-        ${explainVariables(variableBlocks)}
-        ${explainCommands(commandBlocks)}
-        ${explainPrintBlocks(printBlocks)}
-        ${explainLanguageGlobalNotes()}
-        ${explainAssessmentRubric()}
-      `;
-    }
-
-    function explainFlow(ifCount, repeatCount) {
-      if (!ifCount && !repeatCount) return "";
-      return `<section class="pedagogy-section"><h3>Estructuras de control</h3><ul>${ifCount ? `<li>Hay ${ifCount} condicional(es). En ${LANGS[activeLanguage].label} se decide si ejecutar o no una parte del script.</li>` : ""}${repeatCount ? `<li>Hay ${repeatCount} bucle(s). Sirven para repetir comprobaciones o acciones automatizadas.</li>` : ""}</ul></section>`;
-    }
-
-    function explainSystemChecks(blocks) {
-      if (!blocks.length) return "";
-      return `<section class="pedagogy-section alert"><h3>Comprobaciones de archivos y directorios</h3><ul>${blocks.map(block => {
-        const kind = block.getFieldValue("KIND") === "FILE" ? "archivo" : "directorio";
-        const path = htmlEscape(block.getFieldValue("PATH"));
-        const syntax = activeLanguage === "bash" ? `<code>[ -${kind === "archivo" ? "f" : "d"} '${path}' ]</code>` : activeLanguage === "powershell" ? `<code>Test-Path -Path '${path}' -PathType ${kind === "archivo" ? "Leaf" : "Container"}</code>` : `<code>os.path.${kind === "archivo" ? "isfile" : "isdir"}('${path}')</code>`;
-        return `<li>Se comprueba si <code>${path}</code> es un <strong>${kind}</strong>. Sintaxis equivalente: ${syntax}.</li>`;
-      }).join("")}</ul><p><span class="critical">Error común</span> Comprobar solo existencia no es lo mismo que comprobar que sea archivo o directorio.</p></section>`;
-    }
-
-    function explainServices(blocks) {
-      if (!blocks.length) return "";
-      return `<section class="pedagogy-section alert"><h3>Servicios del sistema</h3><ul>${blocks.map(block => `<li>Se comprueba el servicio <code>${htmlEscape(block.getFieldValue("SERVICE"))}</code>. En Linux suele usarse <code>systemctl</code>; en Windows/PowerShell, <code>Get-Service</code>.</li>`).join("")}</ul><p><span class="critical">Contexto profesional</span> Monitorizar servicios es una tarea típica de explotación de sistemas.</p></section>`;
-    }
-
-    function explainComparison(blocks) {
-      if (!blocks.length) return "";
-      return `<section class="pedagogy-section alert"><h3>Comparaciones</h3><ul>${blocks.map(block => {
-        const left = htmlEscape(block.getFieldValue("LEFT"));
-        const right = htmlEscape(block.getFieldValue("RIGHT"));
-        const opHuman = { EQ: "igual a", GT: "mayor que", LT: "menor que" }[block.getFieldValue("OP")];
-        const typeHuman = block.getFieldValue("TYPE") === "NUMBER" ? "numérica" : "de texto";
-        return `<li><strong>${left}</strong> es <strong>${opHuman}</strong> <strong>${right}</strong> como comparación <strong>${typeHuman}</strong>.</li>`;
-      }).join("")}</ul><p><span class="critical">Clave ASIR</span> En Bash, texto y números usan sintaxis distinta. En Python importa mucho el tipo de dato.</p></section>`;
-    }
-
-    function explainVariables(blocks) {
-      if (!blocks.length) return "";
-      return `<section class="pedagogy-section"><h3>Variables</h3><p>Hay ${blocks.length} variable(s). Sirven para no repetir valores y para preparar scripts mantenibles.</p><ul>${blocks.map(block => `<li><code>${htmlEscape(safeIdentifier(block.getFieldValue("NAME")))}</code> guarda <code>${htmlEscape(block.getFieldValue("VALUE"))}</code>.</li>`).join("")}</ul></section>`;
-    }
-
-    function explainCommands(blocks) {
-      if (!blocks.length) return "";
-      return `<section class="pedagogy-section danger"><h3>Comandos del sistema</h3><ul>${blocks.map(block => `<li><code>${htmlEscape(block.getFieldValue("COMMAND"))}</code></li>`).join("")}</ul><p><span class="critical">Seguridad</span> En clase conviene limitar este bloque a comandos de diagnóstico: <code>whoami</code>, <code>hostname</code>, <code>date</code>, <code>ip a</code>, <code>Get-ComputerInfo</code>.</p></section>`;
-    }
-
-    function explainPrintBlocks(blocks) {
-      if (!blocks.length) return "";
-      const command = { bash: "<code>echo 'mensaje'</code>", powershell: "<code>Write-Host 'mensaje'</code>", python: "<code>print('mensaje')</code>" }[activeLanguage];
-      return `<section class="pedagogy-section"><h3>Salida por pantalla</h3><p>Hay ${blocks.length} bloque(s) de salida. En ${LANGS[activeLanguage].label} se traducen como ${command}.</p></section>`;
-    }
-
-    function explainLanguageGlobalNotes() {
-      const notes = {
-        bash: `<div class="mini-grid"><div class="mini-card"><strong>Espacios</strong> En <code>[ ... ]</code> los espacios son obligatorios.</div><div class="mini-card"><strong>Comillas</strong> Protegen rutas con espacios y cadenas vacías.</div></div>`,
-        powershell: `<div class="mini-grid"><div class="mini-card"><strong>Cmdlets</strong> Forma Verbo-Sustantivo: <code>Test-Path</code>, <code>Get-Service</code>.</div><div class="mini-card"><strong>Objetos</strong> PowerShell trabaja con objetos, no solo texto.</div></div>`,
-        python: `<div class="mini-grid"><div class="mini-card"><strong>Indentación</strong> Define qué instrucciones pertenecen al bloque.</div><div class="mini-card"><strong>Módulos</strong> <code>os</code> y <code>subprocess</code> conectan Python con el sistema.</div></div>`
-      };
-      return `<section class="pedagogy-section"><h3>Notas globales de ${LANGS[activeLanguage].label}</h3>${notes[activeLanguage]}</section>`;
-    }
-
-    function explainAssessmentRubric() {
-      return `<section class="pedagogy-section"><h3>Mini-rúbrica de práctica</h3><ol><li>Identifica entrada, proceso y salida del script.</li><li>Explica qué condición se evalúa y qué ocurre si es verdadera.</li><li>Compara la sintaxis entre Bash, PowerShell y Python.</li><li>Detecta un posible error: espacios, comillas, tipo de dato, permisos o servicio inexistente.</li></ol></section>`;
-    }
-
-    window.addEventListener("load", initBlockly);
-    window.addEventListener("resize", () => { if (workspace) Blockly.svgResize(workspace); });
+    window.addEventListener("load",init);window.addEventListener("resize",()=>{if(workspace)Blockly.svgResize(workspace)});
   </script>
 </body>
 </html>
