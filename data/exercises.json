@@ -1,0 +1,79 @@
+[
+  {
+    "id": "GT-LAB-01-TERMINAL",
+    "title": "Terminal básica",
+    "level": 1,
+    "guideTopic": "Terminal y comandos",
+    "labPath": "labs/01-terminal-basica/README.md",
+    "branchPrefix": "lab/gt-lab-01-terminal/",
+    "skills": ["rutas", "archivos", "listado", "busqueda", "redireccion"],
+    "deliverables": ["informe.md", "evidencias.md"],
+    "feedbackCriteria": ["entiende rutas", "usa comandos adecuados", "documenta resultados"]
+  },
+  {
+    "id": "GT-LAB-02-LINUX",
+    "title": "Linux administración",
+    "level": 2,
+    "guideTopic": "Linux administración",
+    "labPath": "labs/02-linux-administracion/README.md",
+    "branchPrefix": "lab/gt-lab-02-linux/",
+    "skills": ["sistema", "memoria", "disco", "procesos", "servicios", "logs"],
+    "deliverables": ["informe-linux.md", "evidencias.md"],
+    "feedbackCriteria": ["diagnostico ordenado", "evidencias suficientes", "conclusiones claras"]
+  },
+  {
+    "id": "GT-LAB-03-WINDOWS",
+    "title": "Windows PowerShell",
+    "level": 3,
+    "guideTopic": "Windows CMD y PowerShell",
+    "labPath": "labs/03-windows-powershell/README.md",
+    "branchPrefix": "lab/gt-lab-03-windows/",
+    "skills": ["powershell", "inventario", "procesos", "servicios", "eventos"],
+    "deliverables": ["informe-windows.md", "evidencias.md"],
+    "feedbackCriteria": ["usa cmdlets adecuados", "interpreta resultados", "documenta hallazgos"]
+  },
+  {
+    "id": "GT-LAB-04-REDES",
+    "title": "Diagnóstico de redes",
+    "level": 4,
+    "guideTopic": "Redes y servicios",
+    "labPath": "labs/04-redes/README.md",
+    "branchPrefix": "lab/gt-lab-04-redes/",
+    "skills": ["ip", "gateway", "dns", "puertos", "diagnostico"],
+    "deliverables": ["informe-redes.md", "evidencias.md"],
+    "feedbackCriteria": ["sigue capas", "distingue DNS de conectividad", "justifica diagnostico"]
+  },
+  {
+    "id": "GT-LAB-05-BACKUPS",
+    "title": "Backups y restauración",
+    "level": 5,
+    "guideTopic": "Backups y almacenamiento",
+    "labPath": "labs/05-backups/README.md",
+    "branchPrefix": "lab/gt-lab-05-backups/",
+    "skills": ["copia", "verificacion", "restauracion", "documentacion"],
+    "deliverables": ["informe-backup.md", "evidencias.md"],
+    "feedbackCriteria": ["verifica copia", "prueba restauracion", "explica retencion"]
+  },
+  {
+    "id": "GT-LAB-06-SCRIPTING",
+    "title": "Scripting aplicado",
+    "level": 6,
+    "guideTopic": "Fundamentos de scripting",
+    "labPath": "labs/06-scripting/README.md",
+    "branchPrefix": "lab/gt-lab-06-scripting/",
+    "skills": ["automatizacion", "parametros", "salida", "documentacion"],
+    "deliverables": ["README.md", "informe.md", "prototipo.md"],
+    "feedbackCriteria": ["objetivo claro", "flujo entendible", "mejora propuesta"]
+  },
+  {
+    "id": "GT-LAB-07-PROYECTO",
+    "title": "Proyecto final de mantenimiento",
+    "level": 7,
+    "guideTopic": "Proyecto final",
+    "labPath": "labs/07-proyecto-final/README.md",
+    "branchPrefix": "lab/gt-lab-07-proyecto/",
+    "skills": ["informe", "diagnostico", "evidencias", "recomendaciones", "mejora"],
+    "deliverables": ["informe-final.md", "evidencias.md", "mejoras.md"],
+    "feedbackCriteria": ["informe completo", "diagnostico razonado", "recomendaciones utiles"]
+  }
+]
