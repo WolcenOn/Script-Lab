@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Script-Lab Constructor Visual</title>
+  <title>Script-Lab Constructor por Bloques</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="hero">
     <h1>Script-Lab</h1>
-    <p>Constructor visual: escribe una idea, comando o pseudocódigo y conviértelo en bloques de script.</p>
+    <p>Construye scripts paso a paso con bloques, código real y pistas cuando te atasques.</p>
   </header>
 
   <main class="layout">
@@ -20,26 +20,26 @@
       <article id="exerciseInfo" class="card"></article>
     </section>
 
-    <section class="panel">
-      <h2>2. Paleta de bloques</h2>
-      <p class="muted">Estos son los tipos de bloque que Script-Lab puede reconocer. Úsalos como guía mientras escribes.</p>
-      <div id="paletteOutput" class="palette"></div>
+    <section class="panel wide">
+      <h2>2. Pasos del ejercicio</h2>
+      <p class="muted">Cada paso funciona como un bloque. Puedes abrir la pista, mirar el código real y añadir el bloque a tu construcción.</p>
+      <div id="stepsOutput" class="step-grid"></div>
     </section>
 
-    <section class="panel editor-panel">
-      <h2>3. Escribe tu construcción</h2>
-      <p>Escribe una línea por acción. Puedes usar comandos reales, pseudocódigo o explicaciones.</p>
-      <textarea id="solutionInput" spellcheck="false" placeholder="Ejemplo:\nCrear carpeta de trabajo\nEntrar en la carpeta\nCrear archivo informe.md\nListar contenido y guardar salida\nComprobar resultado\nEscribir conclusión"></textarea>
+    <section class="panel workspace-panel">
+      <h2>3. Tu script construido</h2>
+      <p class="muted">Aquí se van añadiendo los bloques. También puedes escribir o modificar el código manualmente.</p>
+      <textarea id="solutionInput" spellcheck="false" placeholder="# Añade bloques desde los pasos o escribe tu script aquí"></textarea>
       <div class="actions">
-        <button id="analyzeBtn">Convertir en bloques</button>
-        <button id="exampleBtn" class="secondary">Cargar ejemplo</button>
+        <button id="analyzeBtn">Actualizar bloques visuales</button>
+        <button id="exampleBtn" class="secondary">Cargar solución guiada</button>
         <button id="clearBtn" class="secondary">Limpiar</button>
       </div>
     </section>
 
-    <section class="panel wide">
-      <h2>4. Construcción visual del script</h2>
-      <p class="muted">Cada línea escrita se transforma en un bloque visual con tipo, explicación y posibles avisos.</p>
+    <section class="panel visual-panel">
+      <h2>4. Vista tipo bloques</h2>
+      <p class="muted">Script-Lab interpreta tu código y lo muestra como una secuencia visual.</p>
       <div id="blocksOutput" class="visual-flow"></div>
     </section>
 
@@ -49,8 +49,8 @@
     </section>
 
     <section class="panel">
-      <h2>6. Salida estructurada</h2>
-      <p class="muted">Versión ordenada para entregar, documentar o convertir después en script real.</p>
+      <h2>6. Salida documentada</h2>
+      <p class="muted">Resumen para entregar o copiar al informe.</p>
       <pre id="exportOutput"></pre>
     </section>
   </main>
