@@ -47,9 +47,13 @@ body {
   grid-column: 1 / -1;
 }
 
+h2,
+h3 {
+  color: #17324d;
+}
+
 h2 {
   margin-top: 0;
-  color: #17324d;
 }
 
 label {
@@ -80,7 +84,8 @@ textarea {
 }
 
 .actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.75rem;
   margin-top: 0.75rem;
 }
@@ -111,6 +116,10 @@ button.secondary {
   margin-top: 0;
 }
 
+.muted {
+  color: #526174;
+}
+
 .tag {
   display: inline-block;
   margin: 0.2rem;
@@ -121,9 +130,45 @@ button.secondary {
   font-size: 0.9rem;
 }
 
+.guide,
+.hints,
 .blocks {
   display: grid;
   gap: 0.6rem;
+}
+
+.steps {
+  padding-left: 1.25rem;
+}
+
+.steps li {
+  margin-bottom: 0.75rem;
+  line-height: 1.45;
+}
+
+.mini-card {
+  padding: 0.8rem;
+  border-radius: 10px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+}
+
+details {
+  border: 1px solid #d9e2ef;
+  border-radius: 10px;
+  padding: 0.75rem;
+  background: #fbfdff;
+}
+
+summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: #17324d;
+}
+
+details p,
+details ul {
+  margin-bottom: 0;
 }
 
 .block {
@@ -148,6 +193,10 @@ button.secondary {
   font-weight: 700;
 }
 
+.feedback ul {
+  padding-left: 1.25rem;
+}
+
 pre {
   white-space: pre-wrap;
   background: #0f172a;
@@ -157,8 +206,9 @@ pre {
   overflow: auto;
 }
 
-@media (max-width: 800px) {
-  .layout {
+@media (max-width: 900px) {
+  .layout,
+  .actions {
     grid-template-columns: 1fr;
   }
 }
