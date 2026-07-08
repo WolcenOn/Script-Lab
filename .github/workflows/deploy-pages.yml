@@ -25,10 +25,33 @@ jobs:
       - name: Descargar repositorio
         uses: actions/checkout@v4
 
-      - name: Preparar artefacto estático
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Preparar sitio estático
+        run: |
+          mkdir -p _site
+          cp -R prototype _site/prototype
+          cp README.md _site/README.md
+          cat > _site/index.html <<'HTML'
+          <!doctype html>
+          <html lang="es">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>Script-Lab</title>
+            <meta http-equiv="refresh" content="0; url=prototype/">
+          </head>
+          <body>
+            <p>Abriendo <a href="prototype/">Script-Lab prototype</a>...</p>
+          </body>
+          </html>
+          HTML
+
+      - name: Subir artefacto
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
 
       - name: Publicar en GitHub Pages
         id: deployment
