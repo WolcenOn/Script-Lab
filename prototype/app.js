@@ -295,9 +295,12 @@ function renderExercise() {
           <summary>Pista si me bloqueo</summary>
           <p>${escapeHtml(step.hint)}</p>
         </details>
-        <p><strong>Código real:</strong></p>
-        <pre class="code-preview"><code>${escapeHtml(step.code)}</code></pre>
-        <button class="add-block" data-step="${index}">Añadir este bloque</button>
+        <details class="advanced-help">
+          <summary>Ver código real si sigo bloqueado</summary>
+          <p>Consulta este código solo después de intentar construir el bloque por tu cuenta.</p>
+          <pre class="code-preview"><code>${escapeHtml(step.code)}</code></pre>
+        </details>
+        <button class="add-block" data-step="${index}">Añadir bloque al script</button>
       </div>
     </article>
   `).join("");
@@ -410,7 +413,7 @@ function renderFeedback(blocks) {
     ${missing.length ? `<p class="missing"><strong>Faltan tipos de bloque:</strong> ${missing.map(labelFor).map(escapeHtml).join(", ")}</p>` : `<p class="ok">La estructura mínima del ejercicio está completa.</p>`}
     ${warnings.length ? `<p class="missing"><strong>Avisos:</strong> ${warnings.length} mejora(s) pendiente(s).</p>` : ""}
     <h3>Consejo</h3>
-    <p>${missing.length ? "Usa el botón 'Añadir este bloque' en los pasos que todavía faltan." : "Ahora prueba el script en un entorno de laboratorio y añade tus evidencias al informe."}</p>
+    <p>${missing.length ? "Usa el botón 'Añadir bloque al script' en los pasos que todavía faltan." : "Ahora prueba el script en un entorno de laboratorio y añade tus evidencias al informe."}</p>
   `;
 }
 
