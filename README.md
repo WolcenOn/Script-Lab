@@ -28,13 +28,21 @@ Aquí se pueden preparar:
 
 ## Prototipo de interfaz
 
-Hay un primer prototipo en:
+Hay un primer prototipo seguro en:
 
 [prototype/index.html](prototype/index.html)
+
+También puede abrirse publicado así:
+
+```text
+https://wolcenon.github.io/Script-Lab/prototype/?exercise=GT-LAB-04-REDES
+```
 
 Permite:
 
 - Seleccionar un ejercicio.
+- Leer `?exercise=ID` desde la URL.
+- Validar el ID contra una lista blanca.
 - Escribir comandos, pseudocódigo o una explicación.
 - Detectar bloques didácticos.
 - Mostrar criterios cubiertos y pendientes.
@@ -45,6 +53,7 @@ Documentación relacionada:
 - [Integración guía y Script-Lab](docs/integracion-guia-script-lab.md)
 - [Ramificación y feedback](docs/ramificacion-y-feedback.md)
 - [Interfaz texto a bloques](docs/interfaz-texto-bloques.md)
+- [Carga segura de ejercicios](docs/carga-segura-ejercicios.md)
 
 ---
 
