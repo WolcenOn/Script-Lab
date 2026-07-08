@@ -24,11 +24,20 @@ Aquí se pueden preparar:
 - Dinámicas de feedback con ramas y Pull Requests.
 - Prototipos de texto a bloques.
 
+La idea no es que el alumnado solo escriba comandos. La idea es que aprenda a pensar como una persona técnica:
+
+1. Entender el problema.
+2. Dividirlo en pasos.
+3. Elegir comandos o acciones.
+4. Guardar evidencias.
+5. Interpretar resultados.
+6. Mejorar la solución.
+
 ---
 
 ## Prototipo de interfaz
 
-Hay un primer prototipo seguro en:
+Hay un primer prototipo pedagógico en:
 
 [prototype/index.html](prototype/index.html)
 
@@ -43,13 +52,18 @@ Permite:
 - Seleccionar un ejercicio.
 - Leer `?exercise=ID` desde la URL.
 - Validar el ID contra una lista blanca.
+- Ver escenario, objetivo y criterios mínimos.
+- Seguir una guía paso a paso.
+- Abrir pistas progresivas.
 - Escribir comandos, pseudocódigo o una explicación.
 - Detectar bloques didácticos.
 - Mostrar criterios cubiertos y pendientes.
+- Recibir feedback pedagógico.
 - Preparar una entrega básica en Markdown.
 
 Documentación relacionada:
 
+- [Modelo pedagógico de ejercicios](docs/modelo-pedagogico-ejercicios.md)
 - [Integración guía y Script-Lab](docs/integracion-guia-script-lab.md)
 - [Ramificación y feedback](docs/ramificacion-y-feedback.md)
 - [Interfaz texto a bloques](docs/interfaz-texto-bloques.md)
@@ -73,16 +87,18 @@ Documentación relacionada:
 
 ## Cómo trabajar cada laboratorio
 
-1. Leer el objetivo.
-2. Preparar un entorno de pruebas.
-3. Realizar las tareas propuestas.
-4. Guardar evidencias.
-5. Responder las preguntas.
-6. Completar el checklist.
-7. Proponer una mejora.
-8. Crear una rama de trabajo.
-9. Abrir Pull Request para feedback.
-10. Aplicar mejoras.
+1. Leer el escenario.
+2. Entender el objetivo de aprendizaje.
+3. Revisar los criterios mínimos.
+4. Seguir los pasos guiados.
+5. Intentar una primera solución sin mirar la solución final.
+6. Usar pistas progresivas si aparece un bloqueo.
+7. Generar feedback.
+8. Completar evidencias.
+9. Redactar una conclusión.
+10. Crear una rama de trabajo.
+11. Abrir Pull Request para feedback.
+12. Aplicar mejoras.
 
 ---
 
