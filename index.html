@@ -1,1108 +1,557 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ASIR ScriptLab: Blockly + Bash + PowerShell + Python</title>
-
-  <!--
-    ASIR ScriptLab
-    Archivo HTML5 autocontenido: CSS + JavaScript vanilla + Google Blockly vía CDN.
-    Requiere conexión a Internet para cargar Blockly desde unpkg.
-  -->
-
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Script-Lab - Ejercicios seguros con Blockly</title>
   <script src="https://unpkg.com/blockly@12.5.1/blockly.min.js"></script>
   <script src="https://unpkg.com/blockly@12.5.1/msg/es.js"></script>
-
   <style>
     :root {
       --bg: #0f172a;
       --panel: #111827;
       --panel-soft: #1f2937;
-      --panel-light: #f8fafc;
       --text: #e5e7eb;
       --muted: #94a3b8;
       --accent: #38bdf8;
-      --accent-2: #a78bfa;
       --ok: #22c55e;
       --warn: #f59e0b;
       --danger: #ef4444;
-      --code-bg: #020617;
-      --border: rgba(148, 163, 184, 0.25);
-      --shadow: 0 20px 55px rgba(0, 0, 0, 0.35);
-      --radius: 18px;
-      --mono: "Cascadia Code", "Fira Code", Consolas, Monaco, monospace;
+      --border: rgba(148, 163, 184, 0.28);
+      --radius: 16px;
+      --mono: "Cascadia Code", "Fira Code", Consolas, monospace;
       --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      height: 100vh;
-      overflow: hidden;
+      min-height: 100vh;
       font-family: var(--sans);
       color: var(--text);
       background:
-        radial-gradient(circle at top left, rgba(56, 189, 248, 0.25), transparent 35%),
-        radial-gradient(circle at top right, rgba(167, 139, 250, 0.20), transparent 30%),
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.22), transparent 32%),
+        radial-gradient(circle at top right, rgba(167, 139, 250, 0.18), transparent 28%),
         var(--bg);
     }
 
-    .app-shell {
+    .app {
+      min-height: 100vh;
       display: grid;
       grid-template-rows: auto 1fr;
-      height: 100vh;
-      padding: 18px;
-      gap: 16px;
+      gap: 14px;
+      padding: 16px;
     }
 
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 16px 20px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      background: rgba(15, 23, 42, 0.78);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(14px);
-    }
-
-    .brand {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .brand h1 {
-      margin: 0;
-      font-size: clamp(1.25rem, 2vw, 1.8rem);
-      line-height: 1.1;
-      letter-spacing: -0.03em;
-    }
-
-    .brand p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    .status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      white-space: nowrap;
-      padding: 10px 14px;
-      border: 1px solid rgba(34, 197, 94, 0.35);
-      border-radius: 999px;
-      background: rgba(34, 197, 94, 0.10);
-      color: #bbf7d0;
-      font-weight: 700;
-      font-size: 0.9rem;
-    }
-
-    .status-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 999px;
-      background: var(--ok);
-      box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.15);
-    }
-
-    .dashboard {
-      min-height: 0;
-      display: grid;
-      grid-template-columns: minmax(360px, 1.12fr) minmax(320px, 0.88fr) minmax(320px, 0.86fr);
-      gap: 16px;
-    }
-
-    .card {
-      min-height: 0;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
+    header, .panel {
       border: 1px solid var(--border);
       border-radius: var(--radius);
       background: rgba(17, 24, 39, 0.92);
-      box-shadow: var(--shadow);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
     }
 
-    .card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--border);
-      background: rgba(31, 41, 55, 0.75);
-    }
-
-    .card-title {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 800;
-      letter-spacing: -0.015em;
-    }
-
-    .card-title span:first-child {
+    header {
       display: grid;
-      place-items: center;
-      width: 30px;
-      height: 30px;
-      border-radius: 10px;
-      background: rgba(56, 189, 248, 0.13);
-      color: var(--accent);
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: start;
+      padding: 16px;
     }
 
-    .hint {
-      color: var(--muted);
-      font-size: 0.82rem;
+    h1, h2, h3 { margin-top: 0; }
+    h1 { margin-bottom: 6px; font-size: clamp(1.3rem, 2vw, 2rem); }
+    h2 { font-size: 1rem; color: #e0f2fe; }
+    p { color: #cbd5e1; line-height: 1.5; }
+
+    .status {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(34, 197, 94, 0.35);
+      background: rgba(34, 197, 94, 0.10);
+      color: #bbf7d0;
+      font-weight: 800;
+      white-space: nowrap;
     }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 320px minmax(420px, 1.15fr) minmax(340px, 0.9fr);
+      gap: 14px;
+      min-height: 0;
+    }
+
+    .panel {
+      min-height: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-header {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(31, 41, 55, 0.76);
+    }
+
+    .panel-body {
+      padding: 14px;
+      overflow: auto;
+      flex: 1;
+      min-height: 0;
+    }
+
+    label { display: block; margin-bottom: 6px; font-weight: 800; color: #e0f2fe; }
+    select, textarea, button {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font: inherit;
+    }
+    select, textarea {
+      background: #020617;
+      color: var(--text);
+      padding: 10px;
+    }
+    textarea {
+      min-height: 160px;
+      resize: vertical;
+      font-family: var(--mono);
+    }
+    button {
+      padding: 10px 12px;
+      background: #0369a1;
+      color: white;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    button.secondary { background: #334155; }
+
+    .stack { display: grid; gap: 12px; }
+    .tag {
+      display: inline-block;
+      margin: 3px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.14);
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      color: #bae6fd;
+      font-size: 0.85rem;
+    }
+    .warning {
+      border-left: 4px solid var(--warn);
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(245, 158, 11, 0.1);
+    }
+    .ok { color: #86efac; font-weight: 800; }
+    .missing { color: #fdba74; font-weight: 800; }
 
     #blocklyDiv {
       flex: 1;
-      min-height: 0;
+      min-height: 520px;
       background: #f8fafc;
     }
 
-    .tabs {
-      display: flex;
-      gap: 8px;
-      padding: 12px 12px 0;
-      background: rgba(2, 6, 23, 0.65);
-    }
-
-    .tab-btn {
-      border: 1px solid var(--border);
-      border-bottom: none;
-      border-radius: 12px 12px 0 0;
-      padding: 10px 14px;
-      color: var(--muted);
-      background: rgba(15, 23, 42, 0.72);
-      font-weight: 800;
-      cursor: pointer;
-      transition: 0.18s ease;
-    }
-
-    .tab-btn:hover {
-      color: white;
-      background: rgba(30, 41, 59, 0.95);
-    }
-
-    .tab-btn.active {
-      color: #e0f2fe;
-      border-color: rgba(56, 189, 248, 0.55);
-      background: linear-gradient(180deg, rgba(14, 165, 233, 0.22), rgba(2, 6, 23, 0.90));
-    }
-
-    .code-toolbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 14px;
-      background: rgba(2, 6, 23, 0.90);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .language-badge {
-      font-family: var(--mono);
-      font-size: 0.8rem;
-      color: #bae6fd;
-      background: rgba(56, 189, 248, 0.10);
-      border: 1px solid rgba(56, 189, 248, 0.28);
-      padding: 6px 9px;
-      border-radius: 999px;
-    }
-
-    .copy-btn {
-      border: 1px solid rgba(148, 163, 184, 0.30);
-      border-radius: 10px;
-      padding: 8px 10px;
-      background: rgba(15, 23, 42, 0.90);
-      color: var(--text);
-      cursor: pointer;
-      font-weight: 700;
-    }
-
-    .copy-btn:hover {
-      border-color: rgba(56, 189, 248, 0.65);
-      color: #e0f2fe;
-    }
+    .tabs { display: flex; gap: 8px; margin-bottom: 10px; }
+    .tabs button { width: auto; background: #1e293b; }
+    .tabs button.active { background: #0369a1; }
 
     pre {
       margin: 0;
-      flex: 1;
-      min-height: 0;
-      overflow: auto;
-      padding: 18px;
-      background: var(--code-bg);
-      color: #e2e8f0;
-      font-family: var(--mono);
-      line-height: 1.55;
-      font-size: 0.94rem;
-      tab-size: 2;
-      white-space: pre;
-    }
-
-    .pedagogy {
-      flex: 1;
-      min-height: 0;
-      overflow: auto;
-      padding: 16px;
-      background: linear-gradient(180deg, rgba(15, 23, 42, 0.72), rgba(2, 6, 23, 0.92));
-    }
-
-    .pedagogy-section {
-      margin-bottom: 14px;
-      padding: 14px;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      background: rgba(15, 23, 42, 0.70);
-    }
-
-    .pedagogy-section h3 {
-      margin: 0 0 8px;
-      font-size: 1rem;
-      color: #f8fafc;
-    }
-
-    .pedagogy-section p,
-    .pedagogy-section li {
-      color: #cbd5e1;
-      line-height: 1.55;
-      font-size: 0.94rem;
-    }
-
-    .pedagogy-section ul,
-    .pedagogy-section ol {
-      margin: 8px 0 0;
-      padding-left: 20px;
-    }
-
-    .alert {
-      border-left: 5px solid var(--warn);
-      background: rgba(245, 158, 11, 0.11);
-    }
-
-    .alert h3 {
-      color: #fde68a;
-    }
-
-    .critical {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 5px 8px;
-      border-radius: 999px;
-      color: #fecaca;
-      background: rgba(239, 68, 68, 0.12);
-      border: 1px solid rgba(239, 68, 68, 0.25);
-      font-size: 0.78rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    .empty-state {
-      color: var(--muted);
-      border: 1px dashed rgba(148, 163, 184, 0.30);
-      border-radius: 16px;
-      padding: 18px;
-      background: rgba(15, 23, 42, 0.42);
-    }
-
-    .mini-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .mini-card {
-      padding: 10px;
+      padding: 12px;
       border-radius: 12px;
-      background: rgba(30, 41, 59, 0.65);
-      border: 1px solid rgba(148, 163, 184, 0.18);
+      background: #020617;
+      color: #e2e8f0;
+      overflow: auto;
+      min-height: 180px;
+      white-space: pre-wrap;
+      font-family: var(--mono);
     }
 
-    .mini-card strong {
-      display: block;
-      color: #e0f2fe;
-      margin-bottom: 5px;
+    .block-chip {
+      padding: 8px 10px;
+      border-left: 5px solid var(--accent);
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.85);
+      margin-bottom: 8px;
     }
 
     @media (max-width: 1180px) {
-      body {
-        overflow: auto;
-      }
-
-      .app-shell {
-        height: auto;
-        min-height: 100vh;
-      }
-
-      .dashboard {
-        grid-template-columns: 1fr;
-        grid-auto-rows: minmax(520px, 72vh);
-      }
-
-      header {
-        align-items: flex-start;
-        flex-direction: column;
-      }
+      header, .layout { grid-template-columns: 1fr; }
+      #blocklyDiv { min-height: 460px; }
     }
   </style>
 </head>
-
 <body>
-  <div class="app-shell">
+  <div class="app">
     <header>
-      <div class="brand">
-        <h1>ASIR ScriptLab: Blockly → Bash / PowerShell / Python</h1>
-        <p>Construye scripts visuales y compara sintaxis real de administración de sistemas en tiempo real.</p>
+      <div>
+        <h1>Script-Lab</h1>
+        <p>Laboratorio seguro: carga ejercicios por ID, genera bloques Blockly, produce código y muestra feedback didáctico.</p>
       </div>
-      <div class="status-pill">
-        <span class="status-dot"></span>
-        addChangeListener activo
-      </div>
+      <div class="status">Carga segura activa</div>
     </header>
 
-    <main class="dashboard">
-      <section class="card">
-        <div class="card-header">
-          <div class="card-title"><span>▦</span> 1. Blockly Workspace</div>
-          <div class="hint">Arrastra bloques y cambia desplegables</div>
+    <main class="layout">
+      <aside class="panel">
+        <div class="panel-header"><h2>1. Ejercicio</h2></div>
+        <div class="panel-body stack">
+          <div>
+            <label for="exerciseSelect">Ejercicio cargado</label>
+            <select id="exerciseSelect"></select>
+          </div>
+          <article id="exerciseInfo"></article>
+          <div class="warning">
+            Solo se cargan IDs existentes en la lista blanca interna. No se aceptan rutas ni URLs externas.
+          </div>
+          <div>
+            <label for="textSolution">Texto, comandos o pseudocódigo</label>
+            <textarea id="textSolution" placeholder="Ejemplo: revisar IP local, comprobar gateway, probar DNS, comprobar puerto y escribir conclusión..."></textarea>
+          </div>
+          <button id="analyzeText">Analizar texto</button>
+          <button id="copyDelivery" class="secondary">Copiar entrega</button>
         </div>
+      </aside>
+
+      <section class="panel">
+        <div class="panel-header"><h2>2. Bloques Blockly</h2></div>
         <div id="blocklyDiv"></div>
       </section>
 
-      <section class="card">
-        <div class="card-header">
-          <div class="card-title"><span>&lt;/&gt;</span> 2. Código generado</div>
-          <div class="hint">Actualización inmediata</div>
+      <section class="panel">
+        <div class="panel-header"><h2>3. Código y feedback</h2></div>
+        <div class="panel-body stack">
+          <div class="tabs">
+            <button class="tab active" data-lang="bash">Bash</button>
+            <button class="tab" data-lang="powershell">PowerShell</button>
+            <button class="tab" data-lang="python">Python</button>
+          </div>
+          <div>
+            <h3>Código generado</h3>
+            <pre id="codeView"></pre>
+          </div>
+          <div>
+            <h3>Bloques detectados en el texto</h3>
+            <div id="blocksOutput"></div>
+          </div>
+          <div>
+            <h3>Feedback</h3>
+            <div id="feedbackOutput"></div>
+          </div>
+          <div>
+            <h3>Entrega sugerida</h3>
+            <pre id="deliveryOutput"></pre>
+          </div>
         </div>
-
-        <div class="tabs" role="tablist" aria-label="Lenguajes de scripting">
-          <button class="tab-btn active" data-lang="bash" role="tab">Bash</button>
-          <button class="tab-btn" data-lang="powershell" role="tab">PowerShell</button>
-          <button class="tab-btn" data-lang="python" role="tab">Python</button>
-        </div>
-
-        <div class="code-toolbar">
-          <span id="languageBadge" class="language-badge">bash</span>
-          <button id="copyCode" class="copy-btn" type="button">Copiar código</button>
-        </div>
-
-        <pre><code id="codeView"></code></pre>
-      </section>
-
-      <section class="card">
-        <div class="card-header">
-          <div class="card-title"><span>?</span> 3. Panel pedagógico</div>
-          <div class="hint">Depende de la pestaña activa</div>
-        </div>
-        <div id="pedagogyPanel" class="pedagogy"></div>
       </section>
     </main>
   </div>
 
   <xml id="toolbox" style="display:none">
-    <category name="ASIR - Control" colour="#0ea5e9">
+    <category name="Control" colour="#0ea5e9">
       <block type="asir_if"></block>
       <block type="asir_compare_condition"></block>
     </category>
-
-    <category name="ASIR - Sistema" colour="#8b5cf6">
+    <category name="Sistema" colour="#8b5cf6">
       <block type="asir_system_check"></block>
     </category>
-
-    <category name="ASIR - Salida" colour="#22c55e">
+    <category name="Salida" colour="#22c55e">
       <block type="asir_print"></block>
     </category>
-
-    <category name="Texto y datos" colour="#64748b">
-      <block type="text"></block>
-      <block type="math_number"></block>
-    </category>
-  </xml>
-
-  <xml id="startBlocks" style="display:none">
-    <block type="asir_if" x="30" y="30">
-      <value name="COND">
-        <block type="asir_system_check">
-          <field name="KIND">FILE</field>
-          <field name="PATH">/etc/passwd</field>
-        </block>
-      </value>
-      <statement name="DO">
-        <block type="asir_print">
-          <field name="MESSAGE">El elemento existe</field>
-          <next>
-            <block type="asir_print">
-              <field name="MESSAGE">Continuando con la comprobación ASIR...</field>
-            </block>
-          </next>
-        </block>
-      </statement>
-    </block>
-
-    <block type="asir_if" x="30" y="250">
-      <value name="COND">
-        <block type="asir_compare_condition">
-          <field name="LEFT">10</field>
-          <field name="OP">GT</field>
-          <field name="RIGHT">5</field>
-          <field name="TYPE">NUMBER</field>
-        </block>
-      </value>
-      <statement name="DO">
-        <block type="asir_print">
-          <field name="MESSAGE">La comparación se cumple</field>
-        </block>
-      </statement>
-    </block>
   </xml>
 
   <script>
-    "use strict";
+    'use strict';
 
-    const LANGS = {
-      bash: {
-        label: "Bash",
-        badge: "bash",
-        comment: "#",
-      },
-      powershell: {
-        label: "PowerShell",
-        badge: "powershell",
-        comment: "#",
-      },
-      python: {
-        label: "Python",
-        badge: "python",
-        comment: "#",
-      },
-    };
+    const exercises = [
+      { id: 'GT-LAB-01-TERMINAL', title: 'Terminal básica', branchPrefix: 'lab/gt-lab-01-terminal/', required: ['carpeta', 'archivo', 'listar', 'buscar', 'salida'], blocks: ['asir_system_check', 'asir_print'] },
+      { id: 'GT-LAB-02-LINUX', title: 'Linux administración', branchPrefix: 'lab/gt-lab-02-linux/', required: ['sistema', 'disco', 'proceso', 'servicio', 'logs', 'red'], blocks: ['asir_system_check', 'asir_print'] },
+      { id: 'GT-LAB-03-WINDOWS', title: 'Windows PowerShell', branchPrefix: 'lab/gt-lab-03-windows/', required: ['sistema', 'disco', 'proceso', 'servicio', 'logs', 'red'], blocks: ['asir_system_check', 'asir_print'] },
+      { id: 'GT-LAB-04-REDES', title: 'Diagnóstico de redes', branchPrefix: 'lab/gt-lab-04-redes/', required: ['ip', 'gateway', 'dns', 'puerto', 'conclusion'], blocks: ['asir_print', 'asir_compare_condition'] },
+      { id: 'GT-LAB-05-BACKUPS', title: 'Backups y restauración', branchPrefix: 'lab/gt-lab-05-backups/', required: ['objetivo', 'entrada', 'proceso', 'salida', 'verificacion'], blocks: ['asir_system_check', 'asir_print'] },
+      { id: 'GT-LAB-06-SCRIPTING', title: 'Scripting aplicado', branchPrefix: 'lab/gt-lab-06-scripting/', required: ['objetivo', 'entrada', 'proceso', 'salida', 'verificacion'], blocks: ['asir_if', 'asir_system_check', 'asir_print'] },
+      { id: 'GT-LAB-07-PROYECTO', title: 'Proyecto final de mantenimiento', branchPrefix: 'lab/gt-lab-07-proyecto/', required: ['sistema', 'disco', 'red', 'servicio', 'logs', 'conclusion'], blocks: ['asir_if', 'asir_system_check', 'asir_print'] }
+    ];
 
-    let activeLanguage = "bash";
+    const patterns = [
+      { type: 'carpeta', label: 'Carpeta', words: ['mkdir', 'carpeta', 'directorio', 'cd ', 'entrar'] },
+      { type: 'archivo', label: 'Archivo', words: ['touch', 'archivo', 'fichero', 'new-item', 'get-content', 'cat '] },
+      { type: 'listar', label: 'Listar', words: ['ls', 'dir', 'get-childitem', 'listar'] },
+      { type: 'buscar', label: 'Buscar', words: ['grep', 'findstr', 'select-string', 'buscar'] },
+      { type: 'salida', label: 'Salida', words: ['>', 'out-file', 'export', 'guardar', 'mostrar', 'copia'] },
+      { type: 'sistema', label: 'Sistema', words: ['hostname', 'whoami', 'systeminfo', 'get-computerinfo', 'hostnamectl', 'equipo', 'sistema'] },
+      { type: 'disco', label: 'Disco', words: ['df', 'du', 'get-psdrive', 'get-volume', 'disco', 'almacenamiento'] },
+      { type: 'proceso', label: 'Proceso', words: ['ps ', 'top', 'get-process', 'tasklist', 'proceso'] },
+      { type: 'servicio', label: 'Servicio', words: ['systemctl', 'get-service', 'sc query', 'servicio'] },
+      { type: 'logs', label: 'Logs', words: ['journalctl', 'eventlog', 'get-winevent', 'logs', 'eventos', 'errores'] },
+      { type: 'red', label: 'Red', words: ['ip ', 'netip', 'ss ', 'netstat', 'red', 'conectividad'] },
+      { type: 'ip', label: 'IP local', words: ['ip a', 'ipconfig', 'get-netipaddress', 'ip local'] },
+      { type: 'gateway', label: 'Gateway', words: ['ip route', 'route print', 'get-netroute', 'gateway', 'ruta'] },
+      { type: 'dns', label: 'DNS', words: ['nslookup', 'resolve-dnsname', 'dns', 'dominio'] },
+      { type: 'puerto', label: 'Puerto', words: ['test-netconnection', 'curl', 'puerto', '443', '80'] },
+      { type: 'conclusion', label: 'Conclusión', words: ['conclusion', 'diagnostico', 'resultado final', 'recomendacion'] },
+      { type: 'objetivo', label: 'Objetivo', words: ['objetivo', 'problema', 'finalidad', 'proteger'] },
+      { type: 'entrada', label: 'Entrada', words: ['entrada', 'parametro', 'argumento', 'dato', 'origen', 'destino'] },
+      { type: 'verificacion', label: 'Verificación', words: ['verificar', 'comprobar', 'validar', 'test', 'restaurar'] }
+    ];
+
+    let activeLanguage = 'bash';
     let workspace = null;
 
-    // -------------------------------------------------------------------------
-    // 1. Definición de bloques personalizados
-    // -------------------------------------------------------------------------
+    const exerciseSelect = document.getElementById('exerciseSelect');
+    const exerciseInfo = document.getElementById('exerciseInfo');
+    const textSolution = document.getElementById('textSolution');
+    const blocksOutput = document.getElementById('blocksOutput');
+    const feedbackOutput = document.getElementById('feedbackOutput');
+    const deliveryOutput = document.getElementById('deliveryOutput');
+    const codeView = document.getElementById('codeView');
 
-    Blockly.defineBlocksWithJsonArray([
-      {
-        "type": "asir_if",
-        "message0": "si %1 entonces %2",
-        "args0": [
-          {
-            "type": "input_value",
-            "name": "COND",
-            "check": "Boolean"
-          },
-          {
-            "type": "input_statement",
-            "name": "DO"
-          }
-        ],
-        "previousStatement": null,
-        "nextStatement": null,
-        "colour": 200,
-        "tooltip": "Ejecuta los bloques internos solo si la condición se cumple.",
-        "helpUrl": ""
-      },
-      {
-        "type": "asir_compare_condition",
-        "message0": "comparar %1 %2 %3 como %4",
-        "args0": [
-          {
-            "type": "field_input",
-            "name": "LEFT",
-            "text": "10"
-          },
-          {
-            "type": "field_dropdown",
-            "name": "OP",
-            "options": [
-              ["igual a", "EQ"],
-              ["mayor que", "GT"],
-              ["menor que", "LT"]
-            ]
-          },
-          {
-            "type": "field_input",
-            "name": "RIGHT",
-            "text": "5"
-          },
-          {
-            "type": "field_dropdown",
-            "name": "TYPE",
-            "options": [
-              ["número", "NUMBER"],
-              ["texto", "STRING"]
-            ]
-          }
-        ],
-        "output": "Boolean",
-        "colour": 205,
-        "tooltip": "Compara dos valores. En Bash cambia mucho si la comparación es numérica o de texto.",
-        "helpUrl": ""
-      },
-      {
-        "type": "asir_system_check",
-        "message0": "comprobar %1 ruta %2",
-        "args0": [
-          {
-            "type": "field_dropdown",
-            "name": "KIND",
-            "options": [
-              ["archivo", "FILE"],
-              ["directorio", "DIR"]
-            ]
-          },
-          {
-            "type": "field_input",
-            "name": "PATH",
-            "text": "/etc/passwd"
-          }
-        ],
-        "output": "Boolean",
-        "colour": 265,
-        "tooltip": "Comprueba si una ruta existe y si es archivo o directorio.",
-        "helpUrl": ""
-      },
-      {
-        "type": "asir_print",
-        "message0": "imprimir %1",
-        "args0": [
-          {
-            "type": "field_input",
-            "name": "MESSAGE",
-            "text": "Hola ASIR"
-          }
-        ],
-        "previousStatement": null,
-        "nextStatement": null,
-        "colour": 145,
-        "tooltip": "Muestra texto por pantalla.",
-        "helpUrl": ""
-      }
-    ]);
-
-    // -------------------------------------------------------------------------
-    // 2. Utilidades de generación segura de código
-    // -------------------------------------------------------------------------
-
-    function singleQuote(value) {
-      return "'" + String(value).replace(/'/g, "'\"'\"'") + "'";
+    function escapeHtml(value) {
+      return String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
     }
 
-    function doubleQuote(value) {
-      return '"' + String(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '"';
+    function sanitizeExerciseId(value) {
+      if (!value) return null;
+      const normalized = value.trim().toUpperCase();
+      return /^GT-LAB-\d{2}-[A-Z0-9-]+$/.test(normalized) ? normalized : null;
     }
 
-    function pythonLiteral(value, type) {
-      if (type === "NUMBER" && /^-?\d+(\.\d+)?$/.test(String(value).trim())) {
-        return String(value).trim();
-      }
-      return JSON.stringify(String(value));
+    function getExerciseIdFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      return sanitizeExerciseId(params.get('exercise') || params.get('exercise_id') || params.get('id'));
     }
 
-    function psLiteral(value, type) {
-      if (type === "NUMBER" && /^-?\d+(\.\d+)?$/.test(String(value).trim())) {
-        return String(value).trim();
-      }
-      return singleQuote(value);
+    function selectedExercise() {
+      return exercises[Number(exerciseSelect.value || 0)];
     }
 
-    function bashTestLiteral(value, type) {
-      if (type === "NUMBER" && /^-?\d+(\.\d+)?$/.test(String(value).trim())) {
-        return String(value).trim();
-      }
-      return doubleQuote(value);
+    function setUrlExercise(id) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('exercise', id);
+      window.history.replaceState({}, '', url.toString());
     }
 
-    function makeGenerator(name) {
-      const generator = new Blockly.CodeGenerator(name);
-      generator.ORDER_ATOMIC = 0;
-      generator.ORDER_NONE = 99;
-      generator.INDENT = "  ";
-
-      generator.scrub_ = function(block, code, thisOnly) {
-        const nextBlock = block.nextConnection && block.nextConnection.targetBlock();
-        const nextCode = thisOnly || !nextBlock ? "" : this.blockToCode(nextBlock);
-        return code + nextCode;
-      };
-
-      return generator;
+    function buildSafeLink(id) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('exercise', id);
+      return url.toString();
     }
 
-    const bashGenerator = makeGenerator("Bash");
-    const psGenerator = makeGenerator("PowerShell");
-    const pyGenerator = makeGenerator("Python");
+    function renderExercise() {
+      const ex = selectedExercise();
+      exerciseInfo.innerHTML = `
+        <h3>${escapeHtml(ex.title)}</h3>
+        <p><strong>ID:</strong> ${escapeHtml(ex.id)}</p>
+        <p><strong>Rama:</strong> <code>${escapeHtml(ex.branchPrefix)}tu-nombre</code></p>
+        <p><strong>Enlace seguro:</strong><br><code>${escapeHtml(buildSafeLink(ex.id))}</code></p>
+        <div>${ex.required.map(item => `<span class="tag">${escapeHtml(item)}</span>`).join('')}</div>
+      `;
+      seedWorkspaceForExercise(ex);
+      analyzeText();
+    }
 
-    // -------------------------------------------------------------------------
-    // 3. Generadores Bash
-    // -------------------------------------------------------------------------
+    function defineBlocks() {
+      Blockly.defineBlocksWithJsonArray([
+        { type: 'asir_if', message0: 'si %1 entonces %2', args0: [{ type: 'input_value', name: 'COND', check: 'Boolean' }, { type: 'input_statement', name: 'DO' }], previousStatement: null, nextStatement: null, colour: 200 },
+        { type: 'asir_compare_condition', message0: 'comparar %1 %2 %3 como %4', args0: [{ type: 'field_input', name: 'LEFT', text: '10' }, { type: 'field_dropdown', name: 'OP', options: [['igual a', 'EQ'], ['mayor que', 'GT'], ['menor que', 'LT']] }, { type: 'field_input', name: 'RIGHT', text: '5' }, { type: 'field_dropdown', name: 'TYPE', options: [['número', 'NUMBER'], ['texto', 'STRING']] }], output: 'Boolean', colour: 205 },
+        { type: 'asir_system_check', message0: 'comprobar %1 ruta %2', args0: [{ type: 'field_dropdown', name: 'KIND', options: [['archivo', 'FILE'], ['directorio', 'DIR']] }, { type: 'field_input', name: 'PATH', text: '/tmp' }], output: 'Boolean', colour: 265 },
+        { type: 'asir_print', message0: 'imprimir %1', args0: [{ type: 'field_input', name: 'MESSAGE', text: 'Resultado del ejercicio' }], previousStatement: null, nextStatement: null, colour: 145 }
+      ]);
+    }
 
-    bashGenerator.forBlock["asir_print"] = function(block) {
-      const message = block.getFieldValue("MESSAGE");
-      return `echo ${singleQuote(message)}\n`;
-    };
+    function singleQuote(value) { return "'" + String(value).replace(/'/g, "'\"'\"'") + "'"; }
+    function doubleQuote(value) { return '"' + String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"'; }
+    function isNumber(value) { return /^-?\d+(\.\d+)?$/.test(String(value).trim()); }
 
-    bashGenerator.forBlock["asir_compare_condition"] = function(block) {
-      const left = block.getFieldValue("LEFT");
-      const right = block.getFieldValue("RIGHT");
-      const op = block.getFieldValue("OP");
-      const type = block.getFieldValue("TYPE");
-
-      if (type === "STRING") {
-        const stringOp = op === "EQ" ? "==" : (op === "GT" ? ">" : "<");
-        return [`[[ ${bashTestLiteral(left, type)} ${stringOp} ${bashTestLiteral(right, type)} ]]`, bashGenerator.ORDER_ATOMIC];
+    function generateBlock(block, lang) {
+      if (block.type === 'asir_print') {
+        const msg = block.getFieldValue('MESSAGE');
+        if (lang === 'powershell') return `Write-Host ${singleQuote(msg)}\n`;
+        if (lang === 'python') return `print(${JSON.stringify(msg)})\n`;
+        return `echo ${singleQuote(msg)}\n`;
       }
 
-      const numericOps = { EQ: "-eq", GT: "-gt", LT: "-lt" };
-      return [`[ ${bashTestLiteral(left, type)} ${numericOps[op]} ${bashTestLiteral(right, type)} ]`, bashGenerator.ORDER_ATOMIC];
-    };
+      if (block.type === 'asir_system_check') {
+        const kind = block.getFieldValue('KIND');
+        const path = block.getFieldValue('PATH');
+        if (lang === 'powershell') return kind === 'FILE' ? `Test-Path -Path ${singleQuote(path)} -PathType Leaf` : `Test-Path -Path ${singleQuote(path)} -PathType Container`;
+        if (lang === 'python') return kind === 'FILE' ? `os.path.isfile(${JSON.stringify(path)})` : `os.path.isdir(${JSON.stringify(path)})`;
+        return kind === 'FILE' ? `[ -f ${singleQuote(path)} ]` : `[ -d ${singleQuote(path)} ]`;
+      }
 
-    bashGenerator.forBlock["asir_system_check"] = function(block) {
-      const kind = block.getFieldValue("KIND");
-      const path = block.getFieldValue("PATH");
-      const flag = kind === "FILE" ? "-f" : "-d";
-      return [`[ ${flag} ${singleQuote(path)} ]`, bashGenerator.ORDER_ATOMIC];
-    };
+      if (block.type === 'asir_compare_condition') {
+        const left = block.getFieldValue('LEFT');
+        const right = block.getFieldValue('RIGHT');
+        const op = block.getFieldValue('OP');
+        const type = block.getFieldValue('TYPE');
+        if (lang === 'powershell') return `${isNumber(left) ? left : singleQuote(left)} ${{ EQ: '-eq', GT: '-gt', LT: '-lt' }[op]} ${isNumber(right) ? right : singleQuote(right)}`;
+        if (lang === 'python') return `${type === 'NUMBER' && isNumber(left) ? left : JSON.stringify(left)} ${{ EQ: '==', GT: '>', LT: '<' }[op]} ${type === 'NUMBER' && isNumber(right) ? right : JSON.stringify(right)}`;
+        if (type === 'STRING') return `[[ ${doubleQuote(left)} ${{ EQ: '==', GT: '>', LT: '<' }[op]} ${doubleQuote(right)} ]]`;
+        return `[ ${left} ${{ EQ: '-eq', GT: '-gt', LT: '-lt' }[op]} ${right} ]`;
+      }
 
-    bashGenerator.forBlock["asir_if"] = function(block, generator) {
-      const condition = generator.valueToCode(block, "COND", generator.ORDER_NONE) || "true";
-      const branch = generator.statementToCode(block, "DO") || "  # No hay acciones dentro del condicional\n";
-      return `if ${condition}; then\n${branch}fi\n`;
-    };
+      if (block.type === 'asir_if') {
+        const condBlock = block.getInputTargetBlock('COND');
+        const statementBlock = block.getInputTargetBlock('DO');
+        const condition = condBlock ? generateBlock(condBlock, lang).trim() : (lang === 'powershell' ? '$true' : lang === 'python' ? 'True' : 'true');
+        const body = statementBlock ? generateChain(statementBlock, lang) : (lang === 'python' ? '  pass\n' : '  # pendiente\n');
+        if (lang === 'powershell') return `if (${condition}) {\n${indent(body, '  ')}}\n`;
+        if (lang === 'python') return `if ${condition}:\n${indent(body, '  ')}`;
+        return `if ${condition}; then\n${indent(body, '  ')}fi\n`;
+      }
+      return '';
+    }
 
-    // -------------------------------------------------------------------------
-    // 4. Generadores PowerShell
-    // -------------------------------------------------------------------------
+    function indent(code, prefix) {
+      return code.split('\n').filter(Boolean).map(line => prefix + line).join('\n') + '\n';
+    }
 
-    psGenerator.forBlock["asir_print"] = function(block) {
-      const message = block.getFieldValue("MESSAGE");
-      return `Write-Host ${singleQuote(message)}\n`;
-    };
+    function generateChain(block, lang) {
+      let code = '';
+      let current = block;
+      while (current) {
+        code += generateBlock(current, lang);
+        current = current.getNextBlock();
+      }
+      return code;
+    }
 
-    psGenerator.forBlock["asir_compare_condition"] = function(block) {
-      const left = block.getFieldValue("LEFT");
-      const right = block.getFieldValue("RIGHT");
-      const op = block.getFieldValue("OP");
-      const type = block.getFieldValue("TYPE");
-      const psOps = { EQ: "-eq", GT: "-gt", LT: "-lt" };
-      return [`${psLiteral(left, type)} ${psOps[op]} ${psLiteral(right, type)}`, psGenerator.ORDER_ATOMIC];
-    };
+    function generateWorkspaceCode() {
+      if (!workspace) return '';
+      let code = '';
+      workspace.getTopBlocks(true).forEach(block => { code += generateChain(block, activeLanguage); });
+      if (activeLanguage === 'python' && code.includes('os.path.')) code = 'import os\n\n' + code;
+      return code.trimEnd();
+    }
 
-    psGenerator.forBlock["asir_system_check"] = function(block) {
-      const kind = block.getFieldValue("KIND");
-      const path = block.getFieldValue("PATH");
-      const pathType = kind === "FILE" ? "Leaf" : "Container";
-      return [`Test-Path -Path ${singleQuote(path)} -PathType ${pathType}`, psGenerator.ORDER_ATOMIC];
-    };
+    function updateCode() {
+      codeView.textContent = generateWorkspaceCode() || '# Arrastra bloques para empezar';
+    }
 
-    psGenerator.forBlock["asir_if"] = function(block, generator) {
-      const condition = generator.valueToCode(block, "COND", generator.ORDER_NONE) || "$true";
-      const branch = generator.statementToCode(block, "DO") || "  # No hay acciones dentro del condicional\n";
-      return `if (${condition}) {\n${branch}}\n`;
-    };
+    function seedWorkspaceForExercise(ex) {
+      if (!workspace) return;
+      workspace.clear();
+      const xml = Blockly.utils.xml.createElement('xml');
+      let previous = null;
+      ex.blocks.forEach((type, index) => {
+        const block = Blockly.utils.xml.createElement('block');
+        block.setAttribute('type', type);
+        block.setAttribute('x', index === 0 ? '30' : '220');
+        block.setAttribute('y', String(30 + index * 90));
 
-    // -------------------------------------------------------------------------
-    // 5. Generadores Python
-    // -------------------------------------------------------------------------
+        if (type === 'asir_print') {
+          const field = Blockly.utils.xml.createElement('field');
+          field.setAttribute('name', 'MESSAGE');
+          field.textContent = `${ex.id}: completar evidencia`;
+          block.appendChild(field);
+        }
+        if (type === 'asir_system_check') {
+          const kind = Blockly.utils.xml.createElement('field');
+          kind.setAttribute('name', 'KIND');
+          kind.textContent = 'DIR';
+          const path = Blockly.utils.xml.createElement('field');
+          path.setAttribute('name', 'PATH');
+          path.textContent = '/tmp';
+          block.appendChild(kind); block.appendChild(path);
+        }
+        if (type === 'asir_compare_condition') {
+          [['LEFT', '1'], ['OP', 'EQ'], ['RIGHT', '1'], ['TYPE', 'NUMBER']].forEach(([name, value]) => {
+            const field = Blockly.utils.xml.createElement('field');
+            field.setAttribute('name', name);
+            field.textContent = value;
+            block.appendChild(field);
+          });
+        }
+        xml.appendChild(block);
+        previous = block;
+      });
+      Blockly.Xml.domToWorkspace(xml, workspace);
+      updateCode();
+    }
 
-    pyGenerator.forBlock["asir_print"] = function(block) {
-      const message = block.getFieldValue("MESSAGE");
-      return `print(${JSON.stringify(message)})\n`;
-    };
+    function detectBlocks(text) {
+      const normalized = text.toLowerCase();
+      const found = [];
+      patterns.forEach(pattern => { if (pattern.words.some(word => normalized.includes(word))) found.push(pattern); });
+      return Array.from(new Map(found.map(item => [item.type, item])).values());
+    }
 
-    pyGenerator.forBlock["asir_compare_condition"] = function(block) {
-      const left = block.getFieldValue("LEFT");
-      const right = block.getFieldValue("RIGHT");
-      const op = block.getFieldValue("OP");
-      const type = block.getFieldValue("TYPE");
-      const pyOps = { EQ: "==", GT: ">", LT: "<" };
-      return [`${pythonLiteral(left, type)} ${pyOps[op]} ${pythonLiteral(right, type)}`, pyGenerator.ORDER_ATOMIC];
-    };
+    function analyzeText() {
+      const ex = selectedExercise();
+      const found = detectBlocks(textSolution.value);
+      const types = found.map(item => item.type);
+      const completed = ex.required.filter(item => types.includes(item));
+      const missing = ex.required.filter(item => !types.includes(item));
 
-    pyGenerator.forBlock["asir_system_check"] = function(block) {
-      const kind = block.getFieldValue("KIND");
-      const path = block.getFieldValue("PATH");
-      const fn = kind === "FILE" ? "isfile" : "isdir";
-      return [`os.path.${fn}(${JSON.stringify(path)})`, pyGenerator.ORDER_ATOMIC];
-    };
+      blocksOutput.innerHTML = found.length ? found.map(item => `<div class="block-chip"><strong>${escapeHtml(item.label)}</strong><br>${escapeHtml(item.type)}</div>`).join('') : '<p>No hay bloques detectados desde el texto.</p>';
+      feedbackOutput.innerHTML = `
+        <p class="ok">Criterios cubiertos: ${completed.length}/${ex.required.length}</p>
+        ${missing.length ? `<p class="missing">Pendiente: ${missing.map(escapeHtml).join(', ')}</p>` : '<p class="ok">Todos los criterios mínimos están cubiertos.</p>'}
+        <p>Usa Blockly para construir la solución visual y compara la salida en Bash, PowerShell o Python.</p>
+      `;
+      deliveryOutput.textContent = buildDelivery(ex, completed, missing);
+    }
 
-    pyGenerator.forBlock["asir_if"] = function(block, generator) {
-      const condition = generator.valueToCode(block, "COND", generator.ORDER_NONE) || "True";
-      const branch = generator.statementToCode(block, "DO") || "  pass\n";
-      return `if ${condition}:\n${branch}`;
-    };
-
-    pyGenerator.finish = function(code) {
-      const trimmed = code.trimEnd();
-      if (!trimmed) return "";
-      return trimmed.includes("os.path.") ? `import os\n\n${trimmed}` : trimmed;
-    };
-
-    // -------------------------------------------------------------------------
-    // 6. Inicialización de Blockly
-    // -------------------------------------------------------------------------
+    function buildDelivery(ex, completed, missing) {
+      return `# Entrega ${ex.id}\n\n## Ejercicio\n${ex.title}\n\n## Enlace seguro\n${buildSafeLink(ex.id)}\n\n## Rama sugerida\n${ex.branchPrefix}tu-nombre\n\n## Criterios cubiertos\n${completed.map(item => '- ' + item).join('\n') || '- Pendiente'}\n\n## Criterios pendientes\n${missing.map(item => '- ' + item).join('\n') || '- Ninguno'}\n\n## Texto del alumno\n${textSolution.value.trim() || 'Pendiente'}\n\n## Código generado\n\n\`\`\`${activeLanguage}\n${generateWorkspaceCode()}\n\`\`\`\n`;
+    }
 
     function initBlockly() {
       if (!window.Blockly) {
-        document.getElementById("blocklyDiv").innerHTML =
-          "<p style='padding:20px;color:#111827'>No se pudo cargar Blockly. Comprueba tu conexión a Internet.</p>";
+        document.getElementById('blocklyDiv').innerHTML = '<p style="padding:20px;color:#111827">No se pudo cargar Blockly.</p>';
         return;
       }
-
-      if (Blockly.Msg && Blockly.setLocale) {
-        Blockly.setLocale(Blockly.Msg);
-      }
-
-      const theme = Blockly.Theme.defineTheme("asirTheme", {
-        base: Blockly.Themes.Classic,
-        componentStyles: {
-          workspaceBackgroundColour: "#f8fafc",
-          toolboxBackgroundColour: "#0f172a",
-          toolboxForegroundColour: "#e5e7eb",
-          flyoutBackgroundColour: "#111827",
-          flyoutForegroundColour: "#e5e7eb",
-          flyoutOpacity: 0.96,
-          scrollbarColour: "#64748b",
-          insertionMarkerColour: "#38bdf8",
-          insertionMarkerOpacity: 0.38,
-          cursorColour: "#ef4444"
-        }
-      });
-
-      workspace = Blockly.inject("blocklyDiv", {
-        toolbox: document.getElementById("toolbox"),
-        theme,
-        renderer: "zelos",
+      if (Blockly.Msg && Blockly.setLocale) Blockly.setLocale(Blockly.Msg);
+      defineBlocks();
+      workspace = Blockly.inject('blocklyDiv', {
+        toolbox: document.getElementById('toolbox'),
+        renderer: 'zelos',
         trashcan: true,
-        collapse: false,
-        comments: true,
-        disable: false,
         sounds: false,
-        zoom: {
-          controls: true,
-          wheel: true,
-          startScale: 0.92,
-          maxScale: 1.35,
-          minScale: 0.55,
-          scaleSpeed: 1.08
-        },
-        move: {
-          scrollbars: true,
-          drag: true,
-          wheel: true
-        }
+        zoom: { controls: true, wheel: true, startScale: 0.9, maxScale: 1.35, minScale: 0.55 },
+        move: { scrollbars: true, drag: true, wheel: true }
       });
+      workspace.addChangeListener(event => { if (event.type !== Blockly.Events.FINISHED_LOADING) { updateCode(); analyzeText(); } });
+      renderExercise();
+    }
 
-      Blockly.Xml.domToWorkspace(document.getElementById("startBlocks"), workspace);
-
-      workspace.addChangeListener(function(event) {
-        if (event.type === Blockly.Events.FINISHED_LOADING) return;
-        updateAll();
+    function initExercises() {
+      exercises.forEach((ex, index) => {
+        const option = document.createElement('option');
+        option.value = String(index);
+        option.textContent = `${ex.id} - ${ex.title}`;
+        exerciseSelect.appendChild(option);
       });
-
-      updateAll();
-    }
-
-    // -------------------------------------------------------------------------
-    // 7. Actualización de código y explicación
-    // -------------------------------------------------------------------------
-
-    function getCurrentGenerator() {
-      if (activeLanguage === "bash") return bashGenerator;
-      if (activeLanguage === "powershell") return psGenerator;
-      return pyGenerator;
-    }
-
-    function generateCode() {
-      if (!workspace) return "";
-      try {
-        return getCurrentGenerator().workspaceToCode(workspace).trimEnd();
-      } catch (error) {
-        return `${LANGS[activeLanguage].comment} Error generando código:\n${LANGS[activeLanguage].comment} ${error.message}`;
+      const requested = getExerciseIdFromUrl();
+      if (requested) {
+        const index = exercises.findIndex(ex => ex.id === requested);
+        if (index >= 0) exerciseSelect.value = String(index);
+        else feedbackOutput.innerHTML = `<p class="missing">El ID ${escapeHtml(requested)} no está permitido. Se carga el primer ejercicio.</p>`;
       }
+      setUrlExercise(selectedExercise().id);
     }
 
-    function updateAll() {
-      const code = generateCode();
-      document.getElementById("codeView").textContent = code || emptyCodeMessage();
-      document.getElementById("languageBadge").textContent = LANGS[activeLanguage].badge;
-      updatePedagogyPanel();
-    }
-
-    function emptyCodeMessage() {
-      const comment = LANGS[activeLanguage].comment;
-      return `${comment} Arrastra bloques desde la caja de herramientas para empezar.`;
-    }
-
-    function getAllBlocksByType(type) {
-      return workspace ? workspace.getAllBlocks(false).filter(block => block.type === type) : [];
-    }
-
-    function htmlEscape(value) {
-      return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
-    }
-
-    function explainIfBlocks(count) {
-      if (!count) return "";
-
-      const examples = {
-        bash: "`if [ condición ]; then ... fi`",
-        powershell: "`if (condición) { ... }`",
-        python: "`if condición:` seguido de un bloque indentado"
-      };
-
-      return `
-        <section class="pedagogy-section">
-          <h3>Bloque condicional: si… entonces</h3>
-          <p>Hay ${count} bloque(s) condicional(es). En ${LANGS[activeLanguage].label}, el generador lo transforma en ${examples[activeLanguage]}.</p>
-          <ol>
-            <li>Primero se evalúa la condición conectada al hueco superior.</li>
-            <li>Si la condición devuelve verdadero, se ejecutan las instrucciones internas.</li>
-            <li>Si no se cumple, el flujo del script continúa después del bloque.</li>
-          </ol>
-        </section>
-      `;
-    }
-
-    function explainComparison(blocks) {
-      if (!blocks.length) return "";
-
-      const items = blocks.map((block, index) => {
-        const left = htmlEscape(block.getFieldValue("LEFT"));
-        const right = htmlEscape(block.getFieldValue("RIGHT"));
-        const op = block.getFieldValue("OP");
-        const type = block.getFieldValue("TYPE");
-        const opHuman = { EQ: "igual a", GT: "mayor que", LT: "menor que" }[op];
-        const typeHuman = type === "NUMBER" ? "numérica" : "de texto";
-
-        let syntax = "";
-        let critical = "";
-
-        if (activeLanguage === "bash") {
-          if (type === "NUMBER") {
-            const bashOp = { EQ: "-eq", GT: "-gt", LT: "-lt" }[op];
-            syntax = `Bash usa <code>[ ${left} ${bashOp} ${right} ]</code> para comparación numérica.`;
-            critical = "En Bash, los espacios dentro de los corchetes son obligatorios: <code>[ 1 -eq 1 ]</code> es correcto, pero <code>[1 -eq 1]</code> falla.";
-          } else {
-            const bashOp = op === "EQ" ? "==" : (op === "GT" ? "&gt;" : "&lt;");
-            syntax = `Bash usa <code>[[ \"${left}\" ${bashOp} \"${right}\" ]]</code> para comparación de cadenas.`;
-            critical = "Para texto es más seguro usar <code>[[ ... ]]</code> y comillas, porque evita errores con espacios o cadenas vacías.";
-          }
-        }
-
-        if (activeLanguage === "powershell") {
-          const psOp = { EQ: "-eq", GT: "-gt", LT: "-lt" }[op];
-          syntax = `PowerShell usa operadores con guion, por ejemplo <code>${left} ${psOp} ${right}</code>.`;
-          critical = "PowerShell intenta convertir tipos cuando compara. Conviene saber si estás comparando números, cadenas u objetos.";
-        }
-
-        if (activeLanguage === "python") {
-          const pyOp = { EQ: "==", GT: "&gt;", LT: "&lt;" }[op];
-          syntax = `Python usa operadores simbólicos: <code>${left} ${pyOp} ${right}</code>.`;
-          critical = "Python diferencia tipos estrictamente: comparar texto con números puede producir errores o resultados no esperados.";
-        }
-
-        return `
-          <li>
-            Comparación ${index + 1}: <strong>${left}</strong> es <strong>${opHuman}</strong> <strong>${right}</strong> como comparación <strong>${typeHuman}</strong>.
-            <br>${syntax}
-            <p><span class="critical">Punto crítico</span> ${critical}</p>
-          </li>
-        `;
-      }).join("");
-
-      return `
-        <section class="pedagogy-section alert">
-          <h3>Condicional Avanzado: comparación parametrizada</h3>
-          <ul>${items}</ul>
-        </section>
-      `;
-    }
-
-    function explainSystemChecks(blocks) {
-      if (!blocks.length) return "";
-
-      const items = blocks.map((block, index) => {
-        const kind = block.getFieldValue("KIND");
-        const path = htmlEscape(block.getFieldValue("PATH"));
-        const kindHuman = kind === "FILE" ? "archivo" : "directorio";
-
-        let syntax = "";
-        let critical = "";
-
-        if (activeLanguage === "bash") {
-          const flag = kind === "FILE" ? "-f" : "-d";
-          syntax = `Bash usa <code>[ ${flag} '${path}' ]</code>. La opción <code>${flag}</code> significa “es ${kindHuman}”.`;
-          critical = "Recuerda separar cada parte con espacios: corchete, operador, ruta y corchete final.";
-        }
-
-        if (activeLanguage === "powershell") {
-          const pathType = kind === "FILE" ? "Leaf" : "Container";
-          syntax = `PowerShell usa <code>Test-Path -Path '${path}' -PathType ${pathType}</code>.`;
-          critical = "<code>Leaf</code> representa archivo; <code>Container</code> representa directorio. Sin <code>-PathType</code> solo comprobarías existencia.";
-        }
-
-        if (activeLanguage === "python") {
-          const fn = kind === "FILE" ? "os.path.isfile" : "os.path.isdir";
-          syntax = `Python usa <code>${fn}('${path}')</code>.`;
-          critical = "Se importa <code>os</code> automáticamente porque las comprobaciones de ruta están en el módulo estándar <code>os.path</code>.";
-        }
-
-        return `
-          <li>
-            Comprobación ${index + 1}: se verifica si <code>${path}</code> es un <strong>${kindHuman}</strong>.
-            <br>${syntax}
-            <p><span class="critical">Punto crítico</span> ${critical}</p>
-          </li>
-        `;
-      }).join("");
-
-      return `
-        <section class="pedagogy-section alert">
-          <h3>Comprobar Elemento del Sistema</h3>
-          <ul>${items}</ul>
-        </section>
-      `;
-    }
-
-    function explainPrintBlocks(blocks) {
-      if (!blocks.length) return "";
-
-      const command = {
-        bash: "<code>echo 'mensaje'</code>",
-        powershell: "<code>Write-Host 'mensaje'</code>",
-        python: "<code>print('mensaje')</code>"
-      }[activeLanguage];
-
-      const messages = blocks
-        .map(block => `<li><code>${htmlEscape(block.getFieldValue("MESSAGE"))}</code></li>`)
-        .join("");
-
-      return `
-        <section class="pedagogy-section">
-          <h3>Imprimir por pantalla</h3>
-          <p>Hay ${blocks.length} bloque(s) de salida. En ${LANGS[activeLanguage].label} se traducen como ${command}.</p>
-          <p>Mensajes actuales:</p>
-          <ul>${messages}</ul>
-        </section>
-      `;
-    }
-
-    function explainLanguageGlobalNotes() {
-      const notes = {
-        bash: `
-          <section class="pedagogy-section">
-            <h3>Notas globales de Bash</h3>
-            <div class="mini-grid">
-              <div class="mini-card"><strong>Espacios</strong> En tests con <code>[ ... ]</code>, los espacios son parte de la sintaxis.</div>
-              <div class="mini-card"><strong>Comillas</strong> Cita rutas y cadenas para evitar fallos con espacios.</div>
-            </div>
-          </section>
-        `,
-        powershell: `
-          <section class="pedagogy-section">
-            <h3>Notas globales de PowerShell</h3>
-            <div class="mini-grid">
-              <div class="mini-card"><strong>Cmdlets</strong> <code>Test-Path</code> sigue la forma Verbo-Sustantivo.</div>
-              <div class="mini-card"><strong>Operadores</strong> Las comparaciones usan <code>-eq</code>, <code>-gt</code>, <code>-lt</code>.</div>
-            </div>
-          </section>
-        `,
-        python: `
-          <section class="pedagogy-section">
-            <h3>Notas globales de Python</h3>
-            <div class="mini-grid">
-              <div class="mini-card"><strong>Indentación</strong> El bloque interno de un <code>if</code> depende de los espacios iniciales.</div>
-              <div class="mini-card"><strong>Módulos</strong> Para rutas del sistema se usa <code>os.path</code>.</div>
-            </div>
-          </section>
-        `
-      };
-
-      return notes[activeLanguage];
-    }
-
-    function updatePedagogyPanel() {
-      const panel = document.getElementById("pedagogyPanel");
-
-      if (!workspace || workspace.getAllBlocks(false).length === 0) {
-        panel.innerHTML = `
-          <div class="empty-state">
-            <strong>No hay bloques todavía.</strong>
-            <p>Arrastra un bloque desde la toolbox. El panel explicará la sintaxis concreta de ${LANGS[activeLanguage].label} y avisará de puntos críticos.</p>
-          </div>
-        `;
-        return;
-      }
-
-      const ifBlocks = getAllBlocksByType("asir_if");
-      const compareBlocks = getAllBlocksByType("asir_compare_condition");
-      const systemBlocks = getAllBlocksByType("asir_system_check");
-      const printBlocks = getAllBlocksByType("asir_print");
-
-      panel.innerHTML = `
-        <section class="pedagogy-section">
-          <h3>Lectura del script en ${LANGS[activeLanguage].label}</h3>
-          <p>El código se regenera cada vez que mueves bloques, escribes valores o cambias desplegables. Así puedes comparar cómo una misma intención administrativa cambia de sintaxis según el lenguaje.</p>
-        </section>
-        ${explainIfBlocks(ifBlocks.length)}
-        ${explainSystemChecks(systemBlocks)}
-        ${explainComparison(compareBlocks)}
-        ${explainPrintBlocks(printBlocks)}
-        ${explainLanguageGlobalNotes()}
-      `;
-    }
-
-    // -------------------------------------------------------------------------
-    // 8. Interacción de pestañas y copia
-    // -------------------------------------------------------------------------
-
-    document.querySelectorAll(".tab-btn").forEach(button => {
-      button.addEventListener("click", () => {
+    document.querySelectorAll('.tab').forEach(button => {
+      button.addEventListener('click', () => {
         activeLanguage = button.dataset.lang;
-
-        document.querySelectorAll(".tab-btn").forEach(btn => {
-          btn.classList.toggle("active", btn === button);
-        });
-
-        updateAll();
+        document.querySelectorAll('.tab').forEach(btn => btn.classList.toggle('active', btn === button));
+        updateCode(); analyzeText();
       });
     });
 
-    document.getElementById("copyCode").addEventListener("click", async () => {
-      const code = document.getElementById("codeView").textContent;
-      try {
-        await navigator.clipboard.writeText(code);
-        document.getElementById("copyCode").textContent = "Copiado";
-        setTimeout(() => document.getElementById("copyCode").textContent = "Copiar código", 1200);
-      } catch {
-        alert("No se pudo copiar automáticamente. Selecciona el código manualmente.");
-      }
+    exerciseSelect.addEventListener('change', () => { setUrlExercise(selectedExercise().id); renderExercise(); });
+    document.getElementById('analyzeText').addEventListener('click', analyzeText);
+    textSolution.addEventListener('input', analyzeText);
+    document.getElementById('copyDelivery').addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(deliveryOutput.textContent); }
+      catch { alert('No se pudo copiar automáticamente.'); }
     });
-
-    window.addEventListener("load", initBlockly);
-    window.addEventListener("resize", () => {
-      if (workspace) Blockly.svgResize(workspace);
-    });
+    window.addEventListener('resize', () => { if (workspace) Blockly.svgResize(workspace); });
+    window.addEventListener('load', () => { initExercises(); initBlockly(); });
   </script>
 </body>
 </html>
