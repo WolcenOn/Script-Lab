@@ -1,0 +1,164 @@
+:root {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #172033;
+  background: #f4f7fb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.hero {
+  padding: 2rem;
+  background: linear-gradient(135deg, #17324d, #245b8f);
+  color: white;
+}
+
+.hero h1 {
+  margin: 0 0 0.5rem;
+  font-size: 2.4rem;
+}
+
+.hero p {
+  margin: 0;
+  opacity: 0.9;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.panel {
+  background: white;
+  border: 1px solid #d9e2ef;
+  border-radius: 14px;
+  padding: 1rem;
+  box-shadow: 0 4px 14px rgba(23, 50, 77, 0.07);
+}
+
+.wide {
+  grid-column: 1 / -1;
+}
+
+h2 {
+  margin-top: 0;
+  color: #17324d;
+}
+
+label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+
+select,
+textarea,
+button {
+  width: 100%;
+  font: inherit;
+}
+
+select,
+textarea {
+  border: 1px solid #c7d3e2;
+  border-radius: 10px;
+  padding: 0.75rem;
+  background: #fbfdff;
+}
+
+textarea {
+  min-height: 260px;
+  resize: vertical;
+  font-family: "Cascadia Code", "Fira Code", monospace;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+button {
+  border: 0;
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  background: #245b8f;
+  color: white;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+button.secondary {
+  background: #eef3f8;
+  color: #17324d;
+}
+
+.card {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 12px;
+  background: #eef5ff;
+}
+
+.card h3 {
+  margin-top: 0;
+}
+
+.tag {
+  display: inline-block;
+  margin: 0.2rem;
+  padding: 0.25rem 0.55rem;
+  background: #dbeafe;
+  color: #17324d;
+  border-radius: 999px;
+  font-size: 0.9rem;
+}
+
+.blocks {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.block {
+  padding: 0.8rem;
+  border-radius: 10px;
+  border-left: 6px solid #245b8f;
+  background: #f8fbff;
+}
+
+.block strong {
+  display: block;
+  color: #17324d;
+}
+
+.feedback .ok {
+  color: #176b3a;
+  font-weight: 700;
+}
+
+.feedback .missing {
+  color: #9a3412;
+  font-weight: 700;
+}
+
+pre {
+  white-space: pre-wrap;
+  background: #0f172a;
+  color: #e5e7eb;
+  border-radius: 12px;
+  padding: 1rem;
+  overflow: auto;
+}
+
+@media (max-width: 800px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
