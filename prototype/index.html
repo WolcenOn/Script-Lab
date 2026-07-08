@@ -9,40 +9,54 @@
 <body>
   <header class="hero">
     <h1>Script-Lab</h1>
-    <p>Prototipo didáctico: ejercicios, texto, bloques y feedback.</p>
+    <p>Laboratorio guiado: objetivos, pasos, pistas, solución razonada y feedback.</p>
   </header>
 
   <main class="layout">
     <section class="panel">
-      <h2>1. Ejercicio</h2>
-      <label for="exerciseSelect">Selecciona un laboratorio</label>
+      <h2>1. Elige el laboratorio</h2>
+      <label for="exerciseSelect">Laboratorio disponible</label>
       <select id="exerciseSelect"></select>
 
       <article id="exerciseInfo" class="card"></article>
     </section>
 
+    <section class="panel">
+      <h2>2. Guía de trabajo</h2>
+      <p class="muted">Sigue los pasos en orden. No copies la solución: primero intenta explicar qué harías.</p>
+      <div id="guideOutput" class="guide"></div>
+    </section>
+
+    <section class="panel">
+      <h2>3. Ayuda progresiva</h2>
+      <p class="muted">Usa las pistas solo cuando te atasques. Están ordenadas de menor a mayor ayuda.</p>
+      <div id="hintsOutput" class="hints"></div>
+    </section>
+
     <section class="panel editor-panel">
-      <h2>2. Tu solución</h2>
+      <h2>4. Tu solución</h2>
       <p>Escribe comandos, pseudocódigo o una explicación paso a paso.</p>
-      <textarea id="solutionInput" spellcheck="false" placeholder="Ejemplo: crear carpeta laboratorio, entrar, crear archivo, listar contenido..."></textarea>
+      <textarea id="solutionInput" spellcheck="false" placeholder="Ejemplo: primero creo una carpeta de trabajo, después entro en ella, creo archivos de prueba, genero una salida y compruebo el resultado..."></textarea>
       <div class="actions">
-        <button id="analyzeBtn">Generar bloques y feedback</button>
+        <button id="analyzeBtn">Revisar mi solución</button>
+        <button id="exampleBtn" class="secondary">Ver ejemplo guiado</button>
         <button id="clearBtn" class="secondary">Limpiar</button>
       </div>
     </section>
 
     <section class="panel">
-      <h2>3. Bloques detectados</h2>
+      <h2>5. Bloques detectados</h2>
       <div id="blocksOutput" class="blocks"></div>
     </section>
 
     <section class="panel">
-      <h2>4. Feedback</h2>
+      <h2>6. Feedback pedagógico</h2>
       <div id="feedbackOutput" class="feedback"></div>
     </section>
 
     <section class="panel wide">
-      <h2>5. Entrega sugerida</h2>
+      <h2>7. Entrega sugerida</h2>
+      <p class="muted">Copia esta estructura en tu informe y completa las partes pendientes.</p>
       <pre id="exportOutput"></pre>
     </section>
   </main>
