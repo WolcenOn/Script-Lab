@@ -3,60 +3,54 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Script-Lab Prototype</title>
+  <title>Script-Lab Constructor Visual</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="hero">
     <h1>Script-Lab</h1>
-    <p>Laboratorio guiado: objetivos, pasos, pistas, solución razonada y feedback.</p>
+    <p>Constructor visual: escribe una idea, comando o pseudocódigo y conviértelo en bloques de script.</p>
   </header>
 
   <main class="layout">
-    <section class="panel">
-      <h2>1. Elige el laboratorio</h2>
-      <label for="exerciseSelect">Laboratorio disponible</label>
+    <section class="panel wide">
+      <h2>1. Descripción del ejercicio</h2>
+      <label for="exerciseSelect">Laboratorio</label>
       <select id="exerciseSelect"></select>
-
       <article id="exerciseInfo" class="card"></article>
     </section>
 
     <section class="panel">
-      <h2>2. Guía de trabajo</h2>
-      <p class="muted">Sigue los pasos en orden. No copies la solución: primero intenta explicar qué harías.</p>
-      <div id="guideOutput" class="guide"></div>
-    </section>
-
-    <section class="panel">
-      <h2>3. Ayuda progresiva</h2>
-      <p class="muted">Usa las pistas solo cuando te atasques. Están ordenadas de menor a mayor ayuda.</p>
-      <div id="hintsOutput" class="hints"></div>
+      <h2>2. Paleta de bloques</h2>
+      <p class="muted">Estos son los tipos de bloque que Script-Lab puede reconocer. Úsalos como guía mientras escribes.</p>
+      <div id="paletteOutput" class="palette"></div>
     </section>
 
     <section class="panel editor-panel">
-      <h2>4. Tu solución</h2>
-      <p>Escribe comandos, pseudocódigo o una explicación paso a paso.</p>
-      <textarea id="solutionInput" spellcheck="false" placeholder="Ejemplo: primero creo una carpeta de trabajo, después entro en ella, creo archivos de prueba, genero una salida y compruebo el resultado..."></textarea>
+      <h2>3. Escribe tu construcción</h2>
+      <p>Escribe una línea por acción. Puedes usar comandos reales, pseudocódigo o explicaciones.</p>
+      <textarea id="solutionInput" spellcheck="false" placeholder="Ejemplo:\nCrear carpeta de trabajo\nEntrar en la carpeta\nCrear archivo informe.md\nListar contenido y guardar salida\nComprobar resultado\nEscribir conclusión"></textarea>
       <div class="actions">
-        <button id="analyzeBtn">Revisar mi solución</button>
-        <button id="exampleBtn" class="secondary">Ver ejemplo guiado</button>
+        <button id="analyzeBtn">Convertir en bloques</button>
+        <button id="exampleBtn" class="secondary">Cargar ejemplo</button>
         <button id="clearBtn" class="secondary">Limpiar</button>
       </div>
     </section>
 
-    <section class="panel">
-      <h2>5. Bloques detectados</h2>
-      <div id="blocksOutput" class="blocks"></div>
+    <section class="panel wide">
+      <h2>4. Construcción visual del script</h2>
+      <p class="muted">Cada línea escrita se transforma en un bloque visual con tipo, explicación y posibles avisos.</p>
+      <div id="blocksOutput" class="visual-flow"></div>
     </section>
 
     <section class="panel">
-      <h2>6. Feedback pedagógico</h2>
+      <h2>5. Feedback</h2>
       <div id="feedbackOutput" class="feedback"></div>
     </section>
 
-    <section class="panel wide">
-      <h2>7. Entrega sugerida</h2>
-      <p class="muted">Copia esta estructura en tu informe y completa las partes pendientes.</p>
+    <section class="panel">
+      <h2>6. Salida estructurada</h2>
+      <p class="muted">Versión ordenada para entregar, documentar o convertir después en script real.</p>
       <pre id="exportOutput"></pre>
     </section>
   </main>
