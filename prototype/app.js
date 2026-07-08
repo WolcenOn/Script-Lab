@@ -5,7 +5,7 @@ const exercises = [
     level: "Inicio",
     goal: "Construir un pequeño flujo de trabajo de terminal: preparar carpeta, crear archivos, listar, guardar salida, buscar e interpretar.",
     scenario: "Estás empezando a trabajar en terminal y necesitas demostrar que sabes organizar una práctica sencilla sin mezclar archivos con el resto del sistema.",
-    expected: ["preparar", "crear", "listar", "guardar", "buscar", "conclusion"],
+    expected: ["preparar", "crear", "listar", "salida", "buscar", "conclusion"],
     starter: [
       "Crear carpeta laboratorio-terminal",
       "Entrar en la carpeta laboratorio-terminal",
@@ -55,7 +55,7 @@ const exercises = [
     level: "Redes",
     goal: "Construir un diagnóstico por capas: IP, gateway, DNS, puerto, servicio y conclusión.",
     scenario: "Un equipo parece no tener conexión. Debes evitar probar cosas al azar y construir una secuencia lógica de diagnóstico.",
-    expected: ["ip", "gateway", "dns", "puerto", "servicio", "conclusion"],
+    expected: ["ip", "gateway", "dns", "puerto", "servicios", "conclusion"],
     starter: [
       "Comprobar IP local",
       "Comprobar gateway o ruta por defecto",
@@ -129,7 +129,7 @@ const blockTypes = [
   { id: "condicion", label: "Condición", help: "Decide qué hacer según una comprobación.", words: ["si ", "if", "else", "cuando", "existe", "no existe", "comprobar si"] },
   { id: "bucle", label: "Bucle", help: "Repite una acción por cada elemento.", words: ["bucle", "for", "foreach", "while", "por cada", "repetir"] },
   { id: "proceso", label: "Proceso", help: "Acción principal que transforma o comprueba algo.", words: ["proceso", "copiar", "ejecutar", "calcular", "revisar", "analizar", "comprobar"] },
-  { id: "salida", label: "Salida", help: "Resultado que se muestra o se guarda.", words: ["salida", ">", "out-file", "export", "guardar salida", "informe", "resultado"] },
+  { id: "salida", label: "Salida", help: "Resultado que se muestra o se guarda.", words: ["salida", ">", "out-file", "export", "guardar", "informe", "resultado"] },
   { id: "verificacion", label: "Verificación", help: "Comprueba que el resultado es válido.", words: ["verificar", "validar", "comprobar", "test", "prueba", "confirmar"] },
   { id: "error", label: "Gestión de errores", help: "Indica qué hacer si algo falla.", words: ["error", "fallo", "try", "catch", "except", "si falla", "problema"] },
   { id: "sistema", label: "Sistema", help: "Obtiene información general del equipo.", words: ["sistema", "equipo", "hostname", "whoami", "systeminfo", "get-computerinfo"] },
