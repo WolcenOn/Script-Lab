@@ -3,152 +3,233 @@ const exercises = [
     id: "GT-LAB-01-TERMINAL",
     title: "Terminal básica",
     level: "Inicio",
-    goal: "Construir un pequeño flujo de trabajo de terminal: preparar carpeta, crear archivos, listar, guardar salida, buscar e interpretar.",
-    scenario: "Estás empezando a trabajar en terminal y necesitas demostrar que sabes organizar una práctica sencilla sin mezclar archivos con el resto del sistema.",
-    expected: ["preparar", "crear", "listar", "salida", "buscar", "conclusion"],
-    starter: [
-      "Crear carpeta laboratorio-terminal",
-      "Entrar en la carpeta laboratorio-terminal",
-      "Crear archivos uno.txt dos.txt tres.txt",
-      "Listar contenido y guardar salida en listado.txt",
-      "Buscar la palabra uno dentro de listado.txt",
-      "Escribir una conclusion explicando que evidencia demuestra que funciono"
-    ]
-  },
-  {
-    id: "GT-LAB-02-LINUX",
-    title: "Linux administración",
-    level: "Administración",
-    goal: "Construir un flujo de revisión de un equipo Linux con evidencias e interpretación.",
-    scenario: "Un equipo Linux debe revisarse antes de entregarlo. No basta con ejecutar comandos: hay que ordenar la revisión y explicar qué significa cada resultado.",
-    expected: ["sistema", "disco", "procesos", "servicios", "logs", "red", "conclusion"],
-    starter: [
-      "Identificar nombre del equipo y usuario actual",
-      "Comprobar espacio de disco",
-      "Revisar procesos activos",
-      "Comprobar servicios importantes",
-      "Consultar logs recientes",
-      "Revisar configuracion de red",
-      "Escribir diagnostico final"
-    ]
-  },
-  {
-    id: "GT-LAB-03-WINDOWS",
-    title: "Windows PowerShell",
-    level: "Administración",
-    goal: "Construir un informe básico de Windows usando PowerShell como herramienta principal.",
-    scenario: "Debes revisar un equipo Windows y convertir las comprobaciones en un informe entendible para otra persona.",
-    expected: ["sistema", "disco", "procesos", "servicios", "logs", "red", "conclusion"],
-    starter: [
-      "Obtener informacion del equipo",
-      "Revisar unidades y espacio disponible",
-      "Listar procesos relevantes",
-      "Comprobar servicios en ejecucion",
-      "Consultar eventos recientes",
-      "Revisar configuracion IP",
-      "Redactar conclusion"
+    language: "Bash",
+    scenario: "Necesitas crear un pequeño espacio de trabajo, generar archivos de prueba, guardar una salida y comprobar el resultado.",
+    goal: "Aprender el flujo mínimo de un script: preparar entorno, crear datos, producir salida, verificar y concluir.",
+    steps: [
+      {
+        type: "preparar",
+        title: "Preparar carpeta de trabajo",
+        task: "Crear una carpeta para la práctica y entrar en ella.",
+        hint: "Piensa en dos acciones: crear directorio y cambiar a ese directorio. En Bash suelen ser dos comandos separados.",
+        code: "mkdir -p laboratorio-terminal\ncd laboratorio-terminal"
+      },
+      {
+        type: "crear",
+        title: "Crear archivos de prueba",
+        task: "Crear tres archivos vacíos para practicar con listados y búsquedas.",
+        hint: "No necesitas editar el contenido todavía. Basta con crear los archivos para que aparezcan en el listado.",
+        code: "touch uno.txt dos.txt tres.txt"
+      },
+      {
+        type: "salida",
+        title: "Guardar listado como evidencia",
+        task: "Listar el contenido y guardar la salida en un archivo de evidencia.",
+        hint: "La redirección permite guardar lo que normalmente verías en pantalla dentro de un archivo.",
+        code: "ls -lah > listado.txt"
+      },
+      {
+        type: "buscar",
+        title: "Buscar dentro de la evidencia",
+        task: "Comprobar que el archivo esperado aparece en el listado.",
+        hint: "Busca una palabra concreta dentro del archivo generado en el paso anterior.",
+        code: "grep \"uno\" listado.txt"
+      },
+      {
+        type: "conclusion",
+        title: "Documentar conclusión",
+        task: "Añadir una frase de conclusión al informe.",
+        hint: "La conclusión no debe repetir comandos; debe explicar qué demuestra la evidencia.",
+        code: "echo \"Conclusion: el listado contiene los archivos creados y la busqueda confirma uno.txt.\" > informe.md"
+      }
     ]
   },
   {
     id: "GT-LAB-04-REDES",
     title: "Diagnóstico de redes",
     level: "Redes",
-    goal: "Construir un diagnóstico por capas: IP, gateway, DNS, puerto, servicio y conclusión.",
-    scenario: "Un equipo parece no tener conexión. Debes evitar probar cosas al azar y construir una secuencia lógica de diagnóstico.",
-    expected: ["ip", "gateway", "dns", "puerto", "servicios", "conclusion"],
-    starter: [
-      "Comprobar IP local",
-      "Comprobar gateway o ruta por defecto",
-      "Probar resolucion DNS",
-      "Comprobar puerto 80 o 443",
-      "Identificar si el servicio responde",
-      "Escribir conclusion indicando donde parece estar el fallo"
-    ]
-  },
-  {
-    id: "GT-LAB-05-BACKUPS",
-    title: "Backups y restauración",
-    level: "Continuidad",
-    goal: "Construir un flujo de copia con origen, destino, proceso, verificación y posible restauración.",
-    scenario: "Hay una carpeta importante que debe protegerse. La copia no es válida si no queda claro qué se copia, dónde y cómo se comprueba.",
-    expected: ["objetivo", "entrada", "proceso", "salida", "verificacion", "conclusion"],
-    starter: [
-      "Definir objetivo del backup",
-      "Indicar carpeta origen",
-      "Indicar carpeta destino",
-      "Copiar archivos al destino",
-      "Verificar que la copia existe",
-      "Explicar como restauraria los datos"
+    language: "Bash",
+    scenario: "Un equipo parece tener problemas de conexión. Debes diagnosticarlo por capas, no probando comandos al azar.",
+    goal: "Construir un script de diagnóstico con IP, gateway, DNS, puerto y conclusión.",
+    steps: [
+      {
+        type: "ip",
+        title: "Comprobar IP local",
+        task: "Mostrar la configuración IP del equipo.",
+        hint: "Antes de probar Internet, confirma si el equipo tiene dirección IP local.",
+        code: "ip address show"
+      },
+      {
+        type: "gateway",
+        title: "Comprobar gateway",
+        task: "Mostrar la ruta por defecto o puerta de enlace.",
+        hint: "Si no hay ruta por defecto, el equipo puede comunicarse localmente pero no salir a otras redes.",
+        code: "ip route show default"
+      },
+      {
+        type: "dns",
+        title: "Comprobar DNS",
+        task: "Probar resolución de nombres.",
+        hint: "Si la IP responde pero los nombres no, sospecha de DNS.",
+        code: "nslookup example.com"
+      },
+      {
+        type: "puerto",
+        title: "Comprobar puerto web",
+        task: "Probar si un servicio web responde.",
+        hint: "Un puerto abierto indica que el servicio remoto responde en esa capa.",
+        code: "curl -I https://example.com"
+      },
+      {
+        type: "conclusion",
+        title: "Redactar diagnóstico",
+        task: "Guardar una conclusión técnica sencilla.",
+        hint: "Indica si el problema parece estar en IP, gateway, DNS, puerto o servicio.",
+        code: "echo \"Conclusion: revisar resultados de IP, gateway, DNS y puerto para localizar la capa del fallo.\" > diagnostico-red.md"
+      }
     ]
   },
   {
     id: "GT-LAB-06-SCRIPTING",
     title: "Scripting aplicado",
     level: "Automatización",
-    goal: "Diseñar un script antes de programarlo: objetivo, entradas, variables, proceso, condiciones, salida y verificación.",
-    scenario: "Vas a automatizar una tarea repetitiva. Antes de escribir código, debes construir su lógica en bloques visuales.",
-    expected: ["objetivo", "entrada", "variable", "condicion", "proceso", "salida", "verificacion"],
-    starter: [
-      "Definir objetivo del script",
-      "Pedir ruta de carpeta como entrada",
-      "Guardar ruta en una variable",
-      "Comprobar si la carpeta existe",
-      "Si existe listar archivos",
-      "Guardar resultado en informe.txt",
-      "Verificar que informe.txt se ha creado"
+    language: "Bash",
+    scenario: "Vas a crear un script que recibe una carpeta, comprueba si existe y genera un informe de su contenido.",
+    goal: "Entender la estructura real de un script: cabecera, entrada, variable, condición, proceso, salida y verificación.",
+    steps: [
+      {
+        type: "objetivo",
+        title: "Cabecera y objetivo",
+        task: "Iniciar el script y explicar su finalidad.",
+        hint: "La primera línea indica con qué intérprete se ejecutará el script. Los comentarios ayudan a documentarlo.",
+        code: "#!/usr/bin/env bash\n# Objetivo: generar un informe de una carpeta"
+      },
+      {
+        type: "entrada",
+        title: "Recibir entrada",
+        task: "Leer la carpeta desde el primer argumento del script.",
+        hint: "En Bash, el primer argumento recibido por un script se consulta con $1.",
+        code: "CARPETA=\"$1\"\nINFORME=\"informe-carpeta.txt\""
+      },
+      {
+        type: "condicion",
+        title: "Validar entrada",
+        task: "Comprobar si la carpeta existe antes de trabajar con ella.",
+        hint: "Una condición evita que el script continúe con datos incorrectos.",
+        code: "if [ ! -d \"$CARPETA\" ]; then\n  echo \"Error: la carpeta no existe\"\n  exit 1\nfi"
+      },
+      {
+        type: "proceso",
+        title: "Procesar información",
+        task: "Listar el contenido de la carpeta.",
+        hint: "Aquí va la acción principal del script: obtener información útil.",
+        code: "ls -lah \"$CARPETA\" > \"$INFORME\""
+      },
+      {
+        type: "verificacion",
+        title: "Verificar salida",
+        task: "Confirmar que el informe se ha creado.",
+        hint: "No des por hecho que la salida existe: compruébalo al final.",
+        code: "if [ -f \"$INFORME\" ]; then\n  echo \"Informe generado: $INFORME\"\nfi"
+      }
     ]
   },
   {
-    id: "GT-LAB-07-PROYECTO",
-    title: "Proyecto final de mantenimiento",
-    level: "Proyecto",
-    goal: "Construir un informe técnico completo con revisión, evidencias, interpretación, riesgos y recomendaciones.",
-    scenario: "Debes entregar una revisión profesional de un equipo o entorno. El resultado debe poder leerse como informe, no como lista suelta de comandos.",
-    expected: ["sistema", "disco", "red", "servicios", "logs", "riesgo", "conclusion"],
-    starter: [
-      "Definir alcance del mantenimiento",
-      "Identificar sistema revisado",
-      "Comprobar disco y recursos",
-      "Revisar red",
-      "Revisar servicios criticos",
-      "Resumir logs o incidencias",
-      "Indicar riesgos y recomendaciones finales"
+    id: "GT-LAB-03-WINDOWS",
+    title: "Windows PowerShell",
+    level: "Administración",
+    language: "PowerShell",
+    scenario: "Debes generar un informe simple de un equipo Windows usando PowerShell.",
+    goal: "Construir un script con comprobaciones de sistema, disco, procesos, servicios y salida a informe.",
+    steps: [
+      {
+        type: "sistema",
+        title: "Identificar equipo",
+        task: "Obtener información básica del equipo.",
+        hint: "Empieza por saber qué equipo estás revisando y con qué usuario.",
+        code: "$equipo = $env:COMPUTERNAME\n$usuario = $env:USERNAME"
+      },
+      {
+        type: "disco",
+        title: "Revisar disco",
+        task: "Consultar unidades disponibles.",
+        hint: "El disco es una de las causas habituales de incidencias.",
+        code: "$discos = Get-PSDrive -PSProvider FileSystem"
+      },
+      {
+        type: "procesos",
+        title: "Revisar procesos",
+        task: "Obtener los procesos con más consumo de CPU.",
+        hint: "Ordenar ayuda a encontrar antes lo más relevante.",
+        code: "$procesos = Get-Process | Sort-Object CPU -Descending | Select-Object -First 5"
+      },
+      {
+        type: "servicios",
+        title: "Revisar servicios",
+        task: "Consultar servicios en ejecución.",
+        hint: "Distingue servicios en ejecución y detenidos.",
+        code: "$servicios = Get-Service | Where-Object Status -eq 'Running' | Select-Object -First 10"
+      },
+      {
+        type: "salida",
+        title: "Crear informe",
+        task: "Guardar los resultados en un archivo.",
+        hint: "La salida debe quedar en un archivo para poder entregarla o revisarla después.",
+        code: "$equipo, $usuario, $discos, $procesos, $servicios | Out-File informe-windows.txt"
+      }
     ]
   }
 ];
 
-const blockTypes = [
-  { id: "objetivo", label: "Objetivo", help: "Define qué se quiere conseguir.", words: ["objetivo", "finalidad", "proposito", "quiero", "necesito", "resolver"] },
-  { id: "preparar", label: "Preparar entorno", help: "Crea carpeta, entra en directorio o prepara el espacio de trabajo.", words: ["preparar", "mkdir", "carpeta", "directorio", "entrar", "cd ", "set-location"] },
-  { id: "entrada", label: "Entrada", help: "Dato que recibe el script o la práctica: ruta, nombre, parámetro, origen o destino.", words: ["entrada", "parametro", "argumento", "origen", "destino", "ruta", "pedir"] },
-  { id: "variable", label: "Variable", help: "Guarda un dato para usarlo después.", words: ["variable", "$", "guardar en", "asignar", "valor", "nombre="] },
-  { id: "crear", label: "Crear", help: "Crea archivos, carpetas o recursos de trabajo.", words: ["crear", "touch", "new-item", "archivo", "fichero"] },
-  { id: "leer", label: "Leer", help: "Consulta contenido o información existente.", words: ["leer", "cat", "type", "get-content", "mostrar contenido", "abrir"] },
-  { id: "listar", label: "Listar", help: "Muestra elementos: archivos, procesos, servicios o resultados.", words: ["listar", "ls", "dir", "get-childitem", "ver lista", "mostrar lista"] },
-  { id: "buscar", label: "Buscar", help: "Localiza texto, nombres, patrones o resultados concretos.", words: ["buscar", "grep", "findstr", "select-string", "filtrar", "encontrar"] },
-  { id: "condicion", label: "Condición", help: "Decide qué hacer según una comprobación.", words: ["si ", "if", "else", "cuando", "existe", "no existe", "comprobar si"] },
-  { id: "bucle", label: "Bucle", help: "Repite una acción por cada elemento.", words: ["bucle", "for", "foreach", "while", "por cada", "repetir"] },
-  { id: "proceso", label: "Proceso", help: "Acción principal que transforma o comprueba algo.", words: ["proceso", "copiar", "ejecutar", "calcular", "revisar", "analizar", "comprobar"] },
-  { id: "salida", label: "Salida", help: "Resultado que se muestra o se guarda.", words: ["salida", ">", "out-file", "export", "guardar", "informe", "resultado"] },
-  { id: "verificacion", label: "Verificación", help: "Comprueba que el resultado es válido.", words: ["verificar", "validar", "comprobar", "test", "prueba", "confirmar"] },
-  { id: "error", label: "Gestión de errores", help: "Indica qué hacer si algo falla.", words: ["error", "fallo", "try", "catch", "except", "si falla", "problema"] },
-  { id: "sistema", label: "Sistema", help: "Obtiene información general del equipo.", words: ["sistema", "equipo", "hostname", "whoami", "systeminfo", "get-computerinfo"] },
-  { id: "disco", label: "Disco", help: "Revisa espacio, unidades o almacenamiento.", words: ["disco", "espacio", "df", "du", "get-volume", "get-psdrive", "almacenamiento"] },
-  { id: "procesos", label: "Procesos", help: "Revisa procesos activos o consumo.", words: ["proceso", "procesos", "ps", "top", "tasklist", "get-process"] },
-  { id: "servicios", label: "Servicios", help: "Comprueba servicios o demonios.", words: ["servicio", "servicios", "systemctl", "get-service", "sc query"] },
-  { id: "logs", label: "Logs", help: "Consulta eventos, errores o registros.", words: ["logs", "eventos", "journalctl", "get-winevent", "eventlog", "errores"] },
-  { id: "red", label: "Red", help: "Revisa conectividad general.", words: ["red", "conectividad", "ping", "netstat", "ss", "ipconfig"] },
-  { id: "ip", label: "IP", help: "Comprueba dirección IP local.", words: ["ip local", "direccion ip", "ip a", "ipconfig", "get-netipaddress"] },
-  { id: "gateway", label: "Gateway", help: "Comprueba puerta de enlace o ruta por defecto.", words: ["gateway", "puerta de enlace", "ruta", "ip route", "route print", "get-netroute"] },
-  { id: "dns", label: "DNS", help: "Comprueba resolución de nombres.", words: ["dns", "nslookup", "resolve-dnsname", "dominio", "resolucion"] },
-  { id: "puerto", label: "Puerto", help: "Comprueba si un puerto o servicio responde.", words: ["puerto", "443", "80", "test-netconnection", "curl", "servicio web"] },
-  { id: "riesgo", label: "Riesgo", help: "Describe un problema potencial o impacto.", words: ["riesgo", "impacto", "critico", "grave", "vulnerable", "recomendacion"] },
-  { id: "conclusion", label: "Conclusión", help: "Interpreta el resultado y propone mejora.", words: ["conclusion", "diagnostico", "resultado final", "recomendacion", "aprendido"] }
+const blockInfo = {
+  objetivo: { label: "Objetivo", help: "Define la finalidad del script." },
+  preparar: { label: "Preparar", help: "Prepara carpetas o entorno de trabajo." },
+  entrada: { label: "Entrada", help: "Recoge datos, argumentos o parámetros." },
+  crear: { label: "Crear", help: "Crea archivos, carpetas o recursos." },
+  variable: { label: "Variable", help: "Guarda datos reutilizables." },
+  condicion: { label: "Condición", help: "Toma decisiones según una comprobación." },
+  proceso: { label: "Proceso", help: "Ejecuta la acción principal." },
+  salida: { label: "Salida", help: "Muestra o guarda resultados." },
+  buscar: { label: "Buscar", help: "Localiza texto o información concreta." },
+  verificacion: { label: "Verificación", help: "Comprueba que el resultado existe o es válido." },
+  sistema: { label: "Sistema", help: "Obtiene información del equipo." },
+  disco: { label: "Disco", help: "Revisa unidades y espacio." },
+  procesos: { label: "Procesos", help: "Consulta procesos activos." },
+  servicios: { label: "Servicios", help: "Consulta servicios del sistema." },
+  logs: { label: "Logs", help: "Revisa registros o eventos." },
+  red: { label: "Red", help: "Comprueba conectividad general." },
+  ip: { label: "IP", help: "Comprueba dirección IP local." },
+  gateway: { label: "Gateway", help: "Comprueba puerta de enlace." },
+  dns: { label: "DNS", help: "Comprueba resolución de nombres." },
+  puerto: { label: "Puerto", help: "Comprueba puertos o servicios remotos." },
+  conclusion: { label: "Conclusión", help: "Interpreta el resultado." }
+};
+
+const patterns = [
+  { type: "objetivo", words: ["#!/", "objetivo", "finalidad"] },
+  { type: "preparar", words: ["mkdir", "cd ", "set-location"] },
+  { type: "entrada", words: ["$1", "param", "read ", "argumento", "entrada"] },
+  { type: "crear", words: ["touch", "new-item", "crear"] },
+  { type: "variable", words: ["=", "$equipo", "$usuario", "carpeta=", "informe="] },
+  { type: "condicion", words: ["if ", "then", "else", "where-object", "si "] },
+  { type: "proceso", words: ["ls ", "get-process", "sort-object", "copiar", "copy-item"] },
+  { type: "salida", words: [">", "out-file", "echo", "informe"] },
+  { type: "buscar", words: ["grep", "select-string", "findstr"] },
+  { type: "verificacion", words: ["-f", "test-path", "verificar", "comprobar"] },
+  { type: "sistema", words: ["computername", "username", "hostname", "whoami"] },
+  { type: "disco", words: ["get-psdrive", "df", "disco"] },
+  { type: "procesos", words: ["get-process", "ps ", "top"] },
+  { type: "servicios", words: ["get-service", "systemctl", "servicio"] },
+  { type: "ip", words: ["ip address", "ipconfig", "get-netipaddress"] },
+  { type: "gateway", words: ["ip route", "route print", "gateway"] },
+  { type: "dns", words: ["nslookup", "resolve-dnsname", "dns"] },
+  { type: "puerto", words: ["curl", "test-netconnection", "443", "80"] },
+  { type: "conclusion", words: ["conclusion", "diagnostico", "recomendacion"] }
 ];
 
 const exerciseSelect = document.getElementById("exerciseSelect");
 const exerciseInfo = document.getElementById("exerciseInfo");
-const paletteOutput = document.getElementById("paletteOutput");
+const stepsOutput = document.getElementById("stepsOutput");
 const solutionInput = document.getElementById("solutionInput");
 const analyzeBtn = document.getElementById("analyzeBtn");
 const exampleBtn = document.getElementById("exampleBtn");
@@ -172,7 +253,6 @@ function init() {
   }
 
   renderExercise();
-  renderPalette();
   analyze();
 }
 
@@ -197,59 +277,108 @@ function renderExercise() {
   exerciseInfo.innerHTML = `
     <h3>${escapeHtml(exercise.title)}</h3>
     <p><strong>Nivel:</strong> ${escapeHtml(exercise.level)}</p>
+    <p><strong>Lenguaje:</strong> ${escapeHtml(exercise.language)}</p>
     <p><strong>Escenario:</strong> ${escapeHtml(exercise.scenario)}</p>
     <p><strong>Objetivo:</strong> ${escapeHtml(exercise.goal)}</p>
-    <p><strong>Bloques esperados:</strong></p>
-    <div>${exercise.expected.map(type => `<span class="tag">${escapeHtml(labelFor(type))}</span>`).join("")}</div>
   `;
+
+  stepsOutput.innerHTML = exercise.steps.map((step, index) => `
+    <article class="step-card block-${escapeHtml(step.type)}">
+      <div class="step-number">${index + 1}</div>
+      <div class="step-content">
+        <div class="step-header">
+          <span class="block-pill">${escapeHtml(labelFor(step.type))}</span>
+          <h3>${escapeHtml(step.title)}</h3>
+        </div>
+        <p><strong>Qué tienes que hacer:</strong> ${escapeHtml(step.task)}</p>
+        <details>
+          <summary>Pista si me bloqueo</summary>
+          <p>${escapeHtml(step.hint)}</p>
+        </details>
+        <p><strong>Código real:</strong></p>
+        <pre class="code-preview"><code>${escapeHtml(step.code)}</code></pre>
+        <button class="add-block" data-step="${index}">Añadir este bloque</button>
+      </div>
+    </article>
+  `).join("");
+
+  document.querySelectorAll(".add-block").forEach(button => {
+    button.addEventListener("click", () => addStepToWorkspace(Number(button.dataset.step)));
+  });
 }
 
-function renderPalette() {
-  paletteOutput.innerHTML = blockTypes.map(type => `
-    <div class="palette-item" title="${escapeHtml(type.help)}">
-      <strong>${escapeHtml(type.label)}</strong>
-      <span>${escapeHtml(type.help)}</span>
-    </div>
-  `).join("");
+function addStepToWorkspace(index) {
+  const exercise = selectedExercise();
+  const step = exercise.steps[index];
+  const chunk = `\n\n# BLOQUE ${index + 1}: ${step.title}\n${step.code}`;
+  solutionInput.value = `${solutionInput.value}${chunk}`.trimStart();
+  analyze();
+}
+
+function loadGuidedSolution() {
+  const exercise = selectedExercise();
+  solutionInput.value = exercise.steps
+    .map((step, index) => `# BLOQUE ${index + 1}: ${step.title}\n${step.code}`)
+    .join("\n\n");
+  analyze();
 }
 
 function analyze() {
-  const lines = solutionInput.value.split("\n").map(line => line.trim()).filter(Boolean);
-  const blocks = lines.map((line, index) => buildBlock(line, index));
+  const chunks = splitIntoBlocks(solutionInput.value);
+  const blocks = chunks.map((chunk, index) => buildVisualBlock(chunk, index));
   renderBlocks(blocks);
   renderFeedback(blocks);
   renderExport(blocks);
 }
 
-function buildBlock(line, index) {
-  const matches = detectTypes(line);
-  const main = matches[0] || blockTypes.find(type => type.id === "proceso");
-  const warnings = [];
+function splitIntoBlocks(text) {
+  const lines = text.split("\n");
+  const chunks = [];
+  let current = [];
 
-  if (line.length < 6) warnings.push("La acción es demasiado corta; añade contexto.");
-  if (matches.length === 0) warnings.push("No se reconoce un bloque claro; quizá falta un verbo técnico o una intención.");
-  if (/rm -rf|format|delete|del /i.test(line)) warnings.push("Acción potencialmente destructiva: exige entorno de laboratorio y explicación.");
-  if (!/[a-záéíóúñ]/i.test(line)) warnings.push("La línea no parece una explicación o comando válido.");
+  lines.forEach(line => {
+    if (/^#\s*BLOQUE/i.test(line) && current.length) {
+      chunks.push(current.join("\n").trim());
+      current = [line];
+    } else if (line.trim() || current.length) {
+      current.push(line);
+    }
+  });
 
+  if (current.join("\n").trim()) chunks.push(current.join("\n").trim());
+  return chunks;
+}
+
+function buildVisualBlock(chunk, index) {
+  const type = detectType(chunk);
+  const info = blockInfo[type] || blockInfo.proceso;
   return {
     number: index + 1,
-    text: line,
-    type: main.id,
-    label: main.label,
-    help: main.help,
-    matches: matches.map(item => item.id),
-    warnings
+    type,
+    label: info.label,
+    help: info.help,
+    code: chunk,
+    warnings: buildWarnings(chunk)
   };
 }
 
-function detectTypes(line) {
-  const normalized = normalize(line);
-  return blockTypes.filter(type => type.words.some(word => normalized.includes(normalize(word))));
+function detectType(text) {
+  const normalized = normalize(text);
+  const found = patterns.find(pattern => pattern.words.some(word => normalized.includes(normalize(word))));
+  return found ? found.type : "proceso";
+}
+
+function buildWarnings(chunk) {
+  const warnings = [];
+  if (chunk.length < 12) warnings.push("Bloque demasiado corto; añade código o comentario.");
+  if (/rm -rf|format|delete|del /i.test(chunk)) warnings.push("Acción destructiva: úsala solo en laboratorio y con validación previa.");
+  if (!/#|echo|write-output|out-file|>/.test(chunk)) warnings.push("Añade comentario, salida o evidencia para que el bloque sea más comprensible.");
+  return warnings;
 }
 
 function renderBlocks(blocks) {
   if (!blocks.length) {
-    blocksOutput.innerHTML = `<div class="empty-state">Escribe una o varias líneas y pulsa <strong>Convertir en bloques</strong>. También puedes cargar un ejemplo.</div>`;
+    blocksOutput.innerHTML = `<div class="empty-state">Añade bloques desde los pasos o escribe código en el editor.</div>`;
     return;
   }
 
@@ -261,9 +390,8 @@ function renderBlocks(blocks) {
           <strong>${escapeHtml(block.label)}</strong>
           <span>${escapeHtml(block.type)}</span>
         </div>
-        <p class="block-text">${escapeHtml(block.text)}</p>
         <p class="block-help">${escapeHtml(block.help)}</p>
-        ${block.matches.length > 1 ? `<p class="block-extra">También se parece a: ${block.matches.slice(1).map(labelFor).map(escapeHtml).join(", ")}</p>` : ""}
+        <pre class="block-code"><code>${escapeHtml(block.code)}</code></pre>
         ${block.warnings.length ? `<ul class="block-warnings">${block.warnings.map(warning => `<li>${escapeHtml(warning)}</li>`).join("")}</ul>` : ""}
       </div>
     </article>
@@ -272,56 +400,33 @@ function renderBlocks(blocks) {
 
 function renderFeedback(blocks) {
   const exercise = selectedExercise();
-  const found = new Set(blocks.flatMap(block => block.matches.length ? block.matches : [block.type]));
-  const missing = exercise.expected.filter(type => !found.has(type));
-  const covered = exercise.expected.filter(type => found.has(type));
+  const expected = exercise.steps.map(step => step.type);
+  const found = new Set(blocks.map(block => block.type));
+  const missing = expected.filter(type => !found.has(type));
   const warnings = blocks.flatMap(block => block.warnings);
 
   feedbackOutput.innerHTML = `
-    <p class="ok"><strong>Cobertura:</strong> ${covered.length}/${exercise.expected.length}</p>
-    ${covered.length ? `<p><strong>Bloques cubiertos:</strong> ${covered.map(labelFor).map(escapeHtml).join(", ")}</p>` : ""}
-    ${missing.length ? `<p class="missing"><strong>Faltan:</strong> ${missing.map(labelFor).map(escapeHtml).join(", ")}</p>` : `<p class="ok">La construcción cubre los bloques mínimos del ejercicio.</p>`}
-    ${warnings.length ? `<p class="missing"><strong>Avisos:</strong> revisa ${warnings.length} línea(s).</p>` : ""}
-    <h3>Siguiente mejora</h3>
-    <p>${missing.length ? "Añade una línea para cada bloque pendiente y vuelve a convertir." : "Ahora revisa si cada bloque tiene evidencia, explicación y conclusión."}</p>
+    <p class="ok"><strong>Bloques creados:</strong> ${blocks.length}/${exercise.steps.length}</p>
+    ${missing.length ? `<p class="missing"><strong>Faltan tipos de bloque:</strong> ${missing.map(labelFor).map(escapeHtml).join(", ")}</p>` : `<p class="ok">La estructura mínima del ejercicio está completa.</p>`}
+    ${warnings.length ? `<p class="missing"><strong>Avisos:</strong> ${warnings.length} mejora(s) pendiente(s).</p>` : ""}
+    <h3>Consejo</h3>
+    <p>${missing.length ? "Usa el botón 'Añadir este bloque' en los pasos que todavía faltan." : "Ahora prueba el script en un entorno de laboratorio y añade tus evidencias al informe."}</p>
   `;
 }
 
 function renderExport(blocks) {
   const exercise = selectedExercise();
-  const lines = blocks.map(block => `${block.number}. [${block.label}] ${block.text}`).join("\n") || "Pendiente de construir";
-  exportOutput.textContent = `# Construcción visual - ${exercise.id}
+  const content = blocks.map(block => `## Bloque ${block.number} - ${block.label}\n\n\`\`\`${exercise.language.toLowerCase()}\n${block.code}\n\`\`\``).join("\n\n");
 
-## Ejercicio
-${exercise.title}
-
-## Escenario
-${exercise.scenario}
-
-## Objetivo
-${exercise.goal}
-
-## Bloques esperados
-${exercise.expected.map(type => `- ${labelFor(type)}`).join("\n")}
-
-## Flujo construido
-${lines}
-
-## Próximo paso
-Revisar los bloques pendientes, añadir evidencias y convertir esta construcción en comandos reales o pseudocódigo más detallado.
-`;
+  exportOutput.textContent = `# Entrega Script-Lab - ${exercise.id}\n\n## Ejercicio\n${exercise.title}\n\n## Escenario\n${exercise.scenario}\n\n## Objetivo\n${exercise.goal}\n\n${content || "Pendiente de construir"}\n\n## Evidencias\n- Pega aquí la salida de la ejecución.\n- Explica errores encontrados.\n- Escribe una conclusión técnica.\n`;
 }
 
-function labelFor(id) {
-  const found = blockTypes.find(type => type.id === id);
-  return found ? found.label : id;
+function labelFor(type) {
+  return blockInfo[type] ? blockInfo[type].label : type;
 }
 
 function normalize(value) {
-  return String(value)
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
+  return String(value).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
 function escapeHtml(value) {
@@ -334,21 +439,12 @@ function escapeHtml(value) {
 }
 
 analyzeBtn.addEventListener("click", analyze);
-
-solutionInput.addEventListener("input", () => {
-  analyze();
-});
-
-exampleBtn.addEventListener("click", () => {
-  solutionInput.value = selectedExercise().starter.join("\n");
-  analyze();
-});
-
+solutionInput.addEventListener("input", analyze);
+exampleBtn.addEventListener("click", loadGuidedSolution);
 clearBtn.addEventListener("click", () => {
   solutionInput.value = "";
   analyze();
 });
-
 exerciseSelect.addEventListener("change", () => {
   renderExercise();
   solutionInput.value = "";
