@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Script-Lab Prototype</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="hero">
+    <h1>Script-Lab</h1>
+    <p>Prototipo didáctico: ejercicios, texto, bloques y feedback.</p>
+  </header>
+
+  <main class="layout">
+    <section class="panel">
+      <h2>1. Ejercicio</h2>
+      <label for="exerciseSelect">Selecciona un laboratorio</label>
+      <select id="exerciseSelect"></select>
+
+      <article id="exerciseInfo" class="card"></article>
+    </section>
+
+    <section class="panel editor-panel">
+      <h2>2. Tu solución</h2>
+      <p>Escribe comandos, pseudocódigo o una explicación paso a paso.</p>
+      <textarea id="solutionInput" spellcheck="false" placeholder="Ejemplo: crear carpeta laboratorio, entrar, crear archivo, listar contenido..."></textarea>
+      <div class="actions">
+        <button id="analyzeBtn">Generar bloques y feedback</button>
+        <button id="clearBtn" class="secondary">Limpiar</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>3. Bloques detectados</h2>
+      <div id="blocksOutput" class="blocks"></div>
+    </section>
+
+    <section class="panel">
+      <h2>4. Feedback</h2>
+      <div id="feedbackOutput" class="feedback"></div>
+    </section>
+
+    <section class="panel wide">
+      <h2>5. Entrega sugerida</h2>
+      <pre id="exportOutput"></pre>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
