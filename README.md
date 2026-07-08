@@ -21,6 +21,30 @@ Aquí se pueden preparar:
 - Plantillas de entrega.
 - Informes de prácticas.
 - Proyectos finales.
+- Dinámicas de feedback con ramas y Pull Requests.
+- Prototipos de texto a bloques.
+
+---
+
+## Prototipo de interfaz
+
+Hay un primer prototipo en:
+
+[prototype/index.html](prototype/index.html)
+
+Permite:
+
+- Seleccionar un ejercicio.
+- Escribir comandos, pseudocódigo o una explicación.
+- Detectar bloques didácticos.
+- Mostrar criterios cubiertos y pendientes.
+- Preparar una entrega básica en Markdown.
+
+Documentación relacionada:
+
+- [Integración guía y Script-Lab](docs/integracion-guia-script-lab.md)
+- [Ramificación y feedback](docs/ramificacion-y-feedback.md)
+- [Interfaz texto a bloques](docs/interfaz-texto-bloques.md)
 
 ---
 
@@ -47,6 +71,9 @@ Aquí se pueden preparar:
 5. Responder las preguntas.
 6. Completar el checklist.
 7. Proponer una mejora.
+8. Crear una rama de trabajo.
+9. Abrir Pull Request para feedback.
+10. Aplicar mejoras.
 
 ---
 
@@ -65,4 +92,4 @@ entregas/
 
 ## Relación con la guía
 
-La guía explica los conceptos. Script-Lab organiza la práctica.
+La guía explica los conceptos. Script-Lab organiza la práctica, el feedback y la evolución hacia ejercicios interactivos.
