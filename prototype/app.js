@@ -1,354 +1,129 @@
 const exercises = [
-  {
-    id: "GT-LAB-01-TERMINAL",
-    title: "Terminal básica",
-    level: "Inicio",
-    language: "Bash",
-    scenario: "Necesitas crear un pequeño espacio de trabajo, generar archivos de prueba, guardar una salida y comprobar el resultado.",
-    goal: "Aprender el flujo mínimo de un script: preparar entorno, crear datos, producir salida, verificar y concluir.",
-    steps: [
-      { type: "preparar", title: "Preparar carpeta de trabajo", task: "Crear una carpeta para la práctica y entrar en ella.", hint: "Piensa en dos acciones: crear directorio y cambiar a ese directorio. En Bash suelen ser dos comandos separados.", code: "mkdir -p laboratorio-terminal\ncd laboratorio-terminal" },
-      { type: "crear", title: "Crear archivos de prueba", task: "Crear tres archivos vacíos para practicar con listados y búsquedas.", hint: "No necesitas editar el contenido todavía. Basta con crear los archivos para que aparezcan en el listado.", code: "touch uno.txt dos.txt tres.txt" },
-      { type: "salida", title: "Guardar listado como evidencia", task: "Listar el contenido y guardar la salida en un archivo de evidencia.", hint: "La redirección permite guardar lo que normalmente verías en pantalla dentro de un archivo.", code: "ls -lah > listado.txt" },
-      { type: "buscar", title: "Buscar dentro de la evidencia", task: "Comprobar que el archivo esperado aparece en el listado.", hint: "Busca una palabra concreta dentro del archivo generado en el paso anterior.", code: "grep \"uno\" listado.txt" },
-      { type: "conclusion", title: "Documentar conclusión", task: "Añadir una frase de conclusión al informe.", hint: "La conclusión no debe repetir comandos; debe explicar qué demuestra la evidencia.", code: "echo \"Conclusion: el listado contiene los archivos creados y la busqueda confirma uno.txt.\" > informe.md" }
-    ]
-  },
-  {
-    id: "GT-LAB-04-REDES",
-    title: "Diagnóstico de redes",
-    level: "Redes",
-    language: "Bash",
-    scenario: "Un equipo parece tener problemas de conexión. Debes diagnosticarlo por capas, no probando comandos al azar.",
-    goal: "Construir un script de diagnóstico con IP, gateway, DNS, puerto y conclusión.",
-    steps: [
-      { type: "ip", title: "Comprobar IP local", task: "Mostrar la configuración IP del equipo.", hint: "Antes de probar Internet, confirma si el equipo tiene dirección IP local.", code: "ip address show" },
-      { type: "gateway", title: "Comprobar gateway", task: "Mostrar la ruta por defecto o puerta de enlace.", hint: "Si no hay ruta por defecto, el equipo puede comunicarse localmente pero no salir a otras redes.", code: "ip route show default" },
-      { type: "dns", title: "Comprobar DNS", task: "Probar resolución de nombres.", hint: "Si la IP responde pero los nombres no, sospecha de DNS.", code: "nslookup example.com" },
-      { type: "puerto", title: "Comprobar puerto web", task: "Probar si un servicio web responde.", hint: "Un puerto abierto indica que el servicio remoto responde en esa capa.", code: "curl -I https://example.com" },
-      { type: "conclusion", title: "Redactar diagnóstico", task: "Guardar una conclusión técnica sencilla.", hint: "Indica si el problema parece estar en IP, gateway, DNS, puerto o servicio.", code: "echo \"Conclusion: revisar resultados de IP, gateway, DNS y puerto para localizar la capa del fallo.\" > diagnostico-red.md" }
-    ]
-  },
-  {
-    id: "GT-LAB-06-SCRIPTING",
-    title: "Scripting aplicado",
-    level: "Automatización",
-    language: "Bash",
-    scenario: "Vas a crear un script que recibe una carpeta, comprueba si existe y genera un informe de su contenido.",
-    goal: "Entender la estructura real de un script: cabecera, entrada, variable, condición, proceso, salida y verificación.",
-    steps: [
-      { type: "objetivo", title: "Cabecera y objetivo", task: "Iniciar el script y explicar su finalidad.", hint: "La primera línea indica con qué intérprete se ejecutará el script. Los comentarios ayudan a documentarlo.", code: "#!/usr/bin/env bash\n# Objetivo: generar un informe de una carpeta" },
-      { type: "entrada", title: "Recibir entrada", task: "Leer la carpeta desde el primer argumento del script.", hint: "En Bash, el primer argumento recibido por un script se consulta con $1.", code: "CARPETA=\"$1\"\nINFORME=\"informe-carpeta.txt\"" },
-      { type: "condicion", title: "Validar entrada", task: "Comprobar si la carpeta existe antes de trabajar con ella.", hint: "Una condición evita que el script continúe con datos incorrectos.", code: "if [ ! -d \"$CARPETA\" ]; then\n  echo \"Error: la carpeta no existe\"\n  exit 1\nfi" },
-      { type: "proceso", title: "Procesar información", task: "Listar el contenido de la carpeta.", hint: "Aquí va la acción principal del script: obtener información útil.", code: "ls -lah \"$CARPETA\" > \"$INFORME\"" },
-      { type: "verificacion", title: "Verificar salida", task: "Confirmar que el informe se ha creado.", hint: "No des por hecho que la salida existe: compruébalo al final.", code: "if [ -f \"$INFORME\" ]; then\n  echo \"Informe generado: $INFORME\"\nfi" }
-    ]
-  },
-  {
-    id: "GT-LAB-03-WINDOWS",
-    title: "Windows PowerShell",
-    level: "Administración",
-    language: "PowerShell",
-    scenario: "Debes generar un informe simple de un equipo Windows usando PowerShell.",
-    goal: "Construir un script con comprobaciones de sistema, disco, procesos, servicios y salida a informe.",
-    steps: [
-      { type: "sistema", title: "Identificar equipo", task: "Obtener información básica del equipo.", hint: "Empieza por saber qué equipo estás revisando y con qué usuario.", code: "$equipo = $env:COMPUTERNAME\n$usuario = $env:USERNAME" },
-      { type: "disco", title: "Revisar disco", task: "Consultar unidades disponibles.", hint: "El disco es una de las causas habituales de incidencias.", code: "$discos = Get-PSDrive -PSProvider FileSystem" },
-      { type: "procesos", title: "Revisar procesos", task: "Obtener los procesos con más consumo de CPU.", hint: "Ordenar ayuda a encontrar antes lo más relevante.", code: "$procesos = Get-Process | Sort-Object CPU -Descending | Select-Object -First 5" },
-      { type: "servicios", title: "Revisar servicios", task: "Consultar servicios en ejecución.", hint: "Distingue servicios en ejecución y detenidos.", code: "$servicios = Get-Service | Where-Object Status -eq 'Running' | Select-Object -First 10" },
-      { type: "salida", title: "Crear informe", task: "Guardar los resultados en un archivo.", hint: "La salida debe quedar en un archivo para poder entregarla o revisarla después.", code: "$equipo, $usuario, $discos, $procesos, $servicios | Out-File informe-windows.txt" }
-    ]
-  },
-  {
-    id: "PY-LAB-01-INVENTARIO",
-    title: "Python inventario de carpeta",
-    level: "Python inicio",
-    language: "Python",
-    scenario: "Necesitas crear un pequeño script en Python que reciba una carpeta, la revise y genere un informe de archivos.",
-    goal: "Practicar pathlib, argumentos, validación, recorrido de archivos y escritura de salida.",
-    steps: [
-      { type: "objetivo", title: "Importar módulos y definir objetivo", task: "Preparar el script con los módulos necesarios.", hint: "Para trabajar con rutas modernas en Python usa pathlib. Para argumentos simples puedes usar sys.", code: "from pathlib import Path\nimport sys\n\n# Objetivo: generar un inventario simple de una carpeta" },
-      { type: "entrada", title: "Recibir ruta de carpeta", task: "Leer la carpeta desde el primer argumento.", hint: "sys.argv contiene los argumentos. El primer argumento útil está en la posición 1.", code: "carpeta = Path(sys.argv[1])\ninforme = Path(\"inventario.txt\")" },
-      { type: "condicion", title: "Validar carpeta", task: "Comprobar que la ruta existe y es una carpeta.", hint: "Antes de recorrer archivos, valida la entrada para evitar errores confusos.", code: "if not carpeta.is_dir():\n    print(\"Error: la carpeta no existe\")\n    sys.exit(1)" },
-      { type: "proceso", title: "Recorrer archivos", task: "Obtener una lista de archivos de la carpeta.", hint: "iterdir() permite recorrer el contenido directo de una carpeta.", code: "lineas = []\nfor ruta in carpeta.iterdir():\n    if ruta.is_file():\n        lineas.append(f\"{ruta.name} - {ruta.stat().st_size} bytes\")" },
-      { type: "salida", title: "Guardar informe", task: "Guardar el resultado en un archivo de texto.", hint: "write_text permite escribir texto completo en un archivo de forma sencilla.", code: "informe.write_text(\"\\n\".join(lineas), encoding=\"utf-8\")\nprint(f\"Informe generado: {informe}\")" }
-    ]
-  },
-  {
-    id: "PY-LAB-02-CSV",
-    title: "Python análisis de CSV",
-    level: "Python administración",
-    language: "Python",
-    scenario: "Tienes un CSV de usuarios y necesitas generar un resumen con cuántos registros hay y qué usuarios aparecen activos.",
-    goal: "Practicar lectura de CSV, listas, contadores, condiciones y generación de informes.",
-    steps: [
-      { type: "objetivo", title: "Preparar lectura CSV", task: "Importar módulos y definir archivos de entrada y salida.", hint: "El módulo csv viene incluido en Python y evita separar columnas manualmente.", code: "import csv\nfrom pathlib import Path\n\nentrada = Path(\"usuarios.csv\")\nsalida = Path(\"resumen-usuarios.txt\")" },
-      { type: "condicion", title: "Validar archivo de entrada", task: "Comprobar que el CSV existe antes de abrirlo.", hint: "Si el archivo no existe, el script debe terminar con un mensaje claro.", code: "if not entrada.is_file():\n    print(\"Error: no existe usuarios.csv\")\n    raise SystemExit(1)" },
-      { type: "proceso", title: "Leer registros", task: "Leer el CSV como diccionario por filas.", hint: "DictReader permite acceder a las columnas por nombre, por ejemplo usuario o estado.", code: "with entrada.open(newline=\"\", encoding=\"utf-8\") as archivo:\n    registros = list(csv.DictReader(archivo))" },
-      { type: "buscar", title: "Filtrar usuarios activos", task: "Crear una lista con los usuarios cuyo estado sea activo.", hint: "Recorre cada fila y compara el valor de la columna estado.", code: "activos = [fila[\"usuario\"] for fila in registros if fila.get(\"estado\") == \"activo\"]" },
-      { type: "salida", title: "Guardar resumen", task: "Escribir total de registros y usuarios activos en un informe.", hint: "Convierte la lista de usuarios activos en texto antes de guardarla.", code: "contenido = f\"Total de usuarios: {len(registros)}\\nActivos: {', '.join(activos)}\\n\"\nsalida.write_text(contenido, encoding=\"utf-8\")\nprint(\"Resumen generado\")" }
-    ]
-  },
-  {
-    id: "PY-LAB-03-PUERTOS",
-    title: "Python comprobador de puertos",
-    level: "Python redes",
-    language: "Python",
-    scenario: "Quieres comprobar de forma controlada si un host responde en un puerto concreto dentro de un laboratorio.",
-    goal: "Practicar argumentos, sockets, timeout, gestión de errores y salida clara.",
-    steps: [
-      { type: "objetivo", title: "Preparar script de red", task: "Importar módulos para argumentos y conexiones TCP.", hint: "socket permite probar conexiones TCP simples sin instalar librerías externas.", code: "import socket\nimport sys\n\n# Uso: python comprobar_puerto.py HOST PUERTO" },
-      { type: "entrada", title: "Leer host y puerto", task: "Obtener host y puerto desde argumentos.", hint: "Convierte el puerto a entero porque sys.argv devuelve texto.", code: "host = sys.argv[1]\npuerto = int(sys.argv[2])\ntimeout = 3" },
-      { type: "proceso", title: "Crear conexión", task: "Intentar conectar al host y puerto indicados.", hint: "create_connection devuelve una conexión si el puerto responde antes del timeout.", code: "try:\n    with socket.create_connection((host, puerto), timeout=timeout):\n        abierto = True\nexcept OSError:\n    abierto = False" },
-      { type: "condicion", title: "Interpretar resultado", task: "Mostrar un mensaje diferente según el estado del puerto.", hint: "Una condición convierte el resultado técnico en una salida entendible.", code: "if abierto:\n    print(f\"OK: {host}:{puerto} responde\")\nelse:\n    print(f\"ERROR: {host}:{puerto} no responde\")" },
-      { type: "conclusion", title: "Uso responsable", task: "Documentar que la prueba debe hacerse en laboratorio o con permiso.", hint: "La documentación también forma parte del script cuando se usa en redes.", code: "# Conclusion: usar solo en equipos propios, laboratorio o sistemas con permiso." }
-    ]
-  }
+  makeExercise("GT-LAB-01-TERMINAL", "Terminal básica", "Inicio", "Bash", "Crear un espacio de trabajo, generar archivos, guardar una salida y comprobar el resultado.", "Aprender el flujo mínimo de un script: preparar entorno, crear datos, producir salida, verificar y concluir.", [
+    step("preparar", "Preparar carpeta de trabajo", "Crear una carpeta para la práctica y entrar en ella.", "Piensa en mkdir y cd.", "mkdir -p laboratorio-terminal\ncd laboratorio-terminal"),
+    step("crear", "Crear archivos de prueba", "Crear tres archivos vacíos.", "No necesitas contenido todavía.", "touch uno.txt dos.txt tres.txt"),
+    step("salida", "Guardar listado como evidencia", "Guardar el listado en un archivo.", "Usa redirección.", "ls -lah > listado.txt"),
+    step("buscar", "Buscar dentro de la evidencia", "Comprobar que aparece uno.txt.", "Busca una palabra concreta dentro del listado.", "grep \"uno\" listado.txt"),
+    step("conclusion", "Documentar conclusión", "Añadir una conclusión al informe.", "Explica qué demuestra la evidencia.", "echo \"Conclusion: el listado contiene los archivos creados.\" > informe.md")
+  ]),
+  makeExercise("GT-LAB-03-WINDOWS", "Windows PowerShell", "Administración", "PowerShell", "Generar un informe simple de un equipo Windows.", "Construir un script con sistema, disco, procesos, servicios y salida a informe.", [
+    step("sistema", "Identificar equipo", "Obtener equipo y usuario.", "Empieza sabiendo qué equipo revisas.", "$equipo = $env:COMPUTERNAME\n$usuario = $env:USERNAME"),
+    step("disco", "Revisar disco", "Consultar unidades disponibles.", "Get-PSDrive filtra unidades del sistema de archivos.", "$discos = Get-PSDrive -PSProvider FileSystem"),
+    step("procesos", "Revisar procesos", "Obtener procesos con más CPU.", "Ordenar ayuda a encontrar antes lo importante.", "$procesos = Get-Process | Sort-Object CPU -Descending | Select-Object -First 5"),
+    step("servicios", "Revisar servicios", "Consultar servicios en ejecución.", "Filtra por Status.", "$servicios = Get-Service | Where-Object Status -eq 'Running' | Select-Object -First 10"),
+    step("salida", "Crear informe", "Guardar resultados en un archivo.", "Out-File deja evidencia.", "$equipo, $usuario, $discos, $procesos, $servicios | Out-File informe-windows.txt")
+  ]),
+  makeExercise("GT-LAB-04-REDES", "Diagnóstico de redes", "Redes", "Bash", "Un equipo parece tener problemas de conexión.", "Construir un diagnóstico por capas: IP, gateway, DNS, puerto y conclusión.", [
+    step("ip", "Comprobar IP local", "Mostrar la configuración IP.", "Primero confirma si hay IP local.", "ip address show"),
+    step("gateway", "Comprobar gateway", "Mostrar ruta por defecto.", "Sin gateway puede no haber salida a otras redes.", "ip route show default"),
+    step("dns", "Comprobar DNS", "Probar resolución de nombres.", "Si la IP funciona pero el nombre no, sospecha DNS.", "nslookup example.com"),
+    step("puerto", "Comprobar puerto web", "Probar si un servicio web responde.", "curl -I muestra cabeceras HTTP.", "curl -I https://example.com"),
+    step("conclusion", "Redactar diagnóstico", "Guardar conclusión técnica.", "Indica la capa probable del fallo.", "echo \"Conclusion: revisar IP, gateway, DNS y puerto.\" > diagnostico-red.md")
+  ]),
+  makeExercise("GT-LAB-06-SCRIPTING", "Scripting aplicado", "Automatización", "Bash", "Crear un script que recibe una carpeta, comprueba si existe y genera un informe.", "Entender cabecera, entrada, condición, proceso, salida y verificación.", [
+    step("objetivo", "Cabecera y objetivo", "Iniciar el script y explicar su finalidad.", "La cabecera indica intérprete.", "#!/usr/bin/env bash\n# Objetivo: generar un informe de una carpeta"),
+    step("entrada", "Recibir entrada", "Leer carpeta desde el primer argumento.", "En Bash, $1 es el primer argumento.", "CARPETA=\"$1\"\nINFORME=\"informe-carpeta.txt\""),
+    step("condicion", "Validar entrada", "Comprobar que la carpeta existe.", "Valida antes de actuar.", "if [ ! -d \"$CARPETA\" ]; then\n  echo \"Error: la carpeta no existe\"\n  exit 1\nfi"),
+    step("proceso", "Procesar información", "Listar contenido de la carpeta.", "Acción principal del script.", "ls -lah \"$CARPETA\" > \"$INFORME\""),
+    step("verificacion", "Verificar salida", "Confirmar que se creó el informe.", "No des por hecho que existe.", "if [ -f \"$INFORME\" ]; then\n  echo \"Informe generado: $INFORME\"\nfi")
+  ]),
+  makeExercise("PY-LAB-01-INVENTARIO", "Python inventario de carpeta", "Python inicio", "Python", "Recibir una carpeta, revisarla y generar un informe de archivos.", "Practicar pathlib, argumentos, validación, recorrido y escritura.", [
+    step("objetivo", "Importar módulos", "Preparar módulos necesarios.", "pathlib trabaja bien con rutas.", "from pathlib import Path\nimport sys\n\n# Objetivo: generar un inventario simple"),
+    step("entrada", "Recibir ruta", "Leer carpeta desde argumento.", "sys.argv[1] contiene el primer argumento real.", "carpeta = Path(sys.argv[1])\ninforme = Path(\"inventario.txt\")"),
+    step("condicion", "Validar carpeta", "Comprobar que existe y es carpeta.", "Evita errores confusos.", "if not carpeta.is_dir():\n    print(\"Error: la carpeta no existe\")\n    sys.exit(1)"),
+    step("proceso", "Recorrer archivos", "Crear líneas de inventario.", "iterdir recorre el contenido directo.", "lineas = []\nfor ruta in carpeta.iterdir():\n    if ruta.is_file():\n        lineas.append(f\"{ruta.name} - {ruta.stat().st_size} bytes\")"),
+    step("salida", "Guardar informe", "Escribir salida en texto.", "write_text guarda el contenido completo.", "informe.write_text(\"\\n\".join(lineas), encoding=\"utf-8\")\nprint(f\"Informe generado: {informe}\")")
+  ]),
+  makeExercise("PY-LAB-02-CSV", "Python análisis de CSV", "Python administración", "Python", "Generar resumen desde un CSV de usuarios.", "Practicar csv, listas, filtros, condiciones y salida.", [
+    step("objetivo", "Preparar lectura CSV", "Importar módulos y definir archivos.", "csv evita separar columnas manualmente.", "import csv\nfrom pathlib import Path\n\nentrada = Path(\"usuarios.csv\")\nsalida = Path(\"resumen-usuarios.txt\")"),
+    step("condicion", "Validar entrada", "Comprobar que el CSV existe.", "Termina con mensaje claro si no existe.", "if not entrada.is_file():\n    print(\"Error: no existe usuarios.csv\")\n    raise SystemExit(1)"),
+    step("proceso", "Leer registros", "Leer CSV como diccionario.", "DictReader accede por nombre de columna.", "with entrada.open(newline=\"\", encoding=\"utf-8\") as archivo:\n    registros = list(csv.DictReader(archivo))"),
+    step("buscar", "Filtrar activos", "Listar usuarios activos.", "Compara columna estado.", "activos = [fila[\"usuario\"] for fila in registros if fila.get(\"estado\") == \"activo\"]"),
+    step("salida", "Guardar resumen", "Crear informe de texto.", "Convierte resultados a texto claro.", "contenido = f\"Total: {len(registros)}\\nActivos: {', '.join(activos)}\\n\"\nsalida.write_text(contenido, encoding=\"utf-8\")\nprint(\"Resumen generado\")")
+  ]),
+  makeExercise("PY-LAB-03-PUERTOS", "Python comprobador de puertos", "Python redes", "Python", "Comprobar si un host responde en un puerto concreto dentro de un laboratorio.", "Practicar argumentos, sockets, timeout, errores y salida clara.", [
+    step("objetivo", "Preparar script de red", "Importar módulos.", "socket permite conexiones TCP simples.", "import socket\nimport sys\n\n# Uso: python comprobar_puerto.py HOST PUERTO"),
+    step("entrada", "Leer host y puerto", "Obtener parámetros desde argumentos.", "Convierte el puerto a entero.", "host = sys.argv[1]\npuerto = int(sys.argv[2])\ntimeout = 3"),
+    step("proceso", "Crear conexión", "Intentar conectar con timeout.", "create_connection falla si no responde.", "try:\n    with socket.create_connection((host, puerto), timeout=timeout):\n        abierto = True\nexcept OSError:\n    abierto = False"),
+    step("condicion", "Interpretar resultado", "Mostrar mensaje según estado.", "Convierte resultado técnico en salida legible.", "if abierto:\n    print(f\"OK: {host}:{puerto} responde\")\nelse:\n    print(f\"ERROR: {host}:{puerto} no responde\")"),
+    step("conclusion", "Uso responsable", "Documentar uso en laboratorio.", "La documentación también es parte profesional.", "# Conclusion: usar solo en equipos propios, laboratorio o sistemas con permiso.")
+  ]),
+  makeExercise("PRO-BASH-01-BACKUP", "Bash backup profesional", "Profesional", "Bash", "Crear un backup con fecha, log, validación, dry-run y verificación.", "Practicar estructura senior de automatización segura.", [
+    step("objetivo", "Cabecera estricta", "Activar modo estricto y documentar uso.", "set -euo pipefail evita muchos errores silenciosos.", "#!/usr/bin/env bash\nset -euo pipefail\n# Uso: ./backup_pro.sh ORIGEN DESTINO [--dry-run]"),
+    step("entrada", "Parámetros", "Leer origen, destino y dry-run.", "Usa valores por defecto para opciones.", "ORIGEN=\"${1:-}\"\nDESTINO=\"${2:-}\"\nDRY_RUN=\"${3:-false}\""),
+    step("logging", "Función de log", "Crear una función de registro.", "El log debe incluir fecha y hora.", "LOG=\"backup.log\"\nlog() { echo \"$(date '+%F %T') $*\" | tee -a \"$LOG\"; }"),
+    step("condicion", "Validar entrada", "Comprobar origen y destino.", "Valida antes de copiar.", "if [ ! -d \"$ORIGEN\" ]; then\n  log \"ERROR: origen no existe\"\n  exit 1\nfi\nmkdir -p \"$DESTINO\""),
+    step("dryrun", "Modo dry-run", "Simular antes de copiar.", "Un script profesional permite ver qué haría.", "if [ \"$DRY_RUN\" = \"--dry-run\" ]; then\n  log \"DRY-RUN: se copiaría $ORIGEN a $DESTINO\"\n  exit 0\nfi"),
+    step("proceso", "Ejecutar backup", "Crear archivo comprimido con fecha.", "La fecha evita sobrescribir copias anteriores.", "ARCHIVO=\"$DESTINO/backup-$(date +%F-%H%M).tar.gz\"\ntar -czf \"$ARCHIVO\" -C \"$ORIGEN\" ."),
+    step("verificacion", "Verificar backup", "Comprobar que el archivo existe.", "Sin verificación no hay backup fiable.", "if [ -f \"$ARCHIVO\" ]; then\n  log \"Backup generado: $ARCHIVO\"\nfi")
+  ]),
+  makeExercise("PRO-PY-01-ARGPARSE", "Python argparse y logging", "Profesional", "Python", "Convertir un script básico en herramienta profesional con argparse, logging y códigos de salida.", "Practicar CLI robusta, validación, logs y main().", [
+    step("objetivo", "Estructura main", "Preparar imports y función main.", "Los scripts mantenibles separan definición y ejecución.", "import argparse\nimport logging\nfrom pathlib import Path\n\ndef main():\n    pass\n\nif __name__ == \"__main__\":\n    raise SystemExit(main())"),
+    step("entrada", "Argumentos CLI", "Definir argumentos con argparse.", "argparse genera ayuda automática.", "parser = argparse.ArgumentParser(description=\"Inventario profesional\")\nparser.add_argument(\"carpeta\", type=Path)\nparser.add_argument(\"--salida\", type=Path, default=Path(\"inventario.md\"))\nparser.add_argument(\"--dry-run\", action=\"store_true\")\nargs = parser.parse_args()"),
+    step("logging", "Configurar logging", "Registrar actividad del script.", "logging permite niveles y formato profesional.", "logging.basicConfig(level=logging.INFO, format=\"%(asctime)s %(levelname)s %(message)s\")\nlogging.info(\"Iniciando inventario\")"),
+    step("condicion", "Validar carpeta", "Comprobar entrada antes de procesar.", "Devuelve código no cero si hay error.", "if not args.carpeta.is_dir():\n    logging.error(\"La carpeta no existe: %s\", args.carpeta)\n    return 1"),
+    step("dryrun", "Simulación", "Mostrar qué se haría sin escribir.", "dry-run es clave antes de cambios reales.", "if args.dry_run:\n    logging.info(\"DRY-RUN: se generaría %s\", args.salida)\n    return 0"),
+    step("salida", "Salida Markdown", "Generar informe documentado.", "Markdown es fácil de leer y versionar.", "lineas = [\"# Inventario\", \"\"]\nfor ruta in args.carpeta.iterdir():\n    lineas.append(f\"- {ruta.name}\")\nargs.salida.write_text(\"\\n\".join(lineas), encoding=\"utf-8\")\nreturn 0")
+  ]),
+  makeExercise("PRO-PS-01-SERVICIOS", "PowerShell servicios con log", "Profesional", "PowerShell", "Revisar servicios críticos, generar log e informe.", "Practicar parámetros, validación, registros y salida operativa.", [
+    step("entrada", "Parámetros", "Definir servicios e informe.", "param hace el script reutilizable.", "param(\n  [string[]]$Servicios = @(\"Spooler\", \"WinRM\"),\n  [string]$Informe = \"servicios.md\"\n)"),
+    step("logging", "Función de log", "Crear registro con fecha.", "Una función evita repetir formato.", "function Write-Log {\n  param([string]$Mensaje)\n  \"$(Get-Date -Format s) $Mensaje\" | Tee-Object -FilePath script.log -Append\n}"),
+    step("proceso", "Revisar servicios", "Consultar cada servicio.", "Get-Service puede fallar si el nombre no existe.", "$resultados = foreach ($nombre in $Servicios) {\n  Get-Service -Name $nombre -ErrorAction SilentlyContinue\n}"),
+    step("condicion", "Detectar faltantes", "Avisar si un servicio no existe.", "Un informe debe distinguir parado, activo y no encontrado.", "foreach ($nombre in $Servicios) {\n  if (-not ($resultados | Where-Object Name -eq $nombre)) { Write-Log \"Servicio no encontrado: $nombre\" }\n}"),
+    step("salida", "Generar informe", "Exportar estado a Markdown.", "La evidencia debe quedar guardada.", "$resultados | Select-Object Name, Status | Out-File $Informe\nWrite-Log \"Informe generado: $Informe\"")
+  ]),
+  makeExercise("PRO-PY-02-PUERTOS-CSV", "Python puertos desde CSV", "Profesional redes", "Python", "Leer una lista de hosts y puertos desde CSV y generar resultados.", "Practicar automatización de red defensiva con entrada estructurada y salida CSV.", [
+    step("objetivo", "Preparar módulos", "Importar csv, socket y pathlib.", "Usa librerías estándar.", "import csv\nimport socket\nfrom pathlib import Path"),
+    step("entrada", "Definir archivos", "Elegir CSV de entrada y salida.", "Separar entrada/salida mejora mantenimiento.", "entrada = Path(\"objetivos.csv\")\nsalida = Path(\"resultado-puertos.csv\")\ntimeout = 2"),
+    step("proceso", "Función comprobar", "Crear función para probar un puerto.", "Una función permite reutilizar la lógica.", "def comprobar(host, puerto):\n    try:\n        with socket.create_connection((host, int(puerto)), timeout=timeout):\n            return \"abierto\"\n    except OSError:\n        return \"cerrado\""),
+    step("proceso", "Procesar CSV", "Leer objetivos y comprobar cada uno.", "Cada fila debe tener host y puerto.", "resultados = []\nwith entrada.open(newline=\"\", encoding=\"utf-8\") as f:\n    for fila in csv.DictReader(f):\n        estado = comprobar(fila[\"host\"], fila[\"puerto\"])\n        resultados.append({**fila, \"estado\": estado})"),
+    step("salida", "Guardar resultados", "Exportar CSV final.", "DictWriter genera CSV reutilizable.", "with salida.open(\"w\", newline=\"\", encoding=\"utf-8\") as f:\n    writer = csv.DictWriter(f, fieldnames=[\"host\", \"puerto\", \"estado\"])\n    writer.writeheader()\n    writer.writerows(resultados)"),
+    step("conclusion", "Uso responsable", "Documentar alcance autorizado.", "Nunca automatices pruebas fuera del laboratorio o sin permiso.", "# Uso responsable: ejecutar solo sobre hosts propios, laboratorio o sistemas con autorización.")
+  ]),
+  makeExercise("PRO-BASH-02-LIMPIEZA", "Bash limpieza segura", "Profesional", "Bash", "Limpiar archivos temporales antiguos sin asumir riesgos.", "Practicar dry-run, confirmación, logs y seguridad en scripts destructivos.", [
+    step("objetivo", "Cabecera segura", "Activar modo estricto y documentar uso.", "La limpieza es delicada: documenta antes.", "#!/usr/bin/env bash\nset -euo pipefail\n# Uso: ./limpieza.sh CARPETA DIAS [--dry-run]"),
+    step("entrada", "Leer parámetros", "Recibir carpeta, días y modo.", "No uses rutas fijas para acciones peligrosas.", "CARPETA=\"${1:-}\"\nDIAS=\"${2:-30}\"\nMODO=\"${3:-}\""),
+    step("condicion", "Validar carpeta", "Evitar rutas vacías o raíz.", "Nunca limpies / por error.", "if [ -z \"$CARPETA\" ] || [ \"$CARPETA\" = \"/\" ]; then\n  echo \"Error: carpeta no permitida\"\n  exit 1\nfi"),
+    step("dryrun", "Simular limpieza", "Mostrar qué se borraría.", "Primero mirar, después actuar.", "if [ \"$MODO\" = \"--dry-run\" ]; then\n  find \"$CARPETA\" -type f -mtime +\"$DIAS\" -print\n  exit 0\nfi"),
+    step("confirmacion", "Confirmar acción", "Pedir confirmación explícita.", "Un borrado profesional requiere confirmación.", "read -r -p \"¿Borrar archivos antiguos? escribe SI: \" RESPUESTA\nif [ \"$RESPUESTA\" != \"SI\" ]; then\n  echo \"Cancelado\"\n  exit 0\nfi"),
+    step("proceso", "Ejecutar limpieza", "Eliminar archivos antiguos.", "Solo tras validación y confirmación.", "find \"$CARPETA\" -type f -mtime +\"$DIAS\" -delete\necho \"Limpieza finalizada\"")
+  ])
 ];
 
+function makeExercise(id, title, level, language, scenario, goal, steps) { return { id, title, level, language, scenario, goal, steps }; }
+function step(type, title, task, hint, code) { return { type, title, task, hint, code }; }
+
 const blockInfo = {
-  objetivo: { label: "Objetivo", help: "Define la finalidad del script." },
-  preparar: { label: "Preparar", help: "Prepara carpetas o entorno de trabajo." },
-  entrada: { label: "Entrada", help: "Recoge datos, argumentos o parámetros." },
-  crear: { label: "Crear", help: "Crea archivos, carpetas o recursos." },
-  variable: { label: "Variable", help: "Guarda datos reutilizables." },
-  condicion: { label: "Condición", help: "Toma decisiones según una comprobación." },
-  proceso: { label: "Proceso", help: "Ejecuta la acción principal." },
-  salida: { label: "Salida", help: "Muestra o guarda resultados." },
-  buscar: { label: "Buscar", help: "Localiza texto o información concreta." },
-  verificacion: { label: "Verificación", help: "Comprueba que el resultado existe o es válido." },
-  sistema: { label: "Sistema", help: "Obtiene información del equipo." },
-  disco: { label: "Disco", help: "Revisa unidades y espacio." },
-  procesos: { label: "Procesos", help: "Consulta procesos activos." },
-  servicios: { label: "Servicios", help: "Consulta servicios del sistema." },
-  logs: { label: "Logs", help: "Revisa registros o eventos." },
-  red: { label: "Red", help: "Comprueba conectividad general." },
-  ip: { label: "IP", help: "Comprueba dirección IP local." },
-  gateway: { label: "Gateway", help: "Comprueba puerta de enlace." },
-  dns: { label: "DNS", help: "Comprueba resolución de nombres." },
-  puerto: { label: "Puerto", help: "Comprueba puertos o servicios remotos." },
-  conclusion: { label: "Conclusión", help: "Interpreta el resultado." }
+  objetivo: { label: "Objetivo", help: "Define la finalidad del script." }, preparar: { label: "Preparar", help: "Prepara entorno de trabajo." }, entrada: { label: "Entrada", help: "Recoge argumentos o parámetros." }, crear: { label: "Crear", help: "Crea archivos, carpetas o recursos." }, variable: { label: "Variable", help: "Guarda datos reutilizables." }, condicion: { label: "Condición", help: "Toma decisiones según una comprobación." }, proceso: { label: "Proceso", help: "Ejecuta la acción principal." }, salida: { label: "Salida", help: "Muestra o guarda resultados." }, buscar: { label: "Buscar", help: "Localiza información concreta." }, verificacion: { label: "Verificación", help: "Comprueba que el resultado es válido." }, sistema: { label: "Sistema", help: "Obtiene información del equipo." }, disco: { label: "Disco", help: "Revisa unidades y espacio." }, procesos: { label: "Procesos", help: "Consulta procesos activos." }, servicios: { label: "Servicios", help: "Consulta servicios del sistema." }, logs: { label: "Logs", help: "Revisa registros o eventos." }, red: { label: "Red", help: "Comprueba conectividad general." }, ip: { label: "IP", help: "Comprueba dirección IP local." }, gateway: { label: "Gateway", help: "Comprueba puerta de enlace." }, dns: { label: "DNS", help: "Comprueba resolución de nombres." }, puerto: { label: "Puerto", help: "Comprueba puertos o servicios remotos." }, conclusion: { label: "Conclusión", help: "Interpreta el resultado." }, logging: { label: "Logging", help: "Registra actividad y errores." }, dryrun: { label: "Dry-run", help: "Simula antes de ejecutar cambios." }, confirmacion: { label: "Confirmación", help: "Pide aprobación antes de acciones críticas." }
 };
 
 const patterns = [
-  { type: "objetivo", words: ["#!/", "objetivo", "finalidad", "import ", "from "] },
-  { type: "preparar", words: ["mkdir", "cd ", "set-location"] },
-  { type: "entrada", words: ["$1", "sys.argv", "argparse", "param", "read ", "argumento", "entrada"] },
-  { type: "crear", words: ["touch", "new-item", "crear"] },
-  { type: "variable", words: ["=", "$equipo", "$usuario", "carpeta=", "informe="] },
-  { type: "condicion", words: ["if ", "then", "else", "where-object", "si ", "not ", "except"] },
-  { type: "proceso", words: ["ls ", "get-process", "sort-object", "copiar", "copy-item", "for ", "with ", "socket.create_connection", "iterdir"] },
-  { type: "salida", words: [">", "out-file", "echo", "informe", "print", "write_text"] },
-  { type: "buscar", words: ["grep", "select-string", "findstr", "filter", "activos", "join"] },
-  { type: "verificacion", words: ["-f", "test-path", "verificar", "comprobar", "is_file", "is_dir"] },
-  { type: "sistema", words: ["computername", "username", "hostname", "whoami"] },
-  { type: "disco", words: ["get-psdrive", "df", "disco"] },
-  { type: "procesos", words: ["get-process", "ps ", "top"] },
-  { type: "servicios", words: ["get-service", "systemctl", "servicio"] },
-  { type: "ip", words: ["ip address", "ipconfig", "get-netipaddress"] },
-  { type: "gateway", words: ["ip route", "route print", "gateway"] },
-  { type: "dns", words: ["nslookup", "resolve-dnsname", "dns"] },
-  { type: "puerto", words: ["curl", "test-netconnection", "443", "80", "puerto", "socket"] },
-  { type: "conclusion", words: ["conclusion", "diagnostico", "recomendacion", "permiso"] }
+  { type: "logging", words: ["logging", "log()", "write-log", "script.log", "tee -a"] }, { type: "dryrun", words: ["dry-run", "DRY_RUN", "simular"] }, { type: "confirmacion", words: ["read -r -p", "confirm", "respuesta"] }, { type: "objetivo", words: ["#!/", "objetivo", "finalidad", "import ", "from "] }, { type: "preparar", words: ["mkdir", "cd ", "set-location"] }, { type: "entrada", words: ["$1", "sys.argv", "argparse", "param(", "param", "argumento", "entrada"] }, { type: "crear", words: ["touch", "new-item", "crear"] }, { type: "variable", words: ["=", "$equipo", "$usuario", "CARPETA="] }, { type: "condicion", words: ["if ", "then", "else", "where-object", "except", "not "] }, { type: "buscar", words: ["grep", "select-string", "findstr", "activos", "join"] }, { type: "verificacion", words: ["-f", "test-path", "verificar", "is_file", "is_dir"] }, { type: "sistema", words: ["computername", "username", "hostname", "whoami"] }, { type: "disco", words: ["get-psdrive", "df", "disco"] }, { type: "procesos", words: ["get-process", "ps ", "top"] }, { type: "servicios", words: ["get-service", "systemctl", "servicio"] }, { type: "ip", words: ["ip address", "ipconfig", "get-netipaddress"] }, { type: "gateway", words: ["ip route", "route print", "gateway"] }, { type: "dns", words: ["nslookup", "resolve-dnsname", "dns"] }, { type: "puerto", words: ["curl", "test-netconnection", "443", "80", "socket", "puerto"] }, { type: "salida", words: [">", "out-file", "echo", "print", "write_text", "writerow", "informe"] }, { type: "conclusion", words: ["conclusion", "diagnostico", "recomendacion", "permiso"] }, { type: "proceso", words: ["ls ", "for ", "with ", "tar ", "find ", "copy-item", "create_connection"] }
 ];
 
-const exerciseSelect = document.getElementById("exerciseSelect");
-const exerciseInfo = document.getElementById("exerciseInfo");
-const stepsOutput = document.getElementById("stepsOutput");
-const solutionInput = document.getElementById("solutionInput");
-const analyzeBtn = document.getElementById("analyzeBtn");
-const exampleBtn = document.getElementById("exampleBtn");
-const clearBtn = document.getElementById("clearBtn");
-const blocksOutput = document.getElementById("blocksOutput");
-const feedbackOutput = document.getElementById("feedbackOutput");
-const exportOutput = document.getElementById("exportOutput");
+const qualityChecks = [
+  { id: "cabecera", label: "Cabecera/objetivo", words: ["#!/", "objetivo", "description"] }, { id: "parametros", label: "Parámetros", words: ["$1", "argparse", "param(", "sys.argv"] }, { id: "validacion", label: "Validación", words: ["if ", "is_dir", "is_file", "test-path", "exit 1", "return 1"] }, { id: "logging", label: "Logging", words: ["logging", "log()", "write-log", "script.log", "tee -a"] }, { id: "errores", label: "Gestión de errores", words: ["try:", "except", "error", "raise systemexit", "exit 1"] }, { id: "dryrun", label: "Dry-run", words: ["dry-run", "DRY_RUN", "simular"] }, { id: "salida", label: "Salida/evidencia", words: ["out-file", "write_text", ">", "informe", "csv", "markdown"] }, { id: "seguridad", label: "Seguridad", words: ["set -euo pipefail", "permiso", "confirm", "read -r -p", "validar"] }, { id: "resumen", label: "Conclusión/resumen", words: ["conclusion", "diagnostico", "recomendacion", "resumen"] }
+];
 
-function init() {
-  exercises.forEach((exercise, index) => {
-    const option = document.createElement("option");
-    option.value = index;
-    option.textContent = `${exercise.id} - ${exercise.title}`;
-    exerciseSelect.appendChild(option);
-  });
+const exerciseSelect = document.getElementById("exerciseSelect"), exerciseInfo = document.getElementById("exerciseInfo"), stepsOutput = document.getElementById("stepsOutput"), solutionInput = document.getElementById("solutionInput"), analyzeBtn = document.getElementById("analyzeBtn"), exampleBtn = document.getElementById("exampleBtn"), clearBtn = document.getElementById("clearBtn"), blocksOutput = document.getElementById("blocksOutput"), feedbackOutput = document.getElementById("feedbackOutput"), exportOutput = document.getElementById("exportOutput"), qualityOutput = document.getElementById("qualityOutput");
 
-  const requested = getExerciseFromUrl();
-  if (requested) {
-    const index = exercises.findIndex(exercise => exercise.id === requested);
-    if (index >= 0) exerciseSelect.value = String(index);
-  }
-
-  renderExercise();
-  analyze();
-}
-
-function getExerciseFromUrl() {
-  const params = new URLSearchParams(window.location.search);
-  const value = params.get("exercise") || params.get("id");
-  if (!value) return null;
-  const normalized = value.trim().toUpperCase();
-  return /^[A-Z]+-LAB-\d{2}-[A-Z0-9-]+$|^GT-LAB-\d{2}-[A-Z0-9-]+$/.test(normalized) ? normalized : null;
-}
-
-function selectedExercise() {
-  return exercises[Number(exerciseSelect.value || 0)];
-}
-
-function renderExercise() {
-  const exercise = selectedExercise();
-  const url = new URL(window.location.href);
-  url.searchParams.set("exercise", exercise.id);
-  window.history.replaceState({}, "", url.toString());
-
-  exerciseInfo.innerHTML = `
-    <h3>${escapeHtml(exercise.title)}</h3>
-    <p><strong>Nivel:</strong> ${escapeHtml(exercise.level)}</p>
-    <p><strong>Lenguaje:</strong> ${escapeHtml(exercise.language)}</p>
-    <p><strong>Escenario:</strong> ${escapeHtml(exercise.scenario)}</p>
-    <p><strong>Objetivo:</strong> ${escapeHtml(exercise.goal)}</p>
-  `;
-
-  stepsOutput.innerHTML = exercise.steps.map((step, index) => `
-    <article class="step-card block-${escapeHtml(step.type)}">
-      <div class="step-number">${index + 1}</div>
-      <div class="step-content">
-        <div class="step-header">
-          <span class="block-pill">${escapeHtml(labelFor(step.type))}</span>
-          <h3>${escapeHtml(step.title)}</h3>
-        </div>
-        <p><strong>Qué tienes que hacer:</strong> ${escapeHtml(step.task)}</p>
-        <details>
-          <summary>Pista si me bloqueo</summary>
-          <p>${escapeHtml(step.hint)}</p>
-        </details>
-        <details class="advanced-help">
-          <summary>Ver código real si sigo bloqueado</summary>
-          <p>Consulta este código solo después de intentar construir el bloque por tu cuenta.</p>
-          <pre class="code-preview"><code>${escapeHtml(step.code)}</code></pre>
-        </details>
-        <button class="add-block" data-step="${index}">Añadir bloque al script</button>
-      </div>
-    </article>
-  `).join("");
-
-  document.querySelectorAll(".add-block").forEach(button => {
-    button.addEventListener("click", () => addStepToWorkspace(Number(button.dataset.step)));
-  });
-}
-
-function addStepToWorkspace(index) {
-  const exercise = selectedExercise();
-  const step = exercise.steps[index];
-  const chunk = `\n\n# BLOQUE ${index + 1}: ${step.title}\n${step.code}`;
-  solutionInput.value = `${solutionInput.value}${chunk}`.trimStart();
-  analyze();
-}
-
-function loadGuidedSolution() {
-  const exercise = selectedExercise();
-  solutionInput.value = exercise.steps
-    .map((step, index) => `# BLOQUE ${index + 1}: ${step.title}\n${step.code}`)
-    .join("\n\n");
-  analyze();
-}
-
-function analyze() {
-  const chunks = splitIntoBlocks(solutionInput.value);
-  const blocks = chunks.map((chunk, index) => buildVisualBlock(chunk, index));
-  renderBlocks(blocks);
-  renderFeedback(blocks);
-  renderExport(blocks);
-}
-
-function splitIntoBlocks(text) {
-  const lines = text.split("\n");
-  const chunks = [];
-  let current = [];
-
-  lines.forEach(line => {
-    if (/^#\s*BLOQUE/i.test(line) && current.length) {
-      chunks.push(current.join("\n").trim());
-      current = [line];
-    } else if (line.trim() || current.length) {
-      current.push(line);
-    }
-  });
-
-  if (current.join("\n").trim()) chunks.push(current.join("\n").trim());
-  return chunks;
-}
-
-function buildVisualBlock(chunk, index) {
-  const type = detectType(chunk);
-  const info = blockInfo[type] || blockInfo.proceso;
-  return { number: index + 1, type, label: info.label, help: info.help, code: chunk, warnings: buildWarnings(chunk) };
-}
-
-function detectType(text) {
-  const normalized = normalize(text);
-  const found = patterns.find(pattern => pattern.words.some(word => normalized.includes(normalize(word))));
-  return found ? found.type : "proceso";
-}
-
-function buildWarnings(chunk) {
-  const warnings = [];
-  if (chunk.length < 12) warnings.push("Bloque demasiado corto; añade código o comentario.");
-  if (/rm -rf|format|delete|del /i.test(chunk)) warnings.push("Acción destructiva: úsala solo en laboratorio y con validación previa.");
-  if (!/#|echo|write-output|out-file|>|print|write_text/.test(chunk)) warnings.push("Añade comentario, salida o evidencia para que el bloque sea más comprensible.");
-  return warnings;
-}
-
-function renderBlocks(blocks) {
-  if (!blocks.length) {
-    blocksOutput.innerHTML = `<div class="empty-state">Añade bloques desde los pasos o escribe código en el editor.</div>`;
-    return;
-  }
-
-  blocksOutput.innerHTML = blocks.map(block => `
-    <article class="visual-block block-${escapeHtml(block.type)}">
-      <div class="block-number">${block.number}</div>
-      <div class="block-body">
-        <div class="block-head">
-          <strong>${escapeHtml(block.label)}</strong>
-          <span>${escapeHtml(block.type)}</span>
-        </div>
-        <p class="block-help">${escapeHtml(block.help)}</p>
-        <pre class="block-code"><code>${escapeHtml(block.code)}</code></pre>
-        ${block.warnings.length ? `<ul class="block-warnings">${block.warnings.map(warning => `<li>${escapeHtml(warning)}</li>`).join("")}</ul>` : ""}
-      </div>
-    </article>
-  `).join("<div class='connector'>↓</div>");
-}
-
-function renderFeedback(blocks) {
-  const exercise = selectedExercise();
-  const expected = exercise.steps.map(step => step.type);
-  const found = new Set(blocks.map(block => block.type));
-  const missing = expected.filter(type => !found.has(type));
-  const warnings = blocks.flatMap(block => block.warnings);
-
-  feedbackOutput.innerHTML = `
-    <p class="ok"><strong>Bloques creados:</strong> ${blocks.length}/${exercise.steps.length}</p>
-    ${missing.length ? `<p class="missing"><strong>Faltan tipos de bloque:</strong> ${missing.map(labelFor).map(escapeHtml).join(", ")}</p>` : `<p class="ok">La estructura mínima del ejercicio está completa.</p>`}
-    ${warnings.length ? `<p class="missing"><strong>Avisos:</strong> ${warnings.length} mejora(s) pendiente(s).</p>` : ""}
-    <h3>Consejo</h3>
-    <p>${missing.length ? "Usa el botón 'Añadir bloque al script' en los pasos que todavía faltan." : "Ahora prueba el script en un entorno de laboratorio y añade tus evidencias al informe."}</p>
-  `;
-}
-
-function renderExport(blocks) {
-  const exercise = selectedExercise();
-  const content = blocks.map(block => `## Bloque ${block.number} - ${block.label}\n\n\`\`\`${exercise.language.toLowerCase()}\n${block.code}\n\`\`\``).join("\n\n");
-  exportOutput.textContent = `# Entrega Script-Lab - ${exercise.id}\n\n## Ejercicio\n${exercise.title}\n\n## Escenario\n${exercise.scenario}\n\n## Objetivo\n${exercise.goal}\n\n${content || "Pendiente de construir"}\n\n## Evidencias\n- Pega aquí la salida de la ejecución.\n- Explica errores encontrados.\n- Escribe una conclusión técnica.\n`;
-}
-
+function init() { exercises.forEach((exercise, index) => { const option = document.createElement("option"); option.value = index; option.textContent = `${exercise.id} - ${exercise.title}`; exerciseSelect.appendChild(option); }); const requested = getExerciseFromUrl(); if (requested) { const index = exercises.findIndex(exercise => exercise.id === requested); if (index >= 0) exerciseSelect.value = String(index); } renderExercise(); analyze(); }
+function getExerciseFromUrl() { const value = new URLSearchParams(window.location.search).get("exercise") || new URLSearchParams(window.location.search).get("id"); if (!value) return null; const normalized = value.trim().toUpperCase(); return /^[A-Z]+-LAB-\d{2}-[A-Z0-9-]+$|^PRO-[A-Z]+-\d{2}-[A-Z0-9-]+$|^GT-LAB-\d{2}-[A-Z0-9-]+$/.test(normalized) ? normalized : null; }
+function selectedExercise() { return exercises[Number(exerciseSelect.value || 0)]; }
+function renderExercise() { const exercise = selectedExercise(); const url = new URL(window.location.href); url.searchParams.set("exercise", exercise.id); window.history.replaceState({}, "", url.toString()); exerciseInfo.innerHTML = `<h3>${escapeHtml(exercise.title)}</h3><p><strong>Nivel:</strong> ${escapeHtml(exercise.level)}</p><p><strong>Lenguaje:</strong> ${escapeHtml(exercise.language)}</p><p><strong>Escenario:</strong> ${escapeHtml(exercise.scenario)}</p><p><strong>Objetivo:</strong> ${escapeHtml(exercise.goal)}</p>`; stepsOutput.innerHTML = exercise.steps.map((s, i) => `<article class="step-card block-${escapeHtml(s.type)}"><div class="step-number">${i + 1}</div><div class="step-content"><div class="step-header"><span class="block-pill">${escapeHtml(labelFor(s.type))}</span><h3>${escapeHtml(s.title)}</h3></div><p><strong>Qué tienes que hacer:</strong> ${escapeHtml(s.task)}</p><details><summary>Pista si me bloqueo</summary><p>${escapeHtml(s.hint)}</p></details><details class="advanced-help"><summary>Ver código real si sigo bloqueado</summary><p>Consulta este código solo después de intentar construir el bloque por tu cuenta.</p><pre class="code-preview"><code>${escapeHtml(s.code)}</code></pre></details><button class="add-block" data-step="${i}">Añadir bloque al script</button></div></article>`).join(""); document.querySelectorAll(".add-block").forEach(b => b.addEventListener("click", () => addStepToWorkspace(Number(b.dataset.step)))); }
+function addStepToWorkspace(index) { const step = selectedExercise().steps[index]; solutionInput.value = `${solutionInput.value}\n\n# BLOQUE ${index + 1}: ${step.title}\n${step.code}`.trimStart(); analyze(); }
+function loadGuidedSolution() { const ex = selectedExercise(); solutionInput.value = ex.steps.map((s, i) => `# BLOQUE ${i + 1}: ${s.title}\n${s.code}`).join("\n\n"); analyze(); }
+function analyze() { const chunks = splitIntoBlocks(solutionInput.value); const blocks = chunks.map((chunk, index) => buildVisualBlock(chunk, index)); renderBlocks(blocks); renderQuality(solutionInput.value); renderFeedback(blocks); renderExport(blocks); }
+function splitIntoBlocks(text) { const lines = text.split("\n"); const chunks = []; let current = []; lines.forEach(line => { if (/^#\s*BLOQUE/i.test(line) && current.length) { chunks.push(current.join("\n").trim()); current = [line]; } else if (line.trim() || current.length) current.push(line); }); if (current.join("\n").trim()) chunks.push(current.join("\n").trim()); return chunks; }
+function buildVisualBlock(chunk, index) { const type = detectType(chunk); const info = blockInfo[type] || blockInfo.proceso; return { number: index + 1, type, label: info.label, help: info.help, code: chunk, warnings: buildWarnings(chunk) }; }
+function detectType(text) { const normalized = normalize(text); const found = patterns.find(pattern => pattern.words.some(word => normalized.includes(normalize(word)))); return found ? found.type : "proceso"; }
+function buildWarnings(chunk) { const w = []; if (chunk.length < 12) w.push("Bloque demasiado corto; añade código o comentario."); if (/rm -rf|format|delete|del /i.test(chunk)) w.push("Acción destructiva: exige laboratorio, validación y confirmación."); if (!/#|echo|write-output|out-file|>|print|write_text|logging|log/.test(chunk)) w.push("Añade comentario, salida, log o evidencia."); return w; }
+function renderBlocks(blocks) { if (!blocks.length) { blocksOutput.innerHTML = `<div class="empty-state">Añade bloques desde los pasos o escribe código en el editor.</div>`; return; } blocksOutput.innerHTML = blocks.map(b => `<article class="visual-block block-${escapeHtml(b.type)}"><div class="block-number">${b.number}</div><div class="block-body"><div class="block-head"><strong>${escapeHtml(b.label)}</strong><span>${escapeHtml(b.type)}</span></div><p class="block-help">${escapeHtml(b.help)}</p><pre class="block-code"><code>${escapeHtml(b.code)}</code></pre>${b.warnings.length ? `<ul class="block-warnings">${b.warnings.map(x => `<li>${escapeHtml(x)}</li>`).join("")}</ul>` : ""}</div></article>`).join("<div class='connector'>↓</div>"); }
+function renderQuality(text) { const normalized = normalize(text); const passed = qualityChecks.filter(c => c.words.some(w => normalized.includes(normalize(w)))); const score = Math.round((passed.length / qualityChecks.length) * 100); qualityOutput.innerHTML = `<div class="quality-score"><strong>${score}%</strong><span>madurez profesional</span></div><ul>${qualityChecks.map(c => `<li class="${passed.includes(c) ? "ok" : "missing"}">${passed.includes(c) ? "✓" : "□"} ${escapeHtml(c.label)}</li>`).join("")}</ul>`; }
+function renderFeedback(blocks) { const expected = selectedExercise().steps.map(s => s.type); const found = new Set(blocks.map(b => b.type)); const missing = expected.filter(type => !found.has(type)); const warnings = blocks.flatMap(b => b.warnings); feedbackOutput.innerHTML = `<p class="ok"><strong>Bloques creados:</strong> ${blocks.length}/${selectedExercise().steps.length}</p>${missing.length ? `<p class="missing"><strong>Faltan tipos de bloque:</strong> ${missing.map(labelFor).map(escapeHtml).join(", ")}</p>` : `<p class="ok">La estructura mínima está completa.</p>`}${warnings.length ? `<p class="missing"><strong>Avisos:</strong> ${warnings.length} mejora(s) pendiente(s).</p>` : ""}<h3>Consejo</h3><p>${missing.length ? "Añade los bloques pendientes y revisa la calidad profesional." : "Prueba el script en laboratorio y añade evidencias al informe."}</p>`; }
+function renderExport(blocks) { const ex = selectedExercise(); const content = blocks.map(b => `## Bloque ${b.number} - ${b.label}\n\n\`\`\`${ex.language.toLowerCase()}\n${b.code}\n\`\`\``).join("\n\n"); exportOutput.textContent = `# Entrega Script-Lab - ${ex.id}\n\n## Ejercicio\n${ex.title}\n\n## Escenario\n${ex.scenario}\n\n## Objetivo\n${ex.goal}\n\n${content || "Pendiente de construir"}\n\n## Evidencias\n- Pega aquí la salida de la ejecución.\n- Explica errores encontrados.\n- Indica si se probó en dry-run.\n- Escribe una conclusión técnica.\n`; }
 function labelFor(type) { return blockInfo[type] ? blockInfo[type].label : type; }
 function normalize(value) { return String(value).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
 function escapeHtml(value) { return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;"); }
 
-analyzeBtn.addEventListener("click", analyze);
-solutionInput.addEventListener("input", analyze);
-exampleBtn.addEventListener("click", loadGuidedSolution);
-clearBtn.addEventListener("click", () => { solutionInput.value = ""; analyze(); });
-exerciseSelect.addEventListener("change", () => { renderExercise(); solutionInput.value = ""; analyze(); });
-
-init();
+analyzeBtn.addEventListener("click", analyze); solutionInput.addEventListener("input", analyze); exampleBtn.addEventListener("click", loadGuidedSolution); clearBtn.addEventListener("click", () => { solutionInput.value = ""; analyze(); }); exerciseSelect.addEventListener("change", () => { renderExercise(); solutionInput.value = ""; analyze(); }); init();
