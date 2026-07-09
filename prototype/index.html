@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Script-Lab Constructor por Bloques</title>
+  <title>Script-Lab Constructor Profesional</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="hero">
     <h1>Script-Lab</h1>
-    <p>Construye scripts paso a paso con bloques, código real y pistas cuando te atasques.</p>
+    <p>Construye scripts paso a paso con bloques, pistas, código oculto y criterios de calidad profesional.</p>
   </header>
 
   <main class="layout">
@@ -22,7 +22,7 @@
 
     <section class="panel wide">
       <h2>2. Pasos del ejercicio</h2>
-      <p class="muted">Cada paso funciona como un bloque. Puedes abrir la pista, mirar el código real y añadir el bloque a tu construcción.</p>
+      <p class="muted">Cada paso funciona como un bloque. Primero intenta resolverlo, después abre la pista y solo mira el código real si sigues bloqueada.</p>
       <div id="stepsOutput" class="step-grid"></div>
     </section>
 
@@ -31,7 +31,7 @@
       <p class="muted">Aquí se van añadiendo los bloques. También puedes escribir o modificar el código manualmente.</p>
       <textarea id="solutionInput" spellcheck="false" placeholder="# Añade bloques desde los pasos o escribe tu script aquí"></textarea>
       <div class="actions">
-        <button id="analyzeBtn">Actualizar bloques visuales</button>
+        <button id="analyzeBtn">Actualizar análisis</button>
         <button id="exampleBtn" class="secondary">Cargar solución guiada</button>
         <button id="clearBtn" class="secondary">Limpiar</button>
       </div>
@@ -44,13 +44,19 @@
     </section>
 
     <section class="panel">
-      <h2>5. Feedback</h2>
-      <div id="feedbackOutput" class="feedback"></div>
+      <h2>5. Calidad profesional</h2>
+      <p class="muted">Checklist senior: seguridad, mantenibilidad, evidencias y operación.</p>
+      <div id="qualityOutput" class="quality"></div>
     </section>
 
     <section class="panel">
-      <h2>6. Salida documentada</h2>
-      <p class="muted">Resumen para entregar o copiar al informe.</p>
+      <h2>6. Feedback</h2>
+      <div id="feedbackOutput" class="feedback"></div>
+    </section>
+
+    <section class="panel wide">
+      <h2>7. Salida documentada</h2>
+      <p class="muted">Resumen para entregar, revisar o convertir en documentación técnica.</p>
       <pre id="exportOutput"></pre>
     </section>
   </main>
